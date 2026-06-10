@@ -1,0 +1,131 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "   LOT-.YYYY.-.#####",
+ "creation": "2026-06-10 10:06:08.543447",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_mgxs",
+  "acquisition_channel",
+  "seller",
+  "invoice_number",
+  "packing",
+  "packages",
+  "column_break_uyqw",
+  "status",
+  "mark",
+  "grade",
+  "net_weight_total",
+  "intended_segment"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_mgxs",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "acquisition_channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Acquisition Channel",
+   "options": "\nAuction\nPrivate\nOutsourced",
+   "reqd": 1
+  },
+  {
+   "default": "Offered",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nOffered\nEvaluated",
+   "reqd": 1
+  },
+  {
+   "fieldname": "seller",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Seller",
+   "options": "Seller",
+   "reqd": 1
+  },
+  {
+   "fieldname": "mark",
+   "fieldtype": "Link",
+   "label": "Mark",
+   "options": "Mark",
+   "reqd": 1
+  },
+  {
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "label": "Grade",
+   "options": "Grade",
+   "reqd": 1
+  },
+  {
+   "fieldname": "invoice_number",
+   "fieldtype": "Data",
+   "label": "Invoice Number",
+   "reqd": 1
+  },
+  {
+   "default": "PS",
+   "fieldname": "packing",
+   "fieldtype": "Link",
+   "label": "Packing",
+   "options": "Packing"
+  },
+  {
+   "fieldname": "packages",
+   "fieldtype": "Int",
+   "label": "Packages",
+   "reqd": 1
+  },
+  {
+   "fieldname": "net_weight_total",
+   "fieldtype": "Float",
+   "label": "Net Weight (Total)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "intended_segment",
+   "fieldtype": "Link",
+   "label": "Intended Segment",
+   "options": "Tea Segment"
+  },
+  {
+   "fieldname": "column_break_uyqw",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-10 10:33:16.343842",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Tea Lot",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
