@@ -18,7 +18,24 @@
   "mark",
   "grade",
   "net_weight_total",
-  "intended_segment"
+  "intended_segment",
+  "section_break_7zcb",
+  "broker",
+  "sale_no",
+  "centre",
+  "division",
+  "lot_no",
+  "manufacturer_ref",
+  "chest_serial_range",
+  "gross_wtpkg",
+  "column_break_zand",
+  "net_wtpkg",
+  "warehouselocation",
+  "gp_no",
+  "gp_date",
+  "awr_date",
+  "certification",
+  "mfg_monthyear"
  ],
  "fields": [
   {
@@ -90,6 +107,7 @@
    "reqd": 1
   },
   {
+   "fetch_from": "mark.default_segment",
    "fieldname": "intended_segment",
    "fieldtype": "Link",
    "label": "Intended Segment",
@@ -98,12 +116,100 @@
   {
    "fieldname": "column_break_uyqw",
    "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel==\"Auction\"",
+   "fieldname": "section_break_7zcb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "broker",
+   "fieldtype": "Link",
+   "label": "Broker",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\"",
+   "options": "Broker"
+  },
+  {
+   "fieldname": "sale_no",
+   "fieldtype": "Data",
+   "label": "Sale No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\""
+  },
+  {
+   "fieldname": "centre",
+   "fieldtype": "Data",
+   "label": "Centre"
+  },
+  {
+   "fieldname": "division",
+   "fieldtype": "Data",
+   "label": "Division"
+  },
+  {
+   "fieldname": "lot_no",
+   "fieldtype": "Data",
+   "label": "Lot No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\""
+  },
+  {
+   "fieldname": "manufacturer_ref",
+   "fieldtype": "Data",
+   "label": "Manufacturer Ref"
+  },
+  {
+   "fieldname": "chest_serial_range",
+   "fieldtype": "Data",
+   "label": "Chest Serial Range"
+  },
+  {
+   "fieldname": "gross_wtpkg",
+   "fieldtype": "Float",
+   "label": "Gross Wt/Pkg"
+  },
+  {
+   "fieldname": "net_wtpkg",
+   "fieldtype": "Float",
+   "label": "Net Wt/Pkg"
+  },
+  {
+   "fieldname": "warehouselocation",
+   "fieldtype": "Data",
+   "label": "Warehouse/Location"
+  },
+  {
+   "fieldname": "gp_no",
+   "fieldtype": "Data",
+   "label": "GP No"
+  },
+  {
+   "fieldname": "gp_date",
+   "fieldtype": "Date",
+   "label": "GP Date"
+  },
+  {
+   "fieldname": "awr_date",
+   "fieldtype": "Date",
+   "label": "AWR Date"
+  },
+  {
+   "fieldname": "certification",
+   "fieldtype": "Data",
+   "label": "Certification"
+  },
+  {
+   "fieldname": "mfg_monthyear",
+   "fieldtype": "Data",
+   "label": "Mfg Month/Year"
+  },
+  {
+   "fieldname": "column_break_zand",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-10 10:33:16.343842",
+ "modified": "2026-06-10 11:12:03.360045",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
