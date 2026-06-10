@@ -1,0 +1,123 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "EVAL-.YYYY.-.#####",
+ "creation": "2026-06-10 12:07:04.956985",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tea_lot",
+  "taster",
+  "stage",
+  "evaluation_date",
+  "suggested_valuation",
+  "column_break_imtm",
+  "colour",
+  "strength",
+  "taste",
+  "briskness",
+  "section_break_4j6n",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Lot",
+   "options": "Tea Lot",
+   "reqd": 1
+  },
+  {
+   "fieldname": "taster",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Taster",
+   "options": "Taster",
+   "reqd": 1
+  },
+  {
+   "fieldname": "stage",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Stage",
+   "options": "\nPre-purchase\nArrival\nBlend QC\nStorage",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "evaluation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Evaluation Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "colour",
+   "fieldtype": "Float",
+   "label": "Colour"
+  },
+  {
+   "fieldname": "strength",
+   "fieldtype": "Float",
+   "label": "Strength"
+  },
+  {
+   "fieldname": "taste",
+   "fieldtype": "Float",
+   "label": "Taste"
+  },
+  {
+   "fieldname": "briskness",
+   "fieldtype": "Float",
+   "label": "Briskness"
+  },
+  {
+   "fieldname": "suggested_valuation",
+   "fieldtype": "Currency",
+   "label": "Suggested Valuation"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "column_break_imtm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_4j6n",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-10 12:27:46.206001",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Tea Evaluation",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
