@@ -38,7 +38,6 @@ class TestTeaLot(FrappeTestCase):
 			{"doctype": "Grade", "grade_code": "BOP_LOT", "description": "Test"}
 		).insert()
 
-		# Create test packing
 		self.packing = frappe.get_doc(
 			{"doctype": "Packing", "packing_code": "TEST_PS", "description": "Test Paper Sack"}
 		).insert()
@@ -67,6 +66,42 @@ class TestTeaLot(FrappeTestCase):
 		"""Should require common core fields."""
 		lot = frappe.get_doc({"doctype": "Tea Lot", "acquisition_channel": "Private"})
 		self.assertRaises(frappe.ValidationError, lot.insert)
+
+	def test_auction_lot_with_catalogue_fields(self):
+		"""Should create auction lot with all catalogue fields (Sale 26 sample)."""
+		broker = frappe.get_doc(
+			{"doctype": "Broker", "broker_name": "Test Parcon", "centre": "Guwahati"}
+		).insert()
+
+		lot = frappe.get_doc(
+			{
+				"doctype": "Tea Lot",
+				"acquisition_channel": "Auction",
+				"seller": self.seller.name,
+				"mark": self.mark.name,
+				"grade": self.grade.name,
+				"invoice_number": "C171",
+				"packing": self.packing.name,
+				"packages": 20,
+				"net_weight_total": 595.70,
+				"broker": broker.name,
+				"sale_no": "26",
+				"lot_no": "1",
+				"centre": "Guwahati",
+				"division": "CTC 1",
+				"manufacturer_ref": "C171",
+				"gross_wtpkg": 30.48,
+				"net_wtpkg": 30.00,
+			}
+		).insert()
+
+		self.assertEqual(lot.acquisition_channel, "Auction")
+		self.assertEqual(lot.broker, broker.name)
+		self.assertEqual(lot.sale_no, "26")
+		self.assertEqual(lot.lot_no, "1")
+
+		frappe.delete_doc("Tea Lot", lot.name)
+		frappe.delete_doc("Broker", broker.name)
 
 	def tearDown(self):
 		"""Cleanup."""
