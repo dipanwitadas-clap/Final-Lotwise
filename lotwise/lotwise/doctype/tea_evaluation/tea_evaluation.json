@@ -25,6 +25,7 @@
    "fieldname": "tea_lot",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Tea Lot",
    "options": "Tea Lot",
    "reqd": 1
@@ -33,6 +34,7 @@
    "fieldname": "taster",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Taster",
    "options": "Taster",
    "reqd": 1
@@ -41,6 +43,7 @@
    "fieldname": "stage",
    "fieldtype": "Select",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Stage",
    "options": "\nPre-purchase\nArrival\nBlend QC\nStorage",
    "reqd": 1
@@ -95,7 +98,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-10 12:27:46.206001",
+ "modified": "2026-06-10 14:59:02.539899",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",
