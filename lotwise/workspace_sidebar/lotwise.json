@@ -1,0 +1,27 @@
+{
+ "app": "lotwise",
+ "creation": "2026-06-11 15:29:51.843765",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "idx": 0,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Lotwise",
+   "link_to": "Lotwise",
+   "link_type": "Workspace Sidebar",
+   "open_in_new_tab": 1,
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-11 15:29:51.843765",
+ "modified_by": "Administrator",
+ "name": "Lotwise",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Lotwise"
+}

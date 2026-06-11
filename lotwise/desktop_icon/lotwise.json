@@ -1,0 +1,22 @@
+{
+ "app": "lotwise",
+ "bg_color": "gray",
+ "creation": "2026-06-10 16:15:24.539259",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "Lotwise",
+ "link_to": "Lotwise",
+ "link_type": "Workspace Sidebar",
+ "modified": "2026-06-11 15:31:24.789562",
+ "modified_by": "Administrator",
+ "name": "Lotwise",
+ "owner": "Administrator",
+ "parent_icon": "",
+ "restrict_removal": 0,
+ "roles": [],
+ "sidebar": "Lotwise",
+ "standard": 1
+}
