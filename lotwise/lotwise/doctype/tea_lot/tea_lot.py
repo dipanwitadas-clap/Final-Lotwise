@@ -16,17 +16,20 @@ class TeaLot(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		awr_date: DF.Date | None
+		blend: DF.Literal["", "PREMIUM PACK"]
 		broker: DF.Link | None
 		centre: DF.Data | None
 		certification: DF.Data | None
 		chest_serial_range: DF.Data | None
+		density: DF.Float
 		division: DF.Data | None
 		gp_date: DF.Date | None
 		gp_no: DF.Data | None
-		grade: DF.Link
+		grade: DF.Link | None
 		gross_wtpkg: DF.Float
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data
+		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
 		lot_no: DF.Data | None
 		manufacturer_ref: DF.Data | None
 		mark: DF.Link
@@ -35,8 +38,9 @@ class TeaLot(Document):
 		net_wtpkg: DF.Float
 		packages: DF.Int
 		packing: DF.Link | None
+		rate: DF.Currency
 		sale_no: DF.Data | None
-		seller: DF.Link
+		seller: DF.Link | None
 		status: DF.Literal["", "Offered", "Evaluated"]
 		warehouselocation: DF.Data | None
 	# end: auto-generated types

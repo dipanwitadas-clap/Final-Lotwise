@@ -1,7 +1,7 @@
 {
  "app": "lotwise",
  "charts": [],
- "content": "[]",
+ "content": "[{\"id\":\"aCXz4JU82G\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Welcome to the Lotwise workspace</span>\",\"col\":12}},{\"id\":\"0HFoYSPnYT\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters &amp; Reports</b>\",\"col\":12}},{\"id\":\"2dHpy280Fw\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"GXMcFmcf0k\",\"type\":\"card\",\"data\":{\"card_name\":\"Tea Lot & Evaluation\",\"col\":4}},{\"id\":\"Raj9-Ko_Aw\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase List\",\"col\":4}}]",
  "creation": "2026-06-10 16:15:24.488297",
  "custom_blocks": [],
  "docstatus": 0,
@@ -12,8 +12,146 @@
  "is_hidden": 0,
  "label": "Lotwise",
  "link_type": "DocType",
- "links": [],
- "modified": "2026-06-10 16:51:22.264870",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Masters",
+   "link_count": 8,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Segments",
+   "link_count": 0,
+   "link_to": "Tea Segment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Estate/Gardens",
+   "link_count": 0,
+   "link_to": "Estate",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Marks",
+   "link_count": 0,
+   "link_to": "Mark",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sellers",
+   "link_count": 0,
+   "link_to": "Seller",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Brokers",
+   "link_count": 0,
+   "link_to": "Broker",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Grades",
+   "link_count": 0,
+   "link_to": "Grade",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Packings",
+   "link_count": 0,
+   "link_to": "Packing",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Taster",
+   "link_count": 0,
+   "link_to": "Taster",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Lot & Evaluation",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Lot",
+   "link_count": 0,
+   "link_to": "Tea Lot",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Evaluation",
+   "link_count": 0,
+   "link_to": "Tea Evaluation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase List",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Lot Import",
+   "link_count": 0,
+   "link_to": "Tea Lot Import",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-12 10:42:37.643750",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",
