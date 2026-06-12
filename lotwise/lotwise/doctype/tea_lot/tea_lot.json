@@ -13,6 +13,9 @@
   "invoice_number",
   "packing",
   "packages",
+  "rate",
+  "density",
+  "liquor_mark",
   "column_break_uyqw",
   "status",
   "mark",
@@ -35,7 +38,8 @@
   "gp_date",
   "awr_date",
   "certification",
-  "mfg_monthyear"
+  "mfg_monthyear",
+  "blend"
  ],
  "fields": [
   {
@@ -48,8 +52,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Acquisition Channel",
-   "options": "\nAuction\nPrivate\nOutsourced",
-   "reqd": 1
+   "options": "\nAuction\nPrivate\nOutsourced"
   },
   {
    "default": "Offered",
@@ -58,8 +61,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nOffered\nEvaluated",
-   "reqd": 1
+   "options": "\nOffered\nEvaluated"
   },
   {
    "fieldname": "seller",
@@ -67,8 +69,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Seller",
-   "options": "Seller",
-   "reqd": 1
+   "options": "Seller"
   },
   {
    "fieldname": "mark",
@@ -85,8 +86,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Grade",
-   "options": "Grade",
-   "reqd": 1
+   "options": "Grade"
   },
   {
    "fieldname": "invoice_number",
@@ -104,14 +104,12 @@
   {
    "fieldname": "packages",
    "fieldtype": "Int",
-   "label": "Packages",
-   "reqd": 1
+   "label": "Packages"
   },
   {
    "fieldname": "net_weight_total",
    "fieldtype": "Float",
-   "label": "Net Weight (Total)",
-   "reqd": 1
+   "label": "Net Weight (Total)"
   },
   {
    "fetch_from": "mark.default_segment",
@@ -133,7 +131,6 @@
    "fieldname": "broker",
    "fieldtype": "Link",
    "label": "Broker",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\"",
    "options": "Broker"
   },
   {
@@ -213,12 +210,34 @@
   {
    "fieldname": "column_break_zand",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "label": "Rate"
+  },
+  {
+   "fieldname": "density",
+   "fieldtype": "Float",
+   "label": "Density"
+  },
+  {
+   "fieldname": "liquor_mark",
+   "fieldtype": "Select",
+   "label": "Liquor Mark",
+   "options": "\nA+\nA\nB+\nB\nC+\nC"
+  },
+  {
+   "fieldname": "blend",
+   "fieldtype": "Select",
+   "label": "Blend",
+   "options": "\nPREMIUM PACK"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-10 15:40:21.768683",
+ "modified": "2026-06-12 07:31:12.559911",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

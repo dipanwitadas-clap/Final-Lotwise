@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-11 18:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lot_no",
+  "invoice_number",
+  "mark_raw",
+  "grade_raw",
+  "packages",
+  "gross_wtpkg",
+  "net_weight_total",
+  "rate",
+  "density",
+  "liquor_mark",
+  "sam_pkg",
+  "sam_wt",
+  "sample_detail",
+  "row_status",
+  "message",
+  "tea_lot",
+  "created_masters"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "lot_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lot No"
+  },
+  {
+   "fieldname": "invoice_number",
+   "fieldtype": "Data",
+   "label": "Invoice Number"
+  },
+  {
+   "columns": 1,
+   "fieldname": "mark_raw",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Mark"
+  },
+  {
+   "columns": 1,
+   "fieldname": "grade_raw",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grade"
+  },
+  {
+   "columns": 1,
+   "fieldname": "packages",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Pkgs"
+  },
+  {
+   "fieldname": "gross_wtpkg",
+   "fieldtype": "Float",
+   "label": "Gross Wt/Pkg"
+  },
+  {
+   "columns": 1,
+   "fieldname": "net_weight_total",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Net Wt (Total)"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "label": "Rate"
+  },
+  {
+   "fieldname": "density",
+   "fieldtype": "Float",
+   "label": "Density"
+  },
+  {
+   "columns": 1,
+   "fieldname": "liquor_mark",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Liquor Mark"
+  },
+  {
+   "fieldname": "sam_pkg",
+   "fieldtype": "Data",
+   "label": "Sam Pkg"
+  },
+  {
+   "fieldname": "sam_wt",
+   "fieldtype": "Data",
+   "label": "Sam Wt"
+  },
+  {
+   "fieldname": "sample_detail",
+   "fieldtype": "Data",
+   "label": "Sample Detail"
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nCreated\nError\nDuplicate"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Lot",
+   "options": "Tea Lot",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_masters",
+   "fieldtype": "Data",
+   "label": "Auto-created Masters",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-11 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Tea Lot Import Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
