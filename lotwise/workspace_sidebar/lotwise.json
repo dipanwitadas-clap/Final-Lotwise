@@ -118,7 +118,6 @@
    "label": "Tea Lot Import",
    "link_to": "Tea Lot Import",
    "link_type": "DocType",
-   "navigate_to_tab": "",
    "open_in_new_tab": 1,
    "show_arrow": 0,
    "type": "Link"
@@ -134,7 +133,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-06-15 10:06:08.960396",
+ "modified": "2026-06-15 12:07:44.119034",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "module_onboarding": "",
