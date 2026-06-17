@@ -161,8 +161,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Tea Lot Import Item",
-   "description": "One row per lot from the Dalmia purchase list"
+   "options": "Tea Lot Import Item"
   }
  ],
  "index_web_pages_for_search": 1,
