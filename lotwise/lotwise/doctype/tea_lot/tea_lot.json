@@ -111,7 +111,8 @@
   {
    "fieldname": "net_weight_total",
    "fieldtype": "Float",
-   "label": "Net Weight (Total)"
+   "label": "Net Weight (Total)",
+   "precision": "2"
   },
   {
    "fetch_from": "mark.default_segment",
@@ -172,12 +173,14 @@
   {
    "fieldname": "gross_wtpkg",
    "fieldtype": "Float",
-   "label": "Gross Wt/Pkg"
+   "label": "Gross Wt/Pkg",
+   "precision": "2"
   },
   {
    "fieldname": "net_wtpkg",
    "fieldtype": "Float",
-   "label": "Net Wt/Pkg"
+   "label": "Net Wt/Pkg",
+   "precision": "2"
   },
   {
    "fieldname": "warehouselocation",
@@ -221,7 +224,8 @@
   {
    "fieldname": "density",
    "fieldtype": "Float",
-   "label": "Density"
+   "label": "Density",
+   "precision": "2"
   },
   {
    "fieldname": "liquor_mark",
@@ -251,7 +255,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-17 12:02:57.029888",
+ "modified": "2026-06-17 16:17:34.222432",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
