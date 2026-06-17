@@ -14,9 +14,28 @@ class TeaLotImportItem(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		bill_mode: DF.Data | None
+		created_masters: DF.Data | None
+		density: DF.Float
+		grade_qualifier: DF.Data | None
+		grade_raw: DF.Data | None
+		gross_wtpkg: DF.Float
+		invoice_number: DF.Data | None
+		liquor_mark: DF.Data | None
+		lot_no: DF.Data | None
+		mark_raw: DF.Data | None
+		message: DF.SmallText | None
+		net_weight_total: DF.Float
+		packages: DF.Int
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
+		rate: DF.Currency
+		remarks: DF.SmallText | None
+		row_status: DF.Literal["Pending", "Created", "Error", "Duplicate"]
+		sam_pkg: DF.Data | None
+		sam_wt: DF.Data | None
+		tea_lot: DF.Link | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Tea Lot Import Item"

@@ -22,6 +22,8 @@
   "grade",
   "net_weight_total",
   "intended_segment",
+  "source_doctype",
+  "source_doctype_id",
   "section_break_7zcb",
   "broker",
   "sale_no",
@@ -232,12 +234,24 @@
    "fieldtype": "Select",
    "label": "Blend",
    "options": "\nPREMIUM PACK"
+  },
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Link",
+   "label": "Source Doctype",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "source_doctype_id",
+   "fieldtype": "Dynamic Link",
+   "label": "Source DocType ID",
+   "options": "source_doctype"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-12 07:31:12.559911",
+ "modified": "2026-06-17 12:02:57.029888",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
