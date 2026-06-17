@@ -41,6 +41,8 @@ class TeaLot(Document):
 		rate: DF.Currency
 		sale_no: DF.Data | None
 		seller: DF.Link | None
+		source_doctype: DF.Link | None
+		source_doctype_id: DF.DynamicLink | None
 		status: DF.Literal["", "Offered", "Evaluated"]
 		warehouselocation: DF.Data | None
 	# end: auto-generated types

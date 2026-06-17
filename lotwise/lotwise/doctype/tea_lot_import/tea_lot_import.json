@@ -8,14 +8,14 @@
  "field_order": [
   "source_section",
   "import_file",
-  "sheet_name",
   "acquisition_channel",
   "col_break_1",
-  "sale_no",
-  "centre",
-  "purchase_date",
-  "blend",
   "company",
+  "purchase_date",
+  "col_break_1b",
+  "centre",
+  "sale_no",
+  "blend",
   "recon_section",
   "parsed_total_packages",
   "computed_total_packages",
@@ -36,56 +36,60 @@
   {
    "fieldname": "source_section",
    "fieldtype": "Section Break",
-   "label": "Source"
+   "label": "Source File"
   },
   {
    "fieldname": "import_file",
    "fieldtype": "Attach",
-   "label": "Import File",
-   "reqd": 1
+   "label": "Upload XLSX",
+   "reqd": 1,
+   "description": "Upload the Dalmia Purchase List template (.xlsx file)"
   },
   {
-   "description": "Leave blank to use the first sheet.",
-   "fieldname": "sheet_name",
-   "fieldtype": "Data",
-   "label": "Sheet Name"
-  },
-  {
-   "default": "Auction",
    "fieldname": "acquisition_channel",
    "fieldtype": "Select",
    "label": "Acquisition Channel",
-   "options": "Auction\nPrivate\nOutsourced"
+   "default": "Auction",
+   "options": "Auction\nPrivate\nOutsourced",
+   "description": "Auction, Private purchase, or Outsourced"
   },
   {
    "fieldname": "col_break_1",
    "fieldtype": "Column Break"
   },
   {
-   "description": "Parsed from the sheet header; editable.",
-   "fieldname": "sale_no",
+   "fieldname": "company",
    "fieldtype": "Data",
-   "label": "Sale No"
-  },
-  {
-   "fieldname": "centre",
-   "fieldtype": "Data",
-   "label": "Centre"
+   "label": "Company",
+   "description": "Company name from template header (Row 5)"
   },
   {
    "fieldname": "purchase_date",
    "fieldtype": "Date",
-   "label": "Purchase Date"
+   "label": "Purchase Date",
+   "description": "Purchase date from template header (Row 6)"
+  },
+  {
+   "fieldname": "col_break_1b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "centre",
+   "fieldtype": "Data",
+   "label": "Auction Centre",
+   "description": "Auction centre (for Auction channel only, Row 9)"
+  },
+  {
+   "fieldname": "sale_no",
+   "fieldtype": "Data",
+   "label": "Sale No",
+   "description": "Sale number (for Auction channel only, Row 10)"
   },
   {
    "fieldname": "blend",
    "fieldtype": "Data",
-   "label": "Blend"
-  },
-  {
-   "fieldname": "company",
-   "fieldtype": "Data",
-   "label": "Company"
+   "label": "Blend / Brand",
+   "description": "Blend or brand name from template header (Row 7)"
   },
   {
    "collapsible": 1,
@@ -96,14 +100,16 @@
   {
    "fieldname": "parsed_total_packages",
    "fieldtype": "Int",
-   "label": "Parsed Total Pkgs (sheet)",
-   "read_only": 1
+   "label": "Sheet Total Pkgs",
+   "read_only": 1,
+   "description": "Total packages from the TOTAL row in template"
   },
   {
    "fieldname": "computed_total_packages",
    "fieldtype": "Int",
-   "label": "Computed Total Pkgs (rows)",
-   "read_only": 1
+   "label": "Computed Total Pkgs",
+   "read_only": 1,
+   "description": "Sum of all package quantities from parsed rows"
   },
   {
    "fieldname": "col_break_2",
@@ -112,38 +118,43 @@
   {
    "fieldname": "parsed_total_net_weight",
    "fieldtype": "Float",
-   "label": "Parsed Total Net Wt (sheet)",
-   "read_only": 1
+   "label": "Sheet Total Nett. Wt. (Kgs)",
+   "read_only": 1,
+   "description": "Total net weight from the TOTAL row in template"
   },
   {
    "fieldname": "computed_total_net_weight",
    "fieldtype": "Float",
-   "label": "Computed Total Net Wt (rows)",
-   "read_only": 1
+   "label": "Computed Total Nett. Wt. (Kgs)",
+   "read_only": 1,
+   "description": "Sum of all net weights from parsed rows"
   },
   {
    "default": "0",
    "fieldname": "reconciled",
    "fieldtype": "Check",
    "label": "Reconciled",
-   "read_only": 1
+   "read_only": 1,
+   "description": "Checked if sheet totals match computed totals (±1.0 kg tolerance)"
   },
   {
    "fieldname": "summary_section",
    "fieldtype": "Section Break",
-   "label": "Summary"
+   "label": "Import Summary"
   },
   {
    "fieldname": "rows_parsed",
    "fieldtype": "Int",
    "label": "Rows Parsed",
-   "read_only": 1
+   "read_only": 1,
+   "description": "Number of data rows extracted from the sheet"
   },
   {
    "fieldname": "rows_created",
    "fieldtype": "Int",
    "label": "Rows Created",
-   "read_only": 1
+   "read_only": 1,
+   "description": "Number of Tea Lot records successfully created"
   },
   {
    "fieldname": "col_break_3",
@@ -152,30 +163,33 @@
   {
    "fieldname": "rows_error",
    "fieldtype": "Int",
-   "label": "Rows Error",
-   "read_only": 1
+   "label": "Rows with Error",
+   "read_only": 1,
+   "description": "Number of rows that failed validation (missing required fields, invalid data)"
   },
   {
    "fieldname": "rows_duplicate",
    "fieldtype": "Int",
    "label": "Rows Duplicate",
-   "read_only": 1
+   "read_only": 1,
+   "description": "Number of rows that matched existing Tea Lots"
   },
   {
    "fieldname": "items_section",
    "fieldtype": "Section Break",
-   "label": "Items"
+   "label": "Import Items"
   },
   {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Tea Lot Import Item"
+   "options": "Tea Lot Import Item",
+   "description": "One row per lot from the Dalmia purchase list"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-11 18:00:00.000000",
+ "modified": "2026-06-17 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",
