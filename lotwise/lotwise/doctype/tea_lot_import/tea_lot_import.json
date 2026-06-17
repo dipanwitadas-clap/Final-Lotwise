@@ -43,7 +43,7 @@
    "fieldtype": "Attach",
    "label": "Upload XLSX",
    "reqd": 1,
-   "description": "Upload the Dalmia Purchase List template (.xlsx file)"
+   "description": "Upload (.xlsx file)"
   },
   {
    "fieldname": "acquisition_channel",
@@ -60,14 +60,12 @@
   {
    "fieldname": "company",
    "fieldtype": "Data",
-   "label": "Company",
-   "description": "Company name from template header (Row 5)"
+   "label": "Company"
   },
   {
    "fieldname": "purchase_date",
    "fieldtype": "Date",
-   "label": "Purchase Date",
-   "description": "Purchase date from template header (Row 6)"
+   "label": "Purchase Date"
   },
   {
    "fieldname": "col_break_1b",
@@ -76,20 +74,17 @@
   {
    "fieldname": "centre",
    "fieldtype": "Data",
-   "label": "Auction Centre",
-   "description": "Auction centre (for Auction channel only, Row 9)"
+   "label": "Auction Centre"
   },
   {
    "fieldname": "sale_no",
    "fieldtype": "Data",
-   "label": "Sale No",
-   "description": "Sale number (for Auction channel only, Row 10)"
+   "label": "Sale No"
   },
   {
    "fieldname": "blend",
    "fieldtype": "Data",
-   "label": "Blend / Brand",
-   "description": "Blend or brand name from template header (Row 7)"
+   "label": "Blend / Brand"
   },
   {
    "collapsible": 1,
@@ -100,16 +95,13 @@
   {
    "fieldname": "parsed_total_packages",
    "fieldtype": "Int",
-   "label": "Sheet Total Pkgs",
-   "read_only": 1,
-   "description": "Total packages from the TOTAL row in template"
+   "label": "Sheet Total Pkgs"
   },
   {
    "fieldname": "computed_total_packages",
    "fieldtype": "Int",
    "label": "Computed Total Pkgs",
-   "read_only": 1,
-   "description": "Sum of all package quantities from parsed rows"
+   "read_only": 1
   },
   {
    "fieldname": "col_break_2",
@@ -118,24 +110,18 @@
   {
    "fieldname": "parsed_total_net_weight",
    "fieldtype": "Float",
-   "label": "Sheet Total Nett. Wt. (Kgs)",
-   "read_only": 1,
-   "description": "Total net weight from the TOTAL row in template"
+   "label": "Sheet Total Nett. Wt. (Kgs)"
   },
   {
    "fieldname": "computed_total_net_weight",
    "fieldtype": "Float",
-   "label": "Computed Total Nett. Wt. (Kgs)",
-   "read_only": 1,
-   "description": "Sum of all net weights from parsed rows"
+   "label": "Computed Total Nett. Wt. (Kgs)"
   },
   {
    "default": "0",
    "fieldname": "reconciled",
    "fieldtype": "Check",
-   "label": "Reconciled",
-   "read_only": 1,
-   "description": "Checked if sheet totals match computed totals (±1.0 kg tolerance)"
+   "label": "Reconciled"
   },
   {
    "fieldname": "summary_section",
@@ -145,16 +131,12 @@
   {
    "fieldname": "rows_parsed",
    "fieldtype": "Int",
-   "label": "Rows Parsed",
-   "read_only": 1,
-   "description": "Number of data rows extracted from the sheet"
+   "label": "Rows Parsed"
   },
   {
    "fieldname": "rows_created",
    "fieldtype": "Int",
-   "label": "Rows Created",
-   "read_only": 1,
-   "description": "Number of Tea Lot records successfully created"
+   "label": "Rows Created"
   },
   {
    "fieldname": "col_break_3",
@@ -163,16 +145,12 @@
   {
    "fieldname": "rows_error",
    "fieldtype": "Int",
-   "label": "Rows with Error",
-   "read_only": 1,
-   "description": "Number of rows that failed validation (missing required fields, invalid data)"
+   "label": "Rows with Error"
   },
   {
    "fieldname": "rows_duplicate",
    "fieldtype": "Int",
-   "label": "Rows Duplicate",
-   "read_only": 1,
-   "description": "Number of rows that matched existing Tea Lots"
+   "label": "Rows Duplicate"
   },
   {
    "fieldname": "items_section",
