@@ -254,8 +254,13 @@
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-06-17 16:17:34.222432",
+ "links": [
+  {
+   "link_doctype": "Tea Lot Import",
+   "link_fieldname": "tea_lot"
+  }
+ ],
+ "modified": "2026-06-18 11:11:02.375551",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
