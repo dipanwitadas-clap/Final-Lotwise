@@ -42,7 +42,6 @@
    "description": "Upload (.xlsx file)",
    "fieldname": "import_file",
    "fieldtype": "Attach",
-   "in_list_view": 1,
    "label": "Upload XLSX",
    "reqd": 1
   },
@@ -50,6 +49,8 @@
    "description": "Auction, Private purchase, or Outsourced",
    "fieldname": "acquisition_channel",
    "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Acquisition Channel",
    "options": "\nAuction\nPrivate\nOutsourced"
   },
@@ -65,6 +66,8 @@
   {
    "fieldname": "purchase_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Purchase Date"
   },
   {
@@ -74,11 +77,15 @@
   {
    "fieldname": "centre",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Auction Centre"
   },
   {
    "fieldname": "sale_no",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Sale No"
   },
   {
@@ -172,7 +179,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-06-18 11:09:39.499913",
+ "modified": "2026-06-18 13:05:19.911916",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",
