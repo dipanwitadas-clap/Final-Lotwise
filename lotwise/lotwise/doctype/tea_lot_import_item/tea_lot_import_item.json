@@ -150,6 +150,7 @@
    "description": "Reference to created Tea Lot doctype",
    "fieldname": "tea_lot",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Tea Lot",
    "options": "Tea Lot",
    "read_only": 1
@@ -165,7 +166,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-06-17 11:26:48.768137",
+ "modified": "2026-06-18 16:32:37.141068",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import Item",

@@ -33,6 +33,7 @@
   "manufacturer_ref",
   "chest_serial_range",
   "gross_wtpkg",
+  "purchase_date",
   "column_break_zand",
   "net_wtpkg",
   "warehouselocation",
@@ -250,6 +251,11 @@
    "fieldtype": "Dynamic Link",
    "label": "Source DocType ID",
    "options": "source_doctype"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
   }
  ],
  "grid_page_length": 50,
@@ -260,7 +266,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-06-18 11:11:02.375551",
+ "modified": "2026-06-18 16:21:11.813785",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
