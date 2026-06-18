@@ -130,35 +130,6 @@ def _read_data_rows(ws, colmap, start_row=15):
 
 
 class TeaLotImport(Document):
-	# begin: auto-generated types
-	# This code is auto-generated. Do not modify anything in this block.
-
-	from typing import TYPE_CHECKING
-
-	if TYPE_CHECKING:
-		from frappe.types import DF
-
-		from lotwise.lotwise.doctype.tea_lot_import_item.tea_lot_import_item import TeaLotImportItem
-
-		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
-		blend: DF.Data | None
-		centre: DF.Data | None
-		company: DF.Data | None
-		computed_total_net_weight: DF.Float
-		computed_total_packages: DF.Int
-		import_file: DF.Attach
-		items: DF.Table[TeaLotImportItem]
-		parsed_total_net_weight: DF.Float
-		parsed_total_packages: DF.Int
-		purchase_date: DF.Date | None
-		reconciled: DF.Check
-		rows_created: DF.Int
-		rows_duplicate: DF.Int
-		rows_error: DF.Int
-		rows_parsed: DF.Int
-		sale_no: DF.Data | None
-	# end: auto-generated types
-
 	"""Parse Dalmia XLSX -> items table -> create Tea Lots."""
 
 	@frappe.whitelist()
