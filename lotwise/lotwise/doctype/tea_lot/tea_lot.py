@@ -38,6 +38,7 @@ class TeaLot(Document):
 		net_wtpkg: DF.Float
 		packages: DF.Int
 		packing: DF.Link | None
+		purchase_date: DF.Date | None
 		rate: DF.Currency
 		sale_no: DF.Data | None
 		seller: DF.Link | None
