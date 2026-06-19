@@ -16,8 +16,11 @@ class Mark(Document):
 
 		certification: DF.Data | None
 		default_segment: DF.Link | None
-		estate: DF.Link
+		estate: DF.Data | None
 		mark_name: DF.Data
+		notes: DF.SmallText | None
+		region: DF.Data | None
+		state: DF.Data | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Mark"

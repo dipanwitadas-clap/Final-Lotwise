@@ -9,10 +9,15 @@
  "field_order": [
   "section_break_g0yl",
   "mark_name",
-  "default_segment",
-  "column_break_lyxc",
   "estate",
-  "certification"
+  "column_break_estate",
+  "state",
+  "region",
+  "column_break_lyxc",
+  "certification",
+  "default_segment",
+  "section_break_q5dq",
+  "notes"
  ],
  "fields": [
   {
@@ -30,12 +35,28 @@
   },
   {
    "fieldname": "estate",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Estate",
-   "options": "Estate",
-   "reqd": 1
+   "label": "Estate"
+  },
+  {
+   "fieldname": "column_break_estate",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "State"
+  },
+  {
+   "fieldname": "region",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Region"
   },
   {
    "fieldname": "default_segment",
@@ -44,19 +65,28 @@
    "options": "Tea Segment"
   },
   {
+   "fieldname": "column_break_lyxc",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "certification",
    "fieldtype": "Data",
    "label": "Certification"
   },
   {
-   "fieldname": "column_break_lyxc",
-   "fieldtype": "Column Break"
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "section_break_q5dq",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-10 15:45:29.318502",
+ "modified": "2026-06-19 08:02:26.595799",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Mark",
