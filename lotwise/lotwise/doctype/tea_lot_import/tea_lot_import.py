@@ -27,8 +27,6 @@ HEADER_TO_FIELD = {
 	"sample wt": {"field": "sam_wt", "type": "str"},
 	"remarks": {"field": "remarks", "type": "str"},
 }
-PKG_TOLERANCE = 0
-WEIGHT_TOLERANCE = 1.0
 
 
 # --------------------------------------------------------------------------- helpers
@@ -100,19 +98,10 @@ def _convert_cell(value, field_type):
 
 
 def _read_data_rows(ws, colmap, start_row=15):
-	"""Iterate data rows, detect totals row, return (rows, totals)."""
+	"""Iterate data rows, return list of row dicts."""
 	rows = []
-	totals = {"packages": None, "net_weight_total": None}
 	for row in range(start_row, ws.max_row + 1):
 		if not any(ws.cell(row, c).value is not None for c in colmap):
-			break
-		all_cells = [ws.cell(row, c).value for c in range(1, ws.max_column + 1)]
-		if any("total" in _norm(str(c)) for c in all_cells if c):
-			for col, cfg in colmap.items():
-				if cfg["field"] == "packages":
-					totals["packages"] = cint(ws.cell(row, col).value)
-				elif cfg["field"] == "net_weight_total":
-					totals["net_weight_total"] = flt(ws.cell(row, col).value)
 			break
 		row_dict = {"row_status": "Pending"}
 		has_data = False
@@ -123,7 +112,7 @@ def _read_data_rows(ws, colmap, start_row=15):
 				has_data = True
 		if has_data:
 			rows.append(row_dict)
-	return rows, totals
+	return rows
 
 
 # --------------------------------------------------------------------------- doctype
@@ -134,7 +123,7 @@ class TeaLotImport(Document):
 
 	@frappe.whitelist()
 	def parse_file(self):
-		"""Parse XLSX, populate items table, calculate reconciliation."""
+		"""Parse XLSX, populate items table, compute totals."""
 		ws = self._load_sheet()
 		colmap = _detect_columns(ws)
 		meta = _extract_metadata(ws)
@@ -145,7 +134,7 @@ class TeaLotImport(Document):
 		self.centre = meta.get("centre")
 		self.sale_no = meta.get("sale_no")
 
-		rows, totals = _read_data_rows(ws, colmap)
+		rows = _read_data_rows(ws, colmap)
 
 		self.set("items", [])
 		for row in rows:
@@ -153,32 +142,13 @@ class TeaLotImport(Document):
 
 		self.computed_total_packages = sum(cint(r.get("packages", 0)) for r in rows)
 		self.computed_total_net_weight = sum(flt(r.get("net_weight_total", 0)) for r in rows)
-		self.parsed_total_packages = cint(totals.get("packages"))
-		self.parsed_total_net_weight = flt(totals.get("net_weight_total"))
-
-		self.reconciled = int(
-			self.parsed_total_packages
-			and abs(self.parsed_total_packages - self.computed_total_packages) <= PKG_TOLERANCE
-			and abs(self.parsed_total_net_weight - self.computed_total_net_weight) <= WEIGHT_TOLERANCE
-		)
 		self.rows_parsed = len(rows)
 		self.rows_created = 0
 		self.rows_error = 0
 		self.rows_duplicate = 0
 		self.save()
 
-		if self.parsed_total_packages and not self.reconciled:
-			frappe.msgprint(
-				_("Parsed {0} rows, but totals don't match ({1} pkgs / {2} kg vs {3} pkgs / {4} kg).").format(
-					len(rows),
-					self.computed_total_packages,
-					self.computed_total_net_weight,
-					self.parsed_total_packages,
-					self.parsed_total_net_weight,
-				),
-				indicator="orange",
-			)
-		return {"rows": len(rows), "reconciled": self.reconciled}
+		return {"rows": len(rows)}
 
 	@frappe.whitelist()
 	def create_tea_lots(self):
@@ -214,21 +184,29 @@ class TeaLotImport(Document):
 					duplicate += 1
 					continue
 
-				notes = []
-				self._ensure_estate_and_mark(mark_name, notes)
 				grade_code = (row.grade_raw or "").strip()
-				if grade_code:
-					self._ensure_grade(grade_code, notes)
+
+				if not frappe.db.exists("Mark", mark_name):
+					row.row_status = "Error"
+					row.message = _("Mark '{0}' not found. Please create it first.").format(mark_name)
+					error += 1
+					continue
+
+				if grade_code and not frappe.db.exists("Grade", grade_code):
+					row.row_status = "Error"
+					row.message = _("Grade '{0}' not found. Please create it first.").format(grade_code)
+					error += 1
+					continue
 
 				values = {
 					"doctype": "Tea Lot",
 					"acquisition_channel": self.acquisition_channel or "Auction",
 					"status": "Offered",
+					"holding_status": "Committed",
 					"lot_no": lot_no,
 					"invoice_number": invoice,
 					"mark": mark_name,
 					"grade": grade_code or None,
-					"packing": "PS",
 					"packages": cint(row.packages),
 					"gross_wtpkg": flt(row.gross_wtpkg),
 					"net_weight_total": flt(row.net_weight_total),
@@ -249,7 +227,6 @@ class TeaLotImport(Document):
 
 				row.tea_lot = lot.name
 				row.row_status = "Created"
-				row.created_masters = ", ".join(notes)
 				row.message = _("Created {0}").format(lot.name)
 				created += 1
 
@@ -292,21 +269,3 @@ class TeaLotImport(Document):
 			year = getdate(self.purchase_date).year
 			return any(e.get("purchase_date") and getdate(e["purchase_date"]).year == year for e in existing)
 		return True
-
-	def _ensure_estate_and_mark(self, mark_name, notes):
-		"""Auto-create Estate + Mark if missing."""
-		if frappe.db.exists("Mark", mark_name):
-			return
-		if not frappe.db.exists("Estate", mark_name):
-			frappe.get_doc({"doctype": "Estate", "estate_name": mark_name}).insert(ignore_permissions=True)
-			notes.append(_("Estate '{0}'").format(mark_name))
-		frappe.get_doc({"doctype": "Mark", "mark_name": mark_name, "estate": mark_name}).insert(
-			ignore_permissions=True
-		)
-		notes.append(_("Mark '{0}'").format(mark_name))
-
-	def _ensure_grade(self, grade_code, notes):
-		"""Auto-create Grade if missing."""
-		if not frappe.db.exists("Grade", grade_code):
-			frappe.get_doc({"doctype": "Grade", "grade_code": grade_code}).insert(ignore_permissions=True)
-			notes.append(_("Grade '{0}'").format(grade_code))
