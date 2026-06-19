@@ -18,6 +18,9 @@ class TeaEvaluation(Document):
 		colour: DF.Float
 		evaluation_date: DF.Date
 		notes: DF.SmallText | None
+		quality_grade: DF.Literal[
+			"", "A", "A++", "A+++", "B", "B+", "B++", "B-", "C", "C+", "D", "D+", "E", "E+"
+		]
 		stage: DF.Literal["", "Pre-purchase", "Arrival", "Blend QC", "Storage"]
 		strength: DF.Float
 		suggested_valuation: DF.Currency
