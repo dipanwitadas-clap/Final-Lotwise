@@ -17,6 +17,7 @@
   "strength",
   "taste",
   "briskness",
+  "quality_grade",
   "section_break_4j6n",
   "notes"
  ],
@@ -93,12 +94,18 @@
   {
    "fieldname": "section_break_4j6n",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "quality_grade",
+   "fieldtype": "Select",
+   "label": "Quality Grade",
+   "options": "\nA\nA++\nA+++\nB\nB+\nB++\nB-\nC\nC+\nD\nD+\nE\nE+"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-10 15:39:24.402413",
+ "modified": "2026-06-19 16:33:41.627964",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",
