@@ -76,19 +76,6 @@
    "icon": "list",
    "indent": 0,
    "keep_closed": 0,
-   "label": "Estate",
-   "link_to": "Estate",
-   "link_type": "DocType",
-   "open_in_new_tab": 1,
-   "show_arrow": 0,
-   "type": "Link"
-  },
-  {
-   "child": 0,
-   "collapsible": 1,
-   "icon": "list",
-   "indent": 0,
-   "keep_closed": 0,
    "label": "Mark",
    "link_to": "Mark",
    "link_type": "DocType",
@@ -149,7 +136,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-06-16 10:26:59.672772",
+ "modified": "2026-06-19 14:01:47.860863",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "module_onboarding": "",
