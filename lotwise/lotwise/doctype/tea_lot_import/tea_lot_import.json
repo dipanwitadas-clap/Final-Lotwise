@@ -5,33 +5,30 @@
  "creation": "2026-06-11 18:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": [
-  "source_section",
-  "import_file",
-  "acquisition_channel",
-  "col_break_1",
-  "company",
-  "purchase_date",
-  "col_break_1b",
-  "centre",
-  "sale_no",
-  "blend",
-  "recon_section",
-  "parsed_total_packages",
-  "computed_total_packages",
-  "col_break_2",
-  "parsed_total_net_weight",
-  "computed_total_net_weight",
-  "reconciled",
-  "summary_section",
-  "rows_parsed",
-  "rows_created",
-  "col_break_3",
-  "rows_error",
-  "rows_duplicate",
-  "items_section",
-  "items"
- ],
+  "field_order": [
+   "source_section",
+   "import_file",
+   "acquisition_channel",
+   "col_break_1",
+   "company",
+   "purchase_date",
+   "col_break_1b",
+   "centre",
+   "sale_no",
+   "blend",
+   "recon_section",
+   "computed_total_packages",
+   "col_break_2",
+   "computed_total_net_weight",
+   "summary_section",
+   "rows_parsed",
+   "rows_created",
+   "col_break_3",
+   "rows_error",
+   "rows_duplicate",
+   "items_section",
+   "items"
+  ],
  "fields": [
   {
    "fieldname": "source_section",
@@ -100,11 +97,6 @@
    "label": "Reconciliation"
   },
   {
-   "fieldname": "parsed_total_packages",
-   "fieldtype": "Int",
-   "label": "Sheet Total Pkgs"
-  },
-  {
    "fieldname": "computed_total_packages",
    "fieldtype": "Int",
    "label": "Computed Total Pkgs",
@@ -115,20 +107,9 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "parsed_total_net_weight",
-   "fieldtype": "Float",
-   "label": "Sheet Total Nett. Wt. (Kgs)"
-  },
-  {
    "fieldname": "computed_total_net_weight",
    "fieldtype": "Float",
    "label": "Computed Total Nett. Wt. (Kgs)"
-  },
-  {
-   "default": "0",
-   "fieldname": "reconciled",
-   "fieldtype": "Check",
-   "label": "Reconciled"
   },
   {
    "fieldname": "summary_section",
