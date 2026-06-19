@@ -23,10 +23,13 @@ class TeaLot(Document):
 		chest_serial_range: DF.Data | None
 		density: DF.Float
 		division: DF.Data | None
+		do_date: DF.Data | None
+		do_reference: DF.Data | None
 		gp_date: DF.Date | None
 		gp_no: DF.Data | None
 		grade: DF.Link | None
 		gross_wtpkg: DF.Float
+		holding_status: DF.Literal["", "Committed", "Received", "In Stock"]
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
