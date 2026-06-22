@@ -2,7 +2,7 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "autoname": "   LOT-.YYYY.-.#####",
+ "autoname": "LOT-.YYYY.-.#####",
  "creation": "2026-06-10 10:06:08.543447",
  "doctype": "DocType",
  "engine": "InnoDB",
