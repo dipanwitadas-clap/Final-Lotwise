@@ -1,0 +1,32 @@
+{
+ "content": null,
+ "creation": "2026-06-22 17:36:20.607803",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-06-22 17:36:29.830504",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "tea-lot-dashboard",
+ "owner": "Administrator",
+ "page_name": "tea-lot-dashboard",
+  "roles": [
+   {
+    "role": "System Manager"
+   },
+   {
+    "role": "Tea Manager"
+   },
+   {
+    "role": "Taster"
+   },
+   {
+    "role": "Data Entry"
+   }
+  ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Tea Lot Dashboard"
+}
