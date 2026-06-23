@@ -34,6 +34,12 @@ function badge(value, colors) {
 frappe.query_reports["Holding Warhouse"] = {
 	filters: [
 		{
+			fieldname: "name",
+			label: __("Lot ID"),
+			fieldtype: "Link",
+			options: "Tea Lot",
+		},
+		{
 			fieldname: "acquisition_channel",
 			label: __("Acquisition Channel"),
 			fieldtype: "Select",
