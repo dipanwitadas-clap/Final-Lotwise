@@ -17,7 +17,7 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"label": _("Lot ID"), "fieldname": "name", "fieldtype": "Link", "options": "Tea Lot", "width": 130},
+		{"label": _("Lot ID"), "fieldname": "name", "fieldtype": "Link", "options": "Tea Lot", "width": 160},
 		{"label": _("Lot No"), "fieldname": "lot_no", "fieldtype": "Data", "width": 110},
 		{"label": _("Channel"), "fieldname": "acquisition_channel", "fieldtype": "Data", "width": 120},
 		{"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 105},
@@ -30,7 +30,7 @@ def get_columns():
 			"fieldname": "intended_segment",
 			"fieldtype": "Link",
 			"options": "Tea Segment",
-			"width": 120,
+			"width": 100,
 		},
 		{"label": _("Pkgs"), "fieldname": "packages", "fieldtype": "Int", "width": 80},
 		{
@@ -38,7 +38,7 @@ def get_columns():
 			"fieldname": "net_weight_total",
 			"fieldtype": "Float",
 			"precision": 2,
-			"width": 110,
+			"width": 100,
 		},
 		{"label": _("Rate"), "fieldname": "rate", "fieldtype": "Currency", "width": 95},
 		{"label": _("Warehouse"), "fieldname": "warehouselocation", "fieldtype": "Data", "width": 150},
@@ -54,6 +54,7 @@ def get_conditions(filters, table_alias=None):
 	values = {}
 
 	filter_map = {
+		"name": "name",
 		"acquisition_channel": "acquisition_channel",
 		"lot_no": "lot_no",
 		"status": "status",
@@ -122,7 +123,7 @@ def get_report_summary(filters):
 			sum(net_weight_total) as total_weight,
 			count(distinct mark) as total_marks,
 			count(distinct seller) as total_sellers,
-			avg(rate) as avg_rate
+			sum(rate) as total_rate
 		FROM `tabTea Lot`
 		WHERE {" AND ".join(conditions)}
 		""",
@@ -136,5 +137,5 @@ def get_report_summary(filters):
 		{"label": _("Net Weight (Kg)"), "value": round(result.total_weight or 0, 2), "indicator": "orange"},
 		{"label": _("Total Marks"), "value": result.total_marks or 0, "indicator": "purple"},
 		{"label": _("Total Sellers"), "value": result.total_sellers or 0, "indicator": "red"},
-		{"label": _("Average Rate"), "value": round(result.avg_rate or 0, 2), "indicator": "yellow"},
+		{"label": _("Total Rate"), "value": round(result.total_rate or 0, 2), "indicator": "yellow"},
 	]
