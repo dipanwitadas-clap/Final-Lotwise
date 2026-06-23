@@ -399,7 +399,7 @@ id="cards">
 <div class="row"
 style="margin-top:20px">
 
-<div class="col-md-6">
+<div class="col-md-12">
 
 <div class="lot-search-card">
 
