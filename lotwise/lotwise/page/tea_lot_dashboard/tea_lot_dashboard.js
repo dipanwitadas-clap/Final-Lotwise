@@ -33,20 +33,74 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 <style>
 
+.tea-dashboard{
+
+	background:#f6f7fb;
+
+	margin:-20px;
+
+	padding:20px;
+
+	min-height:calc(100vh - 120px);
+
+}
+
+.tea-dashboard .row{
+
+	margin-left:-6px;
+
+	margin-right:-6px;
+
+}
+
 .dashboard-card{
 
 	background:white;
 
-	border-radius:10px;
+	border:1px solid #e7eaf0;
 
-	padding:12px;
+	border-radius:8px;
+
+	padding:14px 16px;
 
 	box-shadow:
-	0 1px 5px rgba(0,0,0,.1);
+	0 1px 3px rgba(15,23,42,.08);
 
-	text-align:center;
+	display:flex;
 
-	height:100px;
+	align-items:center;
+
+	gap:12px;
+
+	min-height:88px;
+
+	height:100%;
+
+	border-left:4px solid var(--card-accent,#4f8df7);
+
+}
+
+
+
+.dashboard-card-icon{
+
+	width:36px;
+
+	height:36px;
+
+	border-radius:8px;
+
+	display:flex;
+
+	align-items:center;
+
+	justify-content:center;
+
+	background:var(--card-bg,#eef5ff);
+
+	color:var(--card-accent,#4f8df7);
+
+	flex:0 0 auto;
 
 }
 
@@ -54,9 +108,15 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 .dashboard-card h3{
 
-	margin:5px;
+	margin:0;
 
-	font-size:22px;
+	font-size:20px;
+
+	font-weight:700;
+
+	line-height:1.2;
+
+	color:#1f2937;
 
 }
 
@@ -64,7 +124,13 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 .dashboard-card small{
 
-	color:#777;
+	color:#6b7280;
+
+	display:block;
+
+	font-size:12px;
+
+	margin-top:3px;
 
 }
 
@@ -74,14 +140,18 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 	background:white;
 
-	border-radius:10px;
+	border:1px solid #e7eaf0;
 
-	padding:20px;
+	border-radius:8px;
+
+	padding:0;
 
 	margin-top:20px;
 
 	box-shadow:
-	0 1px 5px rgba(0,0,0,.1);
+	0 1px 3px rgba(15,23,42,.08);
+
+	overflow:hidden;
 
 }
 
@@ -91,18 +161,37 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 	background:white;
 
-	border-radius:10px;
+	border:1px solid #e7eaf0;
+
+	border-radius:8px;
 
 	padding:16px;
 
 	box-shadow:
-	0 1px 5px rgba(0,0,0,.1);
+	0 1px 3px rgba(15,23,42,.08);
 
 }
 
 
 
-.lot-details-heading{
+.dashboard-section{
+
+	border-top:1px solid #edf0f4;
+
+}
+
+
+
+.dashboard-section:first-child{
+
+	border-top:0;
+
+}
+
+
+
+.lot-details-heading,
+.section-heading{
 
 	display:flex;
 
@@ -112,15 +201,28 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 	gap:12px;
 
-	margin-bottom:15px;
+	margin-bottom:0;
+
+	padding:16px 20px;
+
+	background:#fbfcfe;
+
+	border-bottom:1px solid #edf0f4;
 
 }
 
 
 
-.lot-details-heading h4{
+.lot-details-heading h4,
+.section-heading h4{
 
 	margin:0;
+
+	font-size:16px;
+
+	font-weight:700;
+
+	color:#1f2937;
 
 }
 
@@ -142,6 +244,90 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 }
 
+.section-title-wrap{
+
+	display:flex;
+
+	align-items:center;
+
+	gap:10px;
+
+	flex-wrap:wrap;
+
+}
+
+
+
+.section-toggle{
+
+	border:1px solid #d8dee8;
+
+	background:white;
+
+	color:#4b5563;
+
+	border-radius:6px;
+
+	width:30px;
+
+	height:30px;
+
+	display:flex;
+
+	align-items:center;
+
+	justify-content:center;
+
+	padding:0;
+
+	cursor:pointer;
+
+}
+
+
+
+.section-toggle:hover{
+
+	background:#f3f6fb;
+
+	color:#1f2937;
+
+}
+
+
+
+.section-toggle .fa{
+
+	transition:transform .15s ease;
+
+}
+
+
+
+.section-toggle.is-collapsed .fa{
+
+	transform:rotate(-90deg);
+
+}
+
+
+
+.section-body{
+
+	padding:18px 20px 20px;
+
+	overflow-x:auto;
+
+}
+
+
+
+.section-body.is-collapsed{
+
+	display:none;
+
+}
+
 
 
 .lot-table-wrap{
@@ -155,6 +341,42 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 .table th{
 
 	background:#f5f5f5;
+
+}
+
+.detail-box .table{
+
+	margin-bottom:0;
+
+}
+
+
+
+.detail-box .table th{
+
+	width:16%;
+
+	color:#4b5563;
+
+	font-weight:600;
+
+	white-space:nowrap;
+
+}
+
+
+
+.detail-box .alert{
+
+	margin-bottom:0;
+
+}
+
+
+
+.detail-box.text-center{
+
+	padding:20px;
 
 }
 
@@ -251,19 +473,19 @@ Search by lot no, mark, grade, seller or invoice number.
 	function load_cards() {
 		api("get_summary_stats", {}, function (data) {
 			let cards = [
-				["Total Lots", data.total_lots],
+				["Total Lots", data.total_lots, "fa-cubes", "#2563eb", "#eff6ff"],
 
-				["Packages", data.total_packages],
+				["Packages", data.total_packages, "fa-archive", "#16a34a", "#f0fdf4"],
 
-				["Net Weight Kg", data.total_net_weight],
+				["Net Weight Kg", data.total_net_weight, "fa-balance-scale", "#ea580c", "#fff7ed"],
 
-				["Total Rate", "₹ " + format(data.total_rate)],
+				["Total Rate", "₹ " + format(data.total_rate), "fa-inr", "#ca8a04", "#fefce8"],
 
-				["Marks", data.unique_marks],
+				["Marks", data.unique_marks, "fa-tags", "#7c3aed", "#f5f3ff"],
 
-				["Grades", data.unique_grades],
+				["Grades", data.unique_grades, "fa-signal", "#0891b2", "#ecfeff"],
 
-				["Evaluations", data.total_evaluations],
+				["Evaluations", data.total_evaluations, "fa-check-square-o", "#dc2626", "#fef2f2"],
 			];
 
 			let html = "";
@@ -279,7 +501,16 @@ Search by lot no, mark, grade, seller or invoice number.
 					">
 
 
-					<div class="dashboard-card">
+					<div class="dashboard-card"
+					style="--card-accent:${c[3]};--card-bg:${c[4]};">
+
+
+					<div class="dashboard-card-icon">
+					<i class="fa ${c[2]}"></i>
+					</div>
+
+
+					<div>
 
 
 					<h3>
@@ -292,6 +523,7 @@ Search by lot no, mark, grade, seller or invoice number.
 					</small>
 
 
+					</div>
 
 					</div>
 
@@ -366,6 +598,17 @@ Search by lot no, mark, grade, seller or invoice number.
 		});
 	}
 
+	$(page.main).on("click", ".section-toggle", function () {
+		let $button = $(this);
+		let target = $button.attr("data-target");
+		let $body = $(target);
+		let collapsed = !$body.hasClass("is-collapsed");
+
+		$body.toggleClass("is-collapsed", collapsed);
+		$button.toggleClass("is-collapsed", collapsed);
+		$button.attr("aria-expanded", collapsed ? "false" : "true");
+	});
+
 	// --------------------------------------------------
 	// LOT DETAILS
 	// --------------------------------------------------
@@ -416,9 +659,16 @@ Search by lot no, mark, grade, seller or invoice number.
 
 
 <div class="lot-details-heading">
+<div class="section-title-wrap">
 <h4>Tea Lot Details</h4>
 <span class="lot-badge">${value_or_dash(l.lot_no || l.lot_id)}</span>
 </div>
+<button class="section-toggle" data-target="#tea-lot-info-section" aria-expanded="true" title="Collapse Tea Lot Details">
+<i class="fa fa-chevron-down"></i>
+</button>
+</div>
+
+<div class="section-body" id="tea-lot-info-section">
 
 <div class="lot-table-wrap">
 
@@ -643,13 +893,29 @@ Search by lot no, mark, grade, seller or invoice number.
 
 </div>
 
-<h4 style="margin-top:20px">
+</div>
+
+<div class="dashboard-section">
+<div class="section-heading">
+<div class="section-title-wrap">
+<h4>
 Tea Evaluation
 </h4>
+<span class="lot-badge">${format((data.evaluations || []).length)}</span>
+</div>
+<button class="section-toggle" data-target="#tea-evaluation-section" aria-expanded="true" title="Collapse Tea Evaluation">
+<i class="fa fa-chevron-down"></i>
+</button>
+</div>
+
+<div class="section-body" id="tea-evaluation-section">
 
 
 ${evaluation_table(data.evaluations)}
 
+
+</div>
+</div>
 
 
 </div>
