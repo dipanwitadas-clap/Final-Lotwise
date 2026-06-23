@@ -18,7 +18,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 	page.add_inner_button(__("New Evaluation"), () => frappe.new_doc("Tea Evaluation"));
 
-	page.add_inner_button(__("Import Data"), () => frappe.new_doc("Tea Lot Import"));
+	page.add_inner_button(__("Tea Lot Data Import"), () => frappe.new_doc("Tea Lot Import"));
 
 	page.add_inner_button(__("Holding Warehouse"), () => {
 		frappe.set_route("query-report", "Holding Warhouse");
