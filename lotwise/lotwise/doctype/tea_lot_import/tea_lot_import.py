@@ -183,9 +183,9 @@ class TeaLotImport(Document):
 					error += 1
 					continue
 
-				if self._is_duplicate(lot_no, mark_name, meta):
+				if self._is_duplicate(invoice, mark_name):
 					row.row_status = "Duplicate"
-					row.message = _("Duplicate Year + Lot No + Mark.")
+					row.message = _("Duplicate Invoice No + Mark + Date.")
 					duplicate += 1
 					continue
 
@@ -264,18 +264,15 @@ class TeaLotImport(Document):
 			frappe.throw(_("Sheet 'Purchase List' not found."))
 		return wb["Purchase List"]
 
-	def _is_duplicate(self, lot_no, mark_name, meta):
-		"""Check if lot_no + mark already exists (same year if purchase_date set)."""
-		if not lot_no:
+	def _is_duplicate(self, invoice_number, mark_name):
+		"""Check if invoice_number + mark + purchase_date already exists."""
+		if not invoice_number:
 			return False
-		fields = ["name"]
-		has_pd = meta.has_field("purchase_date")
-		if has_pd:
-			fields.append("purchase_date")
-		existing = frappe.get_all("Tea Lot", filters={"lot_no": lot_no, "mark": mark_name}, fields=fields)
-		if not existing:
-			return False
-		if has_pd and self.purchase_date:
-			year = getdate(self.purchase_date).year
-			return any(e.get("purchase_date") and getdate(e["purchase_date"]).year == year for e in existing)
-		return True
+		filters = {
+			"invoice_number": invoice_number,
+			"mark": mark_name,
+		}
+		if self.purchase_date:
+			filters["purchase_date"] = getdate(self.purchase_date)
+		existing = frappe.get_all("Tea Lot", filters=filters, fields=["name"])
+		return bool(existing)

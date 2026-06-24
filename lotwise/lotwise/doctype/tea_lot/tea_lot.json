@@ -16,6 +16,7 @@
   "rate",
   "density",
   "liquor_mark",
+  "purchase_date",
   "column_break_uyqw",
   "status",
   "mark",
@@ -36,7 +37,6 @@
   "manufacturer_ref",
   "chest_serial_range",
   "gross_wtpkg",
-  "purchase_date",
   "column_break_zand",
   "net_wtpkg",
   "warehouselocation",
@@ -327,7 +327,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-06-24 11:10:20.764745",
+ "modified": "2026-06-24 11:45:45.934405",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
