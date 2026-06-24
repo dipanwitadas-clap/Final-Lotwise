@@ -479,7 +479,7 @@ Search by lot no, mark, grade, seller or invoice number.
 
 				["Net Weight Kg", data.total_net_weight, "fa-balance-scale", "#ea580c", "#fff7ed"],
 
-				["Total Rate", "₹ " + format(data.total_rate), "fa-inr", "#ca8a04", "#fefce8"],
+				["Avg Rate/kg", "₹ " + format(data.avg_rate), "fa-inr", "#ca8a04", "#fefce8"],
 
 				["Marks", data.unique_marks, "fa-tags", "#7c3aed", "#f5f3ff"],
 
