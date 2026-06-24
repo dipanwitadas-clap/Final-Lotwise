@@ -296,7 +296,7 @@
   },
   {
    "fieldname": "purchase_invoice_no",
-   "fieldtype": "Int",
+   "fieldtype": "Data",
    "label": "Purchase Invoice No"
   },
   {
@@ -327,7 +327,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-06-24 10:33:19.930431",
+ "modified": "2026-06-24 11:10:20.764745",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

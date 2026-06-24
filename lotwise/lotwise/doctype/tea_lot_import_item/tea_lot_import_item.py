@@ -32,7 +32,7 @@ class TeaLotImportItem(Document):
 		parenttype: DF.Data
 		purchase_from: DF.Data | None
 		purchase_invoice_date: DF.Date | None
-		purchase_invoice_no: DF.Int
+		purchase_invoice_no: DF.Data | None
 		rate: DF.Currency
 		remarks: DF.SmallText | None
 		row_status: DF.Literal["Pending", "Created", "Error", "Duplicate"]

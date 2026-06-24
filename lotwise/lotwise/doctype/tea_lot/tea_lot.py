@@ -44,7 +44,7 @@ class TeaLot(Document):
 		purchase_date: DF.Date | None
 		purchase_from: DF.Data | None
 		purchase_invoice_date: DF.Date | None
-		purchase_invoice_no: DF.Int
+		purchase_invoice_no: DF.Data | None
 		rate: DF.Currency
 		sale_no: DF.Data | None
 		seller: DF.Link | None
