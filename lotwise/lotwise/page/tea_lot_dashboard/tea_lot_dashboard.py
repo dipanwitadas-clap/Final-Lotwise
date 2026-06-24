@@ -23,8 +23,8 @@ def get_summary_stats() -> dict:
 			COALESCE(SUM(net_weight_total),0)
 			AS total_net_weight,
 
-			COALESCE(SUM(rate),0)
-			AS total_rate,
+			COALESCE(AVG(rate),0)
+			AS avg_rate,
 
 			COUNT(DISTINCT mark)
 			AS unique_marks,
