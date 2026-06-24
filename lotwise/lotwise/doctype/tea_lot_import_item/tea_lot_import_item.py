@@ -30,12 +30,17 @@ class TeaLotImportItem(Document):
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
+		purchase_from: DF.Data | None
+		purchase_invoice_date: DF.Date | None
+		purchase_invoice_no: DF.Int
 		rate: DF.Currency
 		remarks: DF.SmallText | None
 		row_status: DF.Literal["Pending", "Created", "Error", "Duplicate"]
 		sam_pkg: DF.Data | None
 		sam_wt: DF.Data | None
 		tea_lot: DF.Link | None
+		total_amount_as_per_to_tax_invoice: DF.Float
+		warehouse_name: DF.Data | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Tea Lot Import Item"
