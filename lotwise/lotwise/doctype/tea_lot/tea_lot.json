@@ -16,6 +16,7 @@
   "rate",
   "density",
   "liquor_mark",
+  "purchase_date",
   "column_break_uyqw",
   "status",
   "mark",
@@ -36,7 +37,6 @@
   "manufacturer_ref",
   "chest_serial_range",
   "gross_wtpkg",
-  "purchase_date",
   "column_break_zand",
   "net_wtpkg",
   "warehouselocation",
@@ -45,7 +45,14 @@
   "awr_date",
   "certification",
   "mfg_monthyear",
-  "blend"
+  "blend",
+  "section_break_qop8",
+  "purchase_from",
+  "purchase_invoice_no",
+  "purchase_invoice_date",
+  "column_break_gapy",
+  "warehouse_name",
+  "total_amount_as_per_to_tax_invoice"
  ],
  "fields": [
   {
@@ -276,6 +283,40 @@
    "fieldname": "do_date",
    "fieldtype": "Data",
    "label": "DO Date"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel==\"Private\"",
+   "fieldname": "section_break_qop8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "purchase_from",
+   "fieldtype": "Data",
+   "label": "Purchase From"
+  },
+  {
+   "fieldname": "purchase_invoice_no",
+   "fieldtype": "Data",
+   "label": "Purchase Invoice No"
+  },
+  {
+   "fieldname": "purchase_invoice_date",
+   "fieldtype": "Date",
+   "label": "Purchase Invoice Date"
+  },
+  {
+   "fieldname": "column_break_gapy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "warehouse_name",
+   "fieldtype": "Data",
+   "label": "Warehouse Name"
+  },
+  {
+   "fieldname": "total_amount_as_per_to_tax_invoice",
+   "fieldtype": "Float",
+   "label": "Total amount as per to Tax Invoice"
   }
  ],
  "grid_page_length": 50,
@@ -286,7 +327,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-06-19 10:57:39.516066",
+ "modified": "2026-06-24 11:45:45.934405",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

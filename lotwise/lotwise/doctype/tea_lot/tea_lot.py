@@ -42,12 +42,17 @@ class TeaLot(Document):
 		packages: DF.Int
 		packing: DF.Link | None
 		purchase_date: DF.Date | None
+		purchase_from: DF.Data | None
+		purchase_invoice_date: DF.Date | None
+		purchase_invoice_no: DF.Data | None
 		rate: DF.Currency
 		sale_no: DF.Data | None
 		seller: DF.Link | None
 		source_doctype: DF.Link | None
 		source_doctype_id: DF.DynamicLink | None
 		status: DF.Literal["", "Offered", "Evaluated"]
+		total_amount_as_per_to_tax_invoice: DF.Float
+		warehouse_name: DF.Data | None
 		warehouselocation: DF.Data | None
 	# end: auto-generated types
 
