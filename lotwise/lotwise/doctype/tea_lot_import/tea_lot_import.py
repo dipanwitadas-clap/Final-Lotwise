@@ -102,7 +102,7 @@ def _convert_cell(value, field_type):
 	return _str(value)
 
 
-def _read_data_rows(ws, colmap, start_row=15):
+def _read_data_rows(ws, colmap, start_row=14):
 	"""Iterate data rows, return list of row dicts."""
 	rows = []
 	for row in range(start_row, ws.max_row + 1):
