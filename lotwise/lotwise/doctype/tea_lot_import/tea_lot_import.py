@@ -26,6 +26,11 @@ HEADER_TO_FIELD = {
 	"sample pkgs": {"field": "sam_pkg", "type": "str"},
 	"sample wt": {"field": "sam_wt", "type": "str"},
 	"remarks": {"field": "remarks", "type": "str"},
+	"purchase from": {"field": "purchase_from", "type": "str"},
+	"purchase invoice no": {"field": "purchase_invoice_no", "type": "str"},
+	"purchase invoice date": {"field": "purchase_invoice_date", "type": "str"},
+	"warehouse name": {"field": "warehouse_name", "type": "str"},
+	"total amount as per to tax invoice": {"field": "total_amount_as_per_to_tax_invoice", "type": "float"},
 }
 
 
@@ -219,6 +224,11 @@ class TeaLotImport(Document):
 					"purchase_date": self.purchase_date or None,
 					"source_doctype": self.doctype or None,
 					"source_doctype_id": self.name or None,
+					"purchase_from": row.purchase_from,
+					"purchase_invoice_no": row.purchase_invoice_no,
+					"purchase_invoice_date": row.purchase_invoice_date,
+					"warehouse_name": row.warehouse_name,
+					"total_amount_as_per_to_tax_invoice": flt(row.total_amount_as_per_to_tax_invoice),
 				}
 				values = {k: v for k, v in values.items() if k == "doctype" or meta.has_field(k)}
 
