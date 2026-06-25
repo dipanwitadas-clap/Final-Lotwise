@@ -365,34 +365,3 @@ def get_holding_status_distribution() -> list:
 		""",
 		as_dict=True,
 	)
-
-
-@frappe.whitelist()
-def get_quality_distribution() -> list:
-	return frappe.db.sql(
-		"""
-
-		SELECT
-
-			COALESCE(
-				quality_grade,
-				'Unrated'
-			)
-			AS name,
-
-
-			COUNT(*) AS value
-
-
-		FROM `tabTea Evaluation`
-
-
-		GROUP BY quality_grade
-
-
-		ORDER BY value DESC
-
-
-		""",
-		as_dict=True,
-	)
