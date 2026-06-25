@@ -14,6 +14,8 @@ frappe.provide("lotwise.tea_lot_dashboard");
 
 	var all_lots_data = [];
 	var filter_timeout = null;
+	var current_page = 0;
+	var page_size = 10;
 
 	// Shared helpers from main page (must be available in scope)
 	function api(method, args, callback) {
@@ -83,6 +85,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 		}
 
 		var columns = [
+			{ key: "sno", label: "S.No" },
 			{ key: "name", label: "Tea Lot ID", clickable: true },
 			{ key: "lot_no", label: "Lot No" },
 			{ key: "mark", label: "Mark" },
@@ -107,15 +110,33 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			filters[col.key] = (val || "").toLowerCase();
 		});
 
-		// Filter rows
-		var filtered = data.filter(function (row) {
+		// Filter rows - preserve original index for S.No
+		var filtered = data.filter(function (row, rowIndex) {
 			return columns.every(function (col) {
 				var fv = filters[col.key];
 				if (!fv) return true;
+				if (col.key === "sno") {
+					var sno = rowIndex + 1;
+					return String(sno).toLowerCase().indexOf(fv) !== -1;
+				}
 				var rv = (row[col.key] == null ? "" : String(row[col.key])).toLowerCase();
 				return rv.indexOf(fv) !== -1;
 			});
 		});
+
+		// Add original index to filtered results for correct S.No display
+		var filtered_with_index = filtered.map(function (row, idx) {
+			return { row: row, original_index: data.indexOf(row) };
+		});
+
+		// Reset to first page when filters change
+		current_page = 0;
+
+		// Pagination
+		var total_pages = Math.ceil(filtered.length / page_size);
+		if (current_page >= total_pages) current_page = Math.max(0, total_pages - 1);
+		var start_idx = current_page * page_size;
+		var page_data = filtered_with_index.slice(start_idx, start_idx + page_size);
 
 		var html = `
 			<div class="detail-box">
@@ -146,7 +167,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 					<span class="col-head">${esc(col.label)}</span>
 					<input class="col-filter" id="flt_${col.key}" type="text" value="${esc(
 				cur_val
-			)}" placeholder="filter" data-col="${col.key}" />
+			)}" placeholder="filter" data-col="${col.key}" autocomplete="off" />
 				</th>
 			`;
 		});
@@ -157,7 +178,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 							<tbody>
 		`;
 
-		if (!filtered.length) {
+		if (!page_data.length) {
 			html += `
 				<tr>
 					<td colspan="${columns.length}" class="text-center text-muted" style="padding:20px;">
@@ -166,11 +187,15 @@ frappe.provide("lotwise.tea_lot_dashboard");
 				</tr>
 			`;
 		} else {
-			filtered.forEach(function (lot) {
+			page_data.forEach(function (item, idx) {
+				var lot = item.row;
+				var original_idx = item.original_index;
 				html += "<tr>";
 				columns.forEach(function (col) {
 					var val = lot[col.key];
-					if (col.clickable) {
+					if (col.key === "sno") {
+						html += "<td>" + (original_idx + 1) + "</td>";
+					} else if (col.clickable) {
 						// Clickable Tea Lot ID - opens modal
 						html +=
 							'<td><a href="#" class="lot-detail-link" data-lot="' +
@@ -190,30 +215,73 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			});
 		}
 
+		// Pagination controls
+		var show_start = filtered.length ? start_idx + 1 : 0;
+		var show_end = Math.min(start_idx + page_size, filtered.length);
+		var pagination_html = `
+			<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #edf0f4;background:#fbfcfe;">
+				<span style="font-size:12px;color:#6b7280;">Showing ${show_start}-${show_end} of ${
+			filtered.length
+		}</span>
+				<div style="display:flex;gap:6px;">
+					<button class="btn btn-default btn-sm" id="prev_page_btn" ${
+						current_page === 0 ? "disabled" : ""
+					}>Previous</button>
+					<button class="btn btn-default btn-sm" id="next_page_btn" ${
+						current_page >= total_pages - 1 ? "disabled" : ""
+					}>Next</button>
+				</div>
+			</div>
+		`;
+
 		html += `
 							</tbody>
 						</table>
 					</div>
 				</div>
+				${pagination_html}
 			</div>
 		`;
 
 		$("#tea_lot_all").html(html);
 
 		// Bind filter input events with debounce
-		$("#tea_lot_all .col-filter").on("input", function () {
-			if (filter_timeout) clearTimeout(filter_timeout);
-			filter_timeout = setTimeout(function () {
-				render_all_lots_table();
-			}, 200);
-		});
+		$("#tea_lot_all")
+			.off("input", ".col-filter")
+			.on("input", ".col-filter", function () {
+				if (filter_timeout) clearTimeout(filter_timeout);
+				filter_timeout = setTimeout(function () {
+					render_all_lots_table();
+				}, 200);
+			});
+
+		// Bind pagination buttons
+		$("#tea_lot_all")
+			.off("click", "#prev_page_btn")
+			.on("click", "#prev_page_btn", function () {
+				if (current_page > 0) {
+					current_page--;
+					render_all_lots_table();
+				}
+			});
+		$("#tea_lot_all")
+			.off("click", "#next_page_btn")
+			.on("click", "#next_page_btn", function () {
+				var total_pages = Math.ceil(filtered.length / page_size);
+				if (current_page < total_pages - 1) {
+					current_page++;
+					render_all_lots_table();
+				}
+			});
 
 		// Bind click on lot detail links
-		$("#tea_lot_all").on("click", ".lot-detail-link", function (e) {
-			e.preventDefault();
-			var lot_name = $(this).attr("data-lot");
-			show_lot_detail_modal(lot_name);
-		});
+		$("#tea_lot_all")
+			.off("click", ".lot-detail-link")
+			.on("click", ".lot-detail-link", function (e) {
+				e.preventDefault();
+				var lot_name = $(this).attr("data-lot");
+				show_lot_detail_modal(lot_name);
+			});
 	}
 
 	// ============================================================
