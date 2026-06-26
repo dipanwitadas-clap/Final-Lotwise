@@ -699,21 +699,19 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				.append(`<div class="modal fade" id="lot-detail-modal" tabindex="-1" role="dialog">
 				<div class="modal-dialog modal-lg" style="width:90%;max-width:1100px;">
 				<div class="modal-content">
-				<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title">Tea Lot Details</h4></div>
 				<div class="modal-body" style="overflow-x:auto;"><div id="lot-detail-modal-body"><div class="text-center text-muted" style="padding:30px;"><i class="fa fa-spinner fa-spin"></i> Loading...</div></div></div>
-				<div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div>
 				</div></div></div>`);
 			$modal = $("#lot-detail-modal");
 		}
 		$modal.modal("show");
 		$("#lot-detail-modal-body").html(
-			`<div class="text-center text-muted" style="padding:30px;"><i class="fa fa-spinner fa-spin"></i> Loading tea lot details...</div>`
+			`<div style="text-align:right;padding:10px 15px;border-bottom:1px solid #e7eaf0;"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i> Close</button></div><div class="text-center text-muted" style="padding:30px;"><i class="fa fa-spinner fa-spin"></i> Loading tea lot details...</div>`
 		);
 
 		api("get_lot_details", { lot_no: lot_name }, function (data) {
 			if (!data || !data.lot_details) {
 				$("#lot-detail-modal-body").html(
-					`<div class="alert alert-info">No Tea Lot details found.</div>`
+					`<div style="text-align:right;padding:10px 15px;border-bottom:1px solid #e7eaf0;"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i> Close</button></div><div class="alert alert-info">No Tea Lot found.</div>`
 				);
 				return;
 			}
@@ -728,7 +726,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		return `<div style="margin-bottom:20px;">
 			<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:#fbfcfe;border:1px solid #e7eaf0;border-radius:8px 8px 0 0;border-bottom:0;">
 			<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-			<h4 style="margin:0;font-size:16px;font-weight:700;color:#1f2937;">Tea Lot Details</h4>
+			<strong style="font-size:14px;color:#1f2937;margin-right:5px;">Tea Lot Details</strong>
 			<span class="lot-badge">${vd(l.lot_no || l.lot_id)}</span>
 			<span class="lot-badge">${vd(l.invoice_number)}</span>
 			<span class="lot-badge">${vd(l.mark)}</span></div></div>
