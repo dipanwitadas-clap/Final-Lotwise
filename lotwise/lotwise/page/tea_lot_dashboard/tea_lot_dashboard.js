@@ -420,6 +420,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	var all_lots_data = [];
+	var filtered_lots_data = [];
 	var filter_timeout = null;
 	var current_page = 0;
 	var page_size = 10;
@@ -430,6 +431,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		);
 		api_from("tea_lot_dashboard_all_lots", "get_all_lots", {}, function (data) {
 			all_lots_data = (data && data.lots) || [];
+			current_page = 0;
 			render_all_lots_table();
 		});
 	}
@@ -468,7 +470,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			filters[col.key] = (val || "").toLowerCase();
 		});
 
-		var filtered = data.filter(function (row, rowIndex) {
+		filtered_lots_data = data.filter(function (row, rowIndex) {
 			return columns.every(function (col) {
 				var fv = filters[col.key];
 				if (!fv) return true;
@@ -482,16 +484,15 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		});
 
 		// Add original index to filtered results for correct S.No display
-		var filtered_with_index = filtered.map(function (row, idx) {
+		var filtered_with_index = filtered_lots_data.map(function (row, idx) {
 			return { row: row, original_index: data.indexOf(row) };
 		});
 
-		// Reset to first page when filters change
-		current_page = 0;
-
 		// Pagination
-		var total_pages = Math.ceil(filtered.length / page_size);
-		if (current_page >= total_pages) current_page = Math.max(0, total_pages - 1);
+		var total_pages = Math.ceil(filtered_lots_data.length / page_size);
+		if (total_pages === 0) total_pages = 1;
+		if (current_page >= total_pages) current_page = total_pages - 1;
+		if (current_page < 0) current_page = 0;
 		var start_idx = current_page * page_size;
 		var page_data = filtered_with_index.slice(start_idx, start_idx + page_size);
 
@@ -499,12 +500,15 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			<h4>All Tea Lots</h4>
 			<span class="lot-count-badge">${fmt(data.length)} Total</span>
 			${
-				filtered.length !== data.length
+				filtered_lots_data.length !== data.length
 					? `<span class="lot-badge" style="background:#fef3c7;color:#92400e;">${fmt(
-							filtered.length
+							filtered_lots_data.length
 					  )} Filtered</span>`
 					: ""
 			}
+			<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
+				<i class="fa fa-download"></i> Download
+			</button>
 		</div></div><div class="section-body" style="padding:0;"><div class="all-lots-wrap">
 		<table class="table table-bordered" id="all_lots_table"><thead><tr>`;
 
@@ -549,12 +553,12 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		}
 
 		// Pagination controls
-		var show_start = filtered.length ? start_idx + 1 : 0;
-		var show_end = Math.min(start_idx + page_size, filtered.length);
+		var show_start = filtered_lots_data.length ? start_idx + 1 : 0;
+		var show_end = Math.min(start_idx + page_size, filtered_lots_data.length);
 		var pagination_html = `
 			<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #edf0f4;background:#fbfcfe;">
 				<span style="font-size:12px;color:#6b7280;">Showing ${show_start}-${show_end} of ${
-			filtered.length
+			filtered_lots_data.length
 		}</span>
 				<div style="display:flex;gap:6px;">
 					<button class="btn btn-default btn-sm" id="prev_page_btn" ${
@@ -575,6 +579,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			.on("input", ".col-filter", function () {
 				if (filter_timeout) clearTimeout(filter_timeout);
 				filter_timeout = setTimeout(function () {
+					current_page = 0;
 					render_all_lots_table();
 				}, 200);
 			});
@@ -590,11 +595,18 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		$("#tea_lot_all")
 			.off("click", "#next_page_btn")
 			.on("click", "#next_page_btn", function () {
-				var total_pages = Math.ceil(filtered.length / page_size);
+				var total_pages = Math.ceil(filtered_lots_data.length / page_size);
 				if (current_page < total_pages - 1) {
 					current_page++;
 					render_all_lots_table();
 				}
+			});
+
+		$("#tea_lot_all")
+			.off("click", "#download_all_lots_btn")
+			.on("click", "#download_all_lots_btn", function (e) {
+				e.preventDefault();
+				download_all_lots_excel();
 			});
 
 		$("#tea_lot_all")
@@ -603,6 +615,77 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				e.preventDefault();
 				show_lot_detail_modal($(this).attr("data-lot"));
 			});
+	}
+
+	// --------------------------------------------------
+	// EXCEL DOWNLOAD - ALL LOTS
+	// --------------------------------------------------
+
+	function download_all_lots_excel() {
+		if (!filtered_lots_data || !filtered_lots_data.length) {
+			frappe.msgprint({
+				title: __("No Data"),
+				indicator: "orange",
+				message: __("No tea lots to download."),
+			});
+			return;
+		}
+
+		var columns = [
+			{ key: "name", label: "Tea Lot ID" },
+			{ key: "lot_no", label: "Lot No" },
+			{ key: "mark", label: "Mark" },
+			{ key: "grade", label: "Grade" },
+			{ key: "seller", label: "Seller" },
+			{ key: "invoice_number", label: "Invoice No" },
+			{ key: "liquor_mark", label: "Liquor Mark" },
+			{ key: "acquisition_channel", label: "Channel" },
+			{ key: "purchase_date", label: "Purchase Date" },
+			{ key: "packages", label: "Packages" },
+			{ key: "net_weight_total", label: "Net Wt Kg" },
+			{ key: "rate", label: "Rate" },
+			{ key: "status", label: "Status" },
+			{ key: "holding_status", label: "Holding Status" },
+			{ key: "warehouse", label: "Warehouse" },
+		];
+
+		// Build CSV content
+		var csv_content =
+			columns
+				.map(function (col) {
+					return col.label;
+				})
+				.join(",") + "\n";
+
+		filtered_lots_data.forEach(function (row) {
+			var row_data = columns.map(function (col) {
+				var val = row[col.key];
+				if (val == null) val = "";
+				if (col.key === "rate") val = val || 0;
+				return val;
+			});
+			csv_content += row_data.join(",") + "\n";
+		});
+
+		// Download
+		var date_str = frappe.datetime.now_date();
+		var filename = "Tea_Lots_" + date_str + ".csv";
+
+		var blob = new Blob([csv_content], { type: "text/csv" });
+		if (navigator.msSaveBlob) {
+			navigator.msSaveBlob(blob, filename);
+		} else {
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement("a");
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(function () {
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			}, 100);
+		}
 	}
 
 	// --------------------------------------------------
@@ -616,21 +699,19 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				.append(`<div class="modal fade" id="lot-detail-modal" tabindex="-1" role="dialog">
 				<div class="modal-dialog modal-lg" style="width:90%;max-width:1100px;">
 				<div class="modal-content">
-				<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title">Tea Lot Details</h4></div>
 				<div class="modal-body" style="overflow-x:auto;"><div id="lot-detail-modal-body"><div class="text-center text-muted" style="padding:30px;"><i class="fa fa-spinner fa-spin"></i> Loading...</div></div></div>
-				<div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div>
 				</div></div></div>`);
 			$modal = $("#lot-detail-modal");
 		}
 		$modal.modal("show");
 		$("#lot-detail-modal-body").html(
-			`<div class="text-center text-muted" style="padding:30px;"><i class="fa fa-spinner fa-spin"></i> Loading tea lot details...</div>`
+			`<div style="text-align:right;padding:10px 15px;border-bottom:1px solid #e7eaf0;"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i> Close</button></div><div class="text-center text-muted" style="padding:30px;"><i class="fa fa-spinner fa-spin"></i> Loading tea lot details...</div>`
 		);
 
 		api("get_lot_details", { lot_no: lot_name }, function (data) {
 			if (!data || !data.lot_details) {
 				$("#lot-detail-modal-body").html(
-					`<div class="alert alert-info">No Tea Lot details found.</div>`
+					`<div style="text-align:right;padding:10px 15px;border-bottom:1px solid #e7eaf0;"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i> Close</button></div><div class="alert alert-info">No Tea Lot found.</div>`
 				);
 				return;
 			}
@@ -645,7 +726,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		return `<div style="margin-bottom:20px;">
 			<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:#fbfcfe;border:1px solid #e7eaf0;border-radius:8px 8px 0 0;border-bottom:0;">
 			<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-			<h4 style="margin:0;font-size:16px;font-weight:700;color:#1f2937;">Tea Lot Details</h4>
+			<strong style="font-size:14px;color:#1f2937;margin-right:5px;">Tea Lot Details</strong>
 			<span class="lot-badge">${vd(l.lot_no || l.lot_id)}</span>
 			<span class="lot-badge">${vd(l.invoice_number)}</span>
 			<span class="lot-badge">${vd(l.mark)}</span></div></div>
@@ -760,7 +841,14 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			`<div class="detail-box text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading tea lots for this mark...</div>`
 		);
 		api_from("tea_lot_dashboard_mark", "get_lots_by_mark", { mark: mark }, function (data) {
-			$("#mark_results").html(mark_lot_table(mark, (data && data.lots) || []));
+			var lots = (data && data.lots) || [];
+			$("#mark_results").html(mark_lot_table(mark, lots));
+
+			$("#mark_results")
+				.off("click", "#download_mark_btn")
+				.on("click", "#download_mark_btn", function () {
+					download_mark_excel(mark, lots);
+				});
 		});
 	}
 
@@ -771,9 +859,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			)}.</div>`;
 		var h = `<div class="detail-box"><div class="section-heading"><div class="section-title-wrap"><h4>Tea Lots By Mark</h4><span class="lot-badge">${vd(
 			mark
-		)}</span><span class="lot-badge">${fmt(
-			lots.length
-		)} Lots</span></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Grade</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Holding Status</th></tr>`;
+		)}</span><span class="lot-badge">${fmt(lots.length)} Lots</span>
+		<button class="btn btn-default btn-sm" id="download_mark_btn" title="Download Excel">
+			<i class="fa fa-download"></i> Download
+		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Grade</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Holding Status</th></tr>`;
 		lots.forEach(function (lot) {
 			h += `<tr><td>${vd(lot.lot_no || lot.name)}</td><td>${vd(lot.name)}</td><td>${vd(
 				lot.grade
@@ -786,6 +875,74 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			)}</td></tr>`;
 		});
 		return h + `</table></div></div>`;
+	}
+
+	// --------------------------------------------------
+	// EXCEL DOWNLOAD - MARK
+	// --------------------------------------------------
+
+	function download_mark_excel(mark, lots) {
+		if (!lots.length) {
+			frappe.msgprint({
+				title: __("No Data"),
+				indicator: "orange",
+				message: __("No tea lots to download."),
+			});
+			return;
+		}
+
+		var columns = [
+			{ key: "lot_no", label: "Lot No" },
+			{ key: "name", label: "Tea Lot ID" },
+			{ key: "grade", label: "Grade" },
+			{ key: "invoice_number", label: "Invoice Number" },
+			{ key: "liquor_mark", label: "Liquor Mark" },
+			{ key: "acquisition_channel", label: "Acquisition Channel" },
+			{ key: "purchase_date", label: "Purchase Date" },
+			{ key: "packages", label: "Packages" },
+			{ key: "net_weight_total", label: "Net Weight Kg" },
+			{ key: "rate", label: "Rate" },
+			{ key: "status", label: "Status" },
+			{ key: "holding_status", label: "Holding Status" },
+		];
+
+		// Build CSV content
+		var csv_content =
+			columns
+				.map(function (col) {
+					return col.label;
+				})
+				.join(",") + "\n";
+
+		lots.forEach(function (row) {
+			var row_data = columns.map(function (col) {
+				var val = row[col.key];
+				if (val == null) val = "";
+				if (col.key === "rate") val = val || 0;
+				return val;
+			});
+			csv_content += row_data.join(",") + "\n";
+		});
+
+		// Download
+		var date_str = frappe.datetime.now_date();
+		var filename = "Tea_Lots_Mark_" + (mark || "All") + "_" + date_str + ".csv";
+
+		var blob = new Blob([csv_content], { type: "text/csv" });
+		if (navigator.msSaveBlob) {
+			navigator.msSaveBlob(blob, filename);
+		} else {
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement("a");
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(function () {
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			}, 100);
+		}
 	}
 
 	// --------------------------------------------------
@@ -837,7 +994,14 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			"get_lots_by_grade",
 			{ grade: grade },
 			function (data) {
-				$("#grade_results").html(grade_lot_table(grade, (data && data.lots) || []));
+				var lots = (data && data.lots) || [];
+				$("#grade_results").html(grade_lot_table(grade, lots));
+
+				$("#grade_results")
+					.off("click", "#download_grade_btn")
+					.on("click", "#download_grade_btn", function () {
+						download_grade_excel(grade, lots);
+					});
 			}
 		);
 	}
@@ -849,9 +1013,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			)}.</div>`;
 		var h = `<div class="detail-box"><div class="section-heading"><div class="section-title-wrap"><h4>Tea Lots By Grade</h4><span class="lot-badge">${vd(
 			grade
-		)}</span><span class="lot-badge">${fmt(
-			lots.length
-		)} Lots</span></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Mark</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Holding Status</th></tr>`;
+		)}</span><span class="lot-badge">${fmt(lots.length)} Lots</span>
+		<button class="btn btn-default btn-sm" id="download_grade_btn" title="Download Excel">
+			<i class="fa fa-download"></i> Download
+		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Mark</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Holding Status</th></tr>`;
 		lots.forEach(function (lot) {
 			h += `<tr><td>${vd(lot.lot_no || lot.name)}</td><td>${vd(lot.name)}</td><td>${vd(
 				lot.mark
@@ -864,6 +1029,74 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			)}</td></tr>`;
 		});
 		return h + `</table></div></div>`;
+	}
+
+	// --------------------------------------------------
+	// EXCEL DOWNLOAD - GRADE
+	// --------------------------------------------------
+
+	function download_grade_excel(grade, lots) {
+		if (!lots.length) {
+			frappe.msgprint({
+				title: __("No Data"),
+				indicator: "orange",
+				message: __("No tea lots to download."),
+			});
+			return;
+		}
+
+		var columns = [
+			{ key: "lot_no", label: "Lot No" },
+			{ key: "name", label: "Tea Lot ID" },
+			{ key: "mark", label: "Mark" },
+			{ key: "invoice_number", label: "Invoice Number" },
+			{ key: "liquor_mark", label: "Liquor Mark" },
+			{ key: "acquisition_channel", label: "Acquisition Channel" },
+			{ key: "purchase_date", label: "Purchase Date" },
+			{ key: "packages", label: "Packages" },
+			{ key: "net_weight_total", label: "Net Weight Kg" },
+			{ key: "rate", label: "Rate" },
+			{ key: "status", label: "Status" },
+			{ key: "holding_status", label: "Holding Status" },
+		];
+
+		// Build CSV content
+		var csv_content =
+			columns
+				.map(function (col) {
+					return col.label;
+				})
+				.join(",") + "\n";
+
+		lots.forEach(function (row) {
+			var row_data = columns.map(function (col) {
+				var val = row[col.key];
+				if (val == null) val = "";
+				if (col.key === "rate") val = val || 0;
+				return val;
+			});
+			csv_content += row_data.join(",") + "\n";
+		});
+
+		// Download
+		var date_str = frappe.datetime.now_date();
+		var filename = "Tea_Lots_Grade_" + (grade || "All") + "_" + date_str + ".csv";
+
+		var blob = new Blob([csv_content], { type: "text/csv" });
+		if (navigator.msSaveBlob) {
+			navigator.msSaveBlob(blob, filename);
+		} else {
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement("a");
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(function () {
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			}, 100);
+		}
 	}
 
 	// --------------------------------------------------
@@ -921,7 +1154,14 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			`<div class="detail-box text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading evaluations...</div>`
 		);
 		api_from("tea_lot_dashboard_evaluation", "get_evaluations", args, function (data) {
-			$("#evaluation_results").html(eval_table((data && data.evaluations) || []));
+			var evals = (data && data.evaluations) || [];
+			$("#evaluation_results").html(eval_table(evals));
+
+			$("#evaluation_results")
+				.off("click", "#download_eval_btn")
+				.on("click", "#download_eval_btn", function () {
+					download_evaluation_excel(evals);
+				});
 		});
 	}
 
@@ -930,7 +1170,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			return `<div class="detail-box text-center text-muted">No Evaluations found.</div>`;
 		var h = `<div class="detail-box"><div class="section-heading"><div class="section-title-wrap"><h4>Tea Evaluation Results</h4><span class="lot-badge">${fmt(
 			evals.length
-		)} Records</span></div></div><div class="section-body" style="overflow-x:auto;"><table class="table table-bordered"><tr><th>Tea Evaluation ID</th><th>Tea Lot</th><th>Lot No</th><th>Mark</th><th>Colour</th><th>Strength</th><th>Taste</th><th>Briskness</th><th>Quality Grade</th><th>Taster</th><th>Stage</th><th>Eval Date</th><th>Suggested Valuation</th><th>Notes</th></tr>`;
+		)} Records</span>
+		<button class="btn btn-default btn-sm" id="download_eval_btn" title="Download Excel">
+			<i class="fa fa-download"></i> Download
+		</button></div></div><div class="section-body" style="overflow-x:auto;"><table class="table table-bordered"><tr><th>Tea Evaluation ID</th><th>Tea Lot</th><th>Lot No</th><th>Mark</th><th>Colour</th><th>Strength</th><th>Taste</th><th>Briskness</th><th>Quality Grade</th><th>Taster</th><th>Stage</th><th>Eval Date</th><th>Suggested Valuation</th><th>Notes</th></tr>`;
 		evals.forEach(function (e) {
 			h += `<tr><td>${vd(e.name)}</td><td>${vd(e.tea_lot)}</td><td>${vd(
 				e.tea_lot_no
@@ -943,6 +1186,76 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			)}</td><td>${money(e.suggested_valuation)}</td><td>${vd(e.notes)}</td></tr>`;
 		});
 		return h + `</table></div></div>`;
+	}
+
+	// --------------------------------------------------
+	// EXCEL DOWNLOAD - EVALUATION
+	// --------------------------------------------------
+
+	function download_evaluation_excel(evals) {
+		if (!evals.length) {
+			frappe.msgprint({
+				title: __("No Data"),
+				indicator: "orange",
+				message: __("No evaluations to download."),
+			});
+			return;
+		}
+
+		var columns = [
+			{ key: "name", label: "Tea Evaluation ID" },
+			{ key: "tea_lot", label: "Tea Lot" },
+			{ key: "tea_lot_no", label: "Lot No" },
+			{ key: "tea_lot_mark", label: "Mark" },
+			{ key: "colour", label: "Colour" },
+			{ key: "strength", label: "Strength" },
+			{ key: "taste", label: "Taste" },
+			{ key: "briskness", label: "Briskness" },
+			{ key: "quality_grade", label: "Quality Grade" },
+			{ key: "taster", label: "Taster" },
+			{ key: "stage", label: "Stage" },
+			{ key: "evaluation_date", label: "Eval Date" },
+			{ key: "suggested_valuation", label: "Suggested Valuation" },
+			{ key: "notes", label: "Notes" },
+		];
+
+		// Build CSV content
+		var csv_content =
+			columns
+				.map(function (col) {
+					return col.label;
+				})
+				.join(",") + "\n";
+
+		evals.forEach(function (row) {
+			var row_data = columns.map(function (col) {
+				var val = row[col.key];
+				if (val == null) val = "";
+				if (col.key === "suggested_valuation") val = val || 0;
+				return val;
+			});
+			csv_content += row_data.join(",") + "\n";
+		});
+
+		// Download
+		var date_str = frappe.datetime.now_date();
+		var filename = "Tea_Evaluations_" + date_str + ".csv";
+
+		var blob = new Blob([csv_content], { type: "text/csv" });
+		if (navigator.msSaveBlob) {
+			navigator.msSaveBlob(blob, filename);
+		} else {
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement("a");
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(function () {
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			}, 100);
+		}
 	}
 
 	// --------------------------------------------------
