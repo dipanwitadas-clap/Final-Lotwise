@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_bulk_edit": 1,
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "LOT-.YYYY.-.#####",
  "creation": "2026-06-10 10:06:08.543447",
@@ -327,7 +328,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-06-24 11:45:45.934405",
+ "modified": "2026-06-30 15:31:59.436199",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
@@ -339,6 +340,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,

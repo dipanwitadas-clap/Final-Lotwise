@@ -1,27 +1,28 @@
 {
  "actions": [],
  "allow_bulk_edit": 1,
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "EVAL-.YYYY.-.#####",
  "creation": "2026-06-10 12:07:04.956985",
  "doctype": "DocType",
  "engine": "InnoDB",
-  "field_order": [
-   "tea_lot",
-   "taster",
-   "stage",
-   "liquor_mark",
-   "evaluation_date",
-   "suggested_valuation",
-   "column_break_imtm",
-   "colour",
-   "strength",
-   "taste",
-   "briskness",
-   "quality_grade",
-   "section_break_4j6n",
-   "notes"
-  ],
+ "field_order": [
+  "tea_lot",
+  "taster",
+  "stage",
+  "liquor_mark",
+  "evaluation_date",
+  "suggested_valuation",
+  "column_break_imtm",
+  "colour",
+  "strength",
+  "taste",
+  "briskness",
+  "quality_grade",
+  "section_break_4j6n",
+  "notes"
+ ],
  "fields": [
   {
    "fieldname": "tea_lot",
@@ -42,13 +43,13 @@
    "reqd": 1
   },
   {
-    "fieldname": "stage",
-    "fieldtype": "Select",
-    "in_list_view": 1,
-    "in_standard_filter": 1,
-    "label": "Stage",
-    "options": "\nPre-purchase\nArrival\nBlend QC\nStorage\nPurchase Sample\nBag Sample",
-    "reqd": 1
+   "fieldname": "stage",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Stage",
+   "options": "\nPre-purchase\nArrival\nBlend QC\nStorage\nPurchase Sample\nBag Sample",
+   "reqd": 1
   },
   {
    "fieldname": "liquor_mark",
@@ -112,7 +113,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-19 16:33:41.627964",
+ "modified": "2026-06-30 15:28:58.049860",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",
@@ -124,6 +125,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
