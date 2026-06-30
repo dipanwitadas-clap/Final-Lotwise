@@ -1,7 +1,7 @@
 # Copyright (c) 2026, BusinessThat.Works and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 
@@ -17,11 +17,14 @@ class TeaEvaluation(Document):
 		briskness: DF.Float
 		colour: DF.Float
 		evaluation_date: DF.Date
+		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
 		notes: DF.SmallText | None
 		quality_grade: DF.Literal[
 			"", "A", "A++", "A+++", "B", "B+", "B++", "B-", "C", "C+", "D", "D+", "E", "E+"
 		]
-		stage: DF.Literal["", "Pre-purchase", "Arrival", "Blend QC", "Storage"]
+		stage: DF.Literal[
+			"", "Pre-purchase", "Arrival", "Blend QC", "Storage", "Purchase Sample", "Bag Sample"
+		]
 		strength: DF.Float
 		suggested_valuation: DF.Currency
 		taste: DF.Float
@@ -30,3 +33,8 @@ class TeaEvaluation(Document):
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Tea Evaluation"
+
+	def on_update(self):
+		"""Update linked Tea Lot status to 'Evaluated' when a Tea Evaluation is created or updated."""
+		if self.tea_lot:
+			frappe.db.set_value("Tea Lot", self.tea_lot, "status", "Evaluated")

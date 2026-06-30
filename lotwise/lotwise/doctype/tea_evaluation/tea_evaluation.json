@@ -6,21 +6,22 @@
  "creation": "2026-06-10 12:07:04.956985",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": [
-  "tea_lot",
-  "taster",
-  "stage",
-  "evaluation_date",
-  "suggested_valuation",
-  "column_break_imtm",
-  "colour",
-  "strength",
-  "taste",
-  "briskness",
-  "quality_grade",
-  "section_break_4j6n",
-  "notes"
- ],
+  "field_order": [
+   "tea_lot",
+   "taster",
+   "stage",
+   "liquor_mark",
+   "evaluation_date",
+   "suggested_valuation",
+   "column_break_imtm",
+   "colour",
+   "strength",
+   "taste",
+   "briskness",
+   "quality_grade",
+   "section_break_4j6n",
+   "notes"
+  ],
  "fields": [
   {
    "fieldname": "tea_lot",
@@ -41,13 +42,19 @@
    "reqd": 1
   },
   {
-   "fieldname": "stage",
+    "fieldname": "stage",
+    "fieldtype": "Select",
+    "in_list_view": 1,
+    "in_standard_filter": 1,
+    "label": "Stage",
+    "options": "\nPre-purchase\nArrival\nBlend QC\nStorage\nPurchase Sample\nBag Sample",
+    "reqd": 1
+  },
+  {
+   "fieldname": "liquor_mark",
    "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Stage",
-   "options": "\nPre-purchase\nArrival\nBlend QC\nStorage",
-   "reqd": 1
+   "label": "Liquor Mark",
+   "options": "\nA+\nA\nB+\nB\nC+\nC"
   },
   {
    "default": "Today",
