@@ -1,7 +1,7 @@
 # Copyright (c) 2026, BusinessThat.Works and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 
@@ -33,3 +33,8 @@ class TeaEvaluation(Document):
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Tea Evaluation"
+
+	def on_update(self):
+		"""Update linked Tea Lot status to 'Evaluated' when a Tea Evaluation is created or updated."""
+		if self.tea_lot:
+			frappe.db.set_value("Tea Lot", self.tea_lot, "status", "Evaluated")
