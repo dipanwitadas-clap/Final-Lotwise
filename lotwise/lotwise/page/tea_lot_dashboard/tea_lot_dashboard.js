@@ -262,6 +262,30 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	margin-left:8px;
 }
 
+/* Compact date filter controls */
+#flt_from_date_wrapper .frappe-control,
+#flt_to_date_wrapper .frappe-control {
+	margin-bottom: 0 !important;
+}
+#flt_from_date_wrapper .frappe-control .form-group,
+#flt_to_date_wrapper .frappe-control .form-group {
+	margin-bottom: 0 !important;
+}
+#flt_from_date_wrapper .frappe-control .clearfix,
+#flt_to_date_wrapper .frappe-control .clearfix {
+	display: none !important;
+}
+#flt_from_date_wrapper .frappe-control .control-input,
+#flt_to_date_wrapper .frappe-control .control-input {
+	margin-top: 0 !important;
+}
+#flt_from_date_wrapper input,
+#flt_to_date_wrapper input {
+	height: 26px !important;
+	font-size: 12px !important;
+	padding: 2px 6px !important;
+}
+
 </style>
 
 
@@ -442,7 +466,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			df: {
 				fieldname: "flt_from_date",
 				fieldtype: "Date",
-				label: "From Purchase Date",
+				label: "",
 				placeholder: "dd/mm/yyyy",
 				onchange: function () {
 					load_all_lots();
@@ -451,6 +475,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			render_input: true,
 		});
 		flt_from_date_field.refresh();
+		flt_from_date_field.$input.addClass("input-xs");
 		flt_from_date_field.$input.on("change", function () {
 			load_all_lots();
 		});
@@ -460,7 +485,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			df: {
 				fieldname: "flt_to_date",
 				fieldtype: "Date",
-				label: "To Purchase Date",
+				label: "",
 				placeholder: "dd/mm/yyyy",
 				onchange: function () {
 					load_all_lots();
@@ -469,6 +494,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			render_input: true,
 		});
 		flt_to_date_field.refresh();
+		flt_to_date_field.$input.addClass("input-xs");
 		flt_to_date_field.$input.on("change", function () {
 			load_all_lots();
 		});
@@ -487,6 +513,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 							<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
 								<i class="fa fa-download"></i> Download
 							</button>
+							<span style="font-size:12px;font-weight:600;color:#4b5563;">Purchase Date :</span>
 							<div id="flt_from_date_wrapper" style="display:inline-block;width:160px;"></div>
 							<span style="font-size:12px;color:#6b7280;">to</span>
 							<div id="flt_to_date_wrapper" style="display:inline-block;width:160px;"></div>
