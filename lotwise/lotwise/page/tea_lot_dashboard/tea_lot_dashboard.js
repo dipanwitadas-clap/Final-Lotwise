@@ -451,6 +451,9 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			render_input: true,
 		});
 		flt_from_date_field.refresh();
+		flt_from_date_field.$input.on("change", function () {
+			load_all_lots();
+		});
 
 		flt_to_date_field = frappe.ui.form.make_control({
 			parent: $("#flt_to_date_wrapper"),
@@ -466,6 +469,9 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			render_input: true,
 		});
 		flt_to_date_field.refresh();
+		flt_to_date_field.$input.on("change", function () {
+			load_all_lots();
+		});
 	}
 
 	function load_all_lots() {
