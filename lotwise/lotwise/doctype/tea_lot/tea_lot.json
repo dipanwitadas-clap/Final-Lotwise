@@ -150,6 +150,8 @@
   {
    "fieldname": "sale_no",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Sale No",
    "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\""
   },
@@ -328,7 +330,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-06-30 15:31:59.436199",
+ "modified": "2026-07-01 16:26:04.712554",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
