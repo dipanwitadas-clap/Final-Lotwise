@@ -423,11 +423,54 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	var current_page = 0;
 	var page_size = 10;
 
+	function get_date_filter_args() {
+		var args = {};
+		var from_date = $("#flt_from_date").val();
+		var to_date = $("#flt_to_date").val();
+		if (from_date) args.from_date = from_date;
+		if (to_date) args.to_date = to_date;
+		return args;
+	}
+
 	function load_all_lots() {
-		$("#tea_lot_all").html(
-			`<div class="detail-box text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading all tea lots...</div>`
+		if (!$("#tea_lot_all").length) return;
+		if (!$("#tea_lot_all_heading").length) {
+			$("#tea_lot_all").html(`
+				<div class="detail-box">
+					<div class="section-heading" id="tea_lot_all_heading">
+						<div class="section-title-wrap">
+							<h4>All Tea Lots</h4>
+							<span class="lot-count-badge" id="total_lot_count">0 Total</span>
+							<span class="lot-badge" id="filtered_lot_count" style="background:#fef3c7;color:#92400e;display:none;">0 Filtered</span>
+							<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
+								<i class="fa fa-download"></i> Download
+							</button>
+							<input type="date" id="flt_from_date" title="From Purchase Date" style="padding:3px 6px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;" />
+							<span style="font-size:12px;color:#6b7280;">to</span>
+							<input type="date" id="flt_to_date" title="To Purchase Date" style="padding:3px 6px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;" />
+						</div>
+					</div>
+					<div id="tea_lot_all_container"></div>
+				</div>
+			`);
+			$("#tea_lot_all")
+				.off("change", "#flt_from_date, #flt_to_date")
+				.on("change", "#flt_from_date, #flt_to_date", function () {
+					load_all_lots();
+				});
+			$("#tea_lot_all")
+				.off("click", "#download_all_lots_btn")
+				.on("click", "#download_all_lots_btn", function (e) {
+					e.preventDefault();
+					download_all_lots_excel();
+				});
+		}
+
+		$("#tea_lot_all_container").html(
+			`<div class="text-center text-muted" style="padding:20px;"><i class="fa fa-spinner fa-spin"></i> Loading all tea lots...</div>`
 		);
-		api_from("tea_lot_dashboard_all_lots", "get_all_lots", {}, function (data) {
+		var args = get_date_filter_args();
+		api_from("tea_lot_dashboard_all_lots", "get_all_lots", args, function (data) {
 			all_lots_data = (data && data.lots) || [];
 			current_page = 0;
 			render_all_lots_table();
@@ -448,8 +491,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 		var data = all_lots_data;
 		if (!data.length) {
-			$("#tea_lot_all").html(
-				`<div class="detail-box text-center text-muted">No Tea Lots found.</div>`
+			$("#total_lot_count").text("0 Total");
+			$("#filtered_lot_count").hide();
+			$("#tea_lot_all_container").html(
+				`<div class="text-center text-muted" style="padding:20px;">No Tea Lots found.</div>`
 			);
 			return;
 		}
@@ -505,20 +550,17 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		var start_idx = current_page * page_size;
 		var page_data = filtered_with_index.slice(start_idx, start_idx + page_size);
 
-		var html = `<div class="detail-box"><div class="section-heading"><div class="section-title-wrap">
-			<h4>All Tea Lots</h4>
-			<span class="lot-count-badge">${fmt(data.length)} Total</span>
-			${
-				filtered_lots_data.length !== data.length
-					? `<span class="lot-badge" style="background:#fef3c7;color:#92400e;">${fmt(
-							filtered_lots_data.length
-					  )} Filtered</span>`
-					: ""
-			}
-			<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
-				<i class="fa fa-download"></i> Download
-			</button>
-		</div></div><div class="section-body" style="padding:0;"><div class="all-lots-wrap">
+		// Update heading counts
+		$("#total_lot_count").text(fmt(data.length) + " Total");
+		if (filtered_lots_data.length !== data.length) {
+			$("#filtered_lot_count")
+				.text(fmt(filtered_lots_data.length) + " Filtered")
+				.show();
+		} else {
+			$("#filtered_lot_count").hide();
+		}
+
+		var html = `<div class="section-body" style="padding:0;"><div class="all-lots-wrap">
 		<table class="table table-bordered" id="all_lots_table"><thead><tr>`;
 
 		columns.forEach(function (col) {
@@ -580,8 +622,8 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			</div>
 		`;
 
-		html += `</tbody></table></div></div>${pagination_html}</div>`;
-		$("#tea_lot_all").html(html);
+		html += `</tbody></table></div></div>${pagination_html}`;
+		$("#tea_lot_all_container").html(html);
 
 		// Restore focus to the filter input the user was typing in
 		if (focused_filter_id) {
@@ -595,7 +637,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			}
 		}
 
-		$("#tea_lot_all")
+		$("#tea_lot_all_container")
 			.off("input", ".col-filter")
 			.on("input", ".col-filter", function () {
 				if (filter_timeout) clearTimeout(filter_timeout);
@@ -605,7 +647,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				}, 200);
 			});
 
-		$("#tea_lot_all")
+		$("#tea_lot_all_container")
 			.off("click", "#prev_page_btn")
 			.on("click", "#prev_page_btn", function () {
 				if (current_page > 0) {
@@ -613,7 +655,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 					render_all_lots_table();
 				}
 			});
-		$("#tea_lot_all")
+		$("#tea_lot_all_container")
 			.off("click", "#next_page_btn")
 			.on("click", "#next_page_btn", function () {
 				var total_pages = Math.ceil(filtered_lots_data.length / page_size);
@@ -623,14 +665,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				}
 			});
 
-		$("#tea_lot_all")
-			.off("click", "#download_all_lots_btn")
-			.on("click", "#download_all_lots_btn", function (e) {
-				e.preventDefault();
-				download_all_lots_excel();
-			});
-
-		$("#tea_lot_all")
+		$("#tea_lot_all_container")
 			.off("click", ".lot-detail-link")
 			.on("click", ".lot-detail-link", function (e) {
 				e.preventDefault();

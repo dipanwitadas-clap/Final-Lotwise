@@ -5,12 +5,24 @@ import frappe
 
 
 @frappe.whitelist()
-def get_all_lots() -> dict:
+def get_all_lots(from_date: str | None = None, to_date: str | None = None) -> dict:
 	"""
-	Fetch all Tea Lots for the main Tea Lot tab
+	Fetch all Tea Lots for the main Tea Lot tab.
+	Optional date range filter on purchase_date.
 	"""
+	conditions = ["docstatus < 2"]
+	values = {}
+
+	if from_date:
+		conditions.append("purchase_date >= %(from_date)s")
+		values["from_date"] = from_date
+
+	if to_date:
+		conditions.append("purchase_date <= %(to_date)s")
+		values["to_date"] = to_date
+
 	lots = frappe.db.sql(
-		"""
+		f"""
 		SELECT
 			name,
 			lot_no,
@@ -28,9 +40,10 @@ def get_all_lots() -> dict:
 			seller,
 			warehouselocation AS warehouse
 		FROM `tabTea Lot`
-		WHERE docstatus < 2
+		WHERE {" AND ".join(conditions)}
 		ORDER BY creation DESC
 		""",
+		values,
 		as_dict=True,
 	)
 
