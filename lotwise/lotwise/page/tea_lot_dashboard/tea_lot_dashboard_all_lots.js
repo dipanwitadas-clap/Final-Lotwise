@@ -74,7 +74,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			df: {
 				fieldname: "flt_from_date",
 				fieldtype: "Date",
-				label: "From Purchase Date",
+				label: "",
 				placeholder: "dd/mm/yyyy",
 				onchange: function () {
 					load_all_lots();
@@ -83,6 +83,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			render_input: true,
 		});
 		flt_from_date_field.refresh();
+		flt_from_date_field.$input.addClass("input-xs");
 		flt_from_date_field.$input.on("change", function () {
 			load_all_lots();
 		});
@@ -92,7 +93,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			df: {
 				fieldname: "flt_to_date",
 				fieldtype: "Date",
-				label: "To Purchase Date",
+				label: "",
 				placeholder: "dd/mm/yyyy",
 				onchange: function () {
 					load_all_lots();
@@ -101,6 +102,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			render_input: true,
 		});
 		flt_to_date_field.refresh();
+		flt_to_date_field.$input.addClass("input-xs");
 		flt_to_date_field.$input.on("change", function () {
 			load_all_lots();
 		});
