@@ -422,14 +422,50 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	var filter_timeout = null;
 	var current_page = 0;
 	var page_size = 10;
+	var flt_from_date_field = null;
+	var flt_to_date_field = null;
 
 	function get_date_filter_args() {
 		var args = {};
-		var from_date = $("#flt_from_date").val();
-		var to_date = $("#flt_to_date").val();
+		var from_date = flt_from_date_field ? flt_from_date_field.get_value() : "";
+		var to_date = flt_to_date_field ? flt_to_date_field.get_value() : "";
 		if (from_date) args.from_date = from_date;
 		if (to_date) args.to_date = to_date;
 		return args;
+	}
+
+	function create_date_filter_controls() {
+		if (flt_from_date_field) return; // already created
+
+		flt_from_date_field = frappe.ui.form.make_control({
+			parent: $("#flt_from_date_wrapper"),
+			df: {
+				fieldname: "flt_from_date",
+				fieldtype: "Date",
+				label: "From Purchase Date",
+				placeholder: "dd/mm/yyyy",
+				onchange: function () {
+					load_all_lots();
+				},
+			},
+			render_input: true,
+		});
+		flt_from_date_field.refresh();
+
+		flt_to_date_field = frappe.ui.form.make_control({
+			parent: $("#flt_to_date_wrapper"),
+			df: {
+				fieldname: "flt_to_date",
+				fieldtype: "Date",
+				label: "To Purchase Date",
+				placeholder: "dd/mm/yyyy",
+				onchange: function () {
+					load_all_lots();
+				},
+			},
+			render_input: true,
+		});
+		flt_to_date_field.refresh();
 	}
 
 	function load_all_lots() {
@@ -445,19 +481,15 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 							<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
 								<i class="fa fa-download"></i> Download
 							</button>
-							<input type="date" id="flt_from_date" title="From Purchase Date" style="padding:3px 6px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;" />
+							<div id="flt_from_date_wrapper" style="display:inline-block;width:160px;"></div>
 							<span style="font-size:12px;color:#6b7280;">to</span>
-							<input type="date" id="flt_to_date" title="To Purchase Date" style="padding:3px 6px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;" />
+							<div id="flt_to_date_wrapper" style="display:inline-block;width:160px;"></div>
 						</div>
 					</div>
 					<div id="tea_lot_all_container"></div>
 				</div>
 			`);
-			$("#tea_lot_all")
-				.off("change", "#flt_from_date, #flt_to_date")
-				.on("change", "#flt_from_date, #flt_to_date", function () {
-					load_all_lots();
-				});
+			create_date_filter_controls();
 			$("#tea_lot_all")
 				.off("click", "#download_all_lots_btn")
 				.on("click", "#download_all_lots_btn", function (e) {
