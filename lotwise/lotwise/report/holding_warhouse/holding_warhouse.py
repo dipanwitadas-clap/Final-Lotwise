@@ -123,7 +123,7 @@ def get_report_summary(filters):
 			sum(net_weight_total) as total_weight,
 			count(distinct mark) as total_marks,
 			count(distinct seller) as total_sellers,
-			sum(rate) as total_rate
+			COALESCE(SUM(net_weight_total * rate) / NULLIF(SUM(net_weight_total),0), 0) AS avg_rate
 		FROM `tabTea Lot`
 		WHERE {" AND ".join(conditions)}
 		""",
@@ -137,5 +137,5 @@ def get_report_summary(filters):
 		{"label": _("Net Weight (Kg)"), "value": round(result.total_weight or 0, 2), "indicator": "orange"},
 		{"label": _("Total Marks"), "value": result.total_marks or 0, "indicator": "purple"},
 		{"label": _("Total Sellers"), "value": result.total_sellers or 0, "indicator": "red"},
-		{"label": _("Total Rate"), "value": round(result.total_rate or 0, 2), "indicator": "yellow"},
+		{"label": _("Avg Rate/kg"), "value": round(result.avg_rate or 0, 2), "indicator": "yellow"},
 	]
