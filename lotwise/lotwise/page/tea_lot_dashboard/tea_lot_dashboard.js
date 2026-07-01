@@ -422,12 +422,87 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	var filter_timeout = null;
 	var current_page = 0;
 	var page_size = 10;
+	var flt_from_date_field = null;
+	var flt_to_date_field = null;
+
+	function get_date_filter_args() {
+		var args = {};
+		var from_date = flt_from_date_field ? flt_from_date_field.get_value() : "";
+		var to_date = flt_to_date_field ? flt_to_date_field.get_value() : "";
+		if (from_date) args.from_date = from_date;
+		if (to_date) args.to_date = to_date;
+		return args;
+	}
+
+	function create_date_filter_controls() {
+		if (flt_from_date_field) return; // already created
+
+		flt_from_date_field = frappe.ui.form.make_control({
+			parent: $("#flt_from_date_wrapper"),
+			df: {
+				fieldname: "flt_from_date",
+				fieldtype: "Date",
+				label: "From Purchase Date",
+				placeholder: "dd/mm/yyyy",
+				onchange: function () {
+					load_all_lots();
+				},
+			},
+			render_input: true,
+		});
+		flt_from_date_field.refresh();
+
+		flt_to_date_field = frappe.ui.form.make_control({
+			parent: $("#flt_to_date_wrapper"),
+			df: {
+				fieldname: "flt_to_date",
+				fieldtype: "Date",
+				label: "To Purchase Date",
+				placeholder: "dd/mm/yyyy",
+				onchange: function () {
+					load_all_lots();
+				},
+			},
+			render_input: true,
+		});
+		flt_to_date_field.refresh();
+	}
 
 	function load_all_lots() {
-		$("#tea_lot_all").html(
-			`<div class="detail-box text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading all tea lots...</div>`
+		if (!$("#tea_lot_all").length) return;
+		if (!$("#tea_lot_all_heading").length) {
+			$("#tea_lot_all").html(`
+				<div class="detail-box">
+					<div class="section-heading" id="tea_lot_all_heading">
+						<div class="section-title-wrap">
+							<h4>All Tea Lots</h4>
+							<span class="lot-count-badge" id="total_lot_count">0 Total</span>
+							<span class="lot-badge" id="filtered_lot_count" style="background:#fef3c7;color:#92400e;display:none;">0 Filtered</span>
+							<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
+								<i class="fa fa-download"></i> Download
+							</button>
+							<div id="flt_from_date_wrapper" style="display:inline-block;width:160px;"></div>
+							<span style="font-size:12px;color:#6b7280;">to</span>
+							<div id="flt_to_date_wrapper" style="display:inline-block;width:160px;"></div>
+						</div>
+					</div>
+					<div id="tea_lot_all_container"></div>
+				</div>
+			`);
+			create_date_filter_controls();
+			$("#tea_lot_all")
+				.off("click", "#download_all_lots_btn")
+				.on("click", "#download_all_lots_btn", function (e) {
+					e.preventDefault();
+					download_all_lots_excel();
+				});
+		}
+
+		$("#tea_lot_all_container").html(
+			`<div class="text-center text-muted" style="padding:20px;"><i class="fa fa-spinner fa-spin"></i> Loading all tea lots...</div>`
 		);
-		api_from("tea_lot_dashboard_all_lots", "get_all_lots", {}, function (data) {
+		var args = get_date_filter_args();
+		api_from("tea_lot_dashboard_all_lots", "get_all_lots", args, function (data) {
 			all_lots_data = (data && data.lots) || [];
 			current_page = 0;
 			render_all_lots_table();
@@ -448,8 +523,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 		var data = all_lots_data;
 		if (!data.length) {
-			$("#tea_lot_all").html(
-				`<div class="detail-box text-center text-muted">No Tea Lots found.</div>`
+			$("#total_lot_count").text("0 Total");
+			$("#filtered_lot_count").hide();
+			$("#tea_lot_all_container").html(
+				`<div class="text-center text-muted" style="padding:20px;">No Tea Lots found.</div>`
 			);
 			return;
 		}
@@ -505,20 +582,17 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		var start_idx = current_page * page_size;
 		var page_data = filtered_with_index.slice(start_idx, start_idx + page_size);
 
-		var html = `<div class="detail-box"><div class="section-heading"><div class="section-title-wrap">
-			<h4>All Tea Lots</h4>
-			<span class="lot-count-badge">${fmt(data.length)} Total</span>
-			${
-				filtered_lots_data.length !== data.length
-					? `<span class="lot-badge" style="background:#fef3c7;color:#92400e;">${fmt(
-							filtered_lots_data.length
-					  )} Filtered</span>`
-					: ""
-			}
-			<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
-				<i class="fa fa-download"></i> Download
-			</button>
-		</div></div><div class="section-body" style="padding:0;"><div class="all-lots-wrap">
+		// Update heading counts
+		$("#total_lot_count").text(fmt(data.length) + " Total");
+		if (filtered_lots_data.length !== data.length) {
+			$("#filtered_lot_count")
+				.text(fmt(filtered_lots_data.length) + " Filtered")
+				.show();
+		} else {
+			$("#filtered_lot_count").hide();
+		}
+
+		var html = `<div class="section-body" style="padding:0;"><div class="all-lots-wrap">
 		<table class="table table-bordered" id="all_lots_table"><thead><tr>`;
 
 		columns.forEach(function (col) {
@@ -580,8 +654,8 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			</div>
 		`;
 
-		html += `</tbody></table></div></div>${pagination_html}</div>`;
-		$("#tea_lot_all").html(html);
+		html += `</tbody></table></div></div>${pagination_html}`;
+		$("#tea_lot_all_container").html(html);
 
 		// Restore focus to the filter input the user was typing in
 		if (focused_filter_id) {
@@ -595,7 +669,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			}
 		}
 
-		$("#tea_lot_all")
+		$("#tea_lot_all_container")
 			.off("input", ".col-filter")
 			.on("input", ".col-filter", function () {
 				if (filter_timeout) clearTimeout(filter_timeout);
@@ -605,7 +679,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				}, 200);
 			});
 
-		$("#tea_lot_all")
+		$("#tea_lot_all_container")
 			.off("click", "#prev_page_btn")
 			.on("click", "#prev_page_btn", function () {
 				if (current_page > 0) {
@@ -613,7 +687,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 					render_all_lots_table();
 				}
 			});
-		$("#tea_lot_all")
+		$("#tea_lot_all_container")
 			.off("click", "#next_page_btn")
 			.on("click", "#next_page_btn", function () {
 				var total_pages = Math.ceil(filtered_lots_data.length / page_size);
@@ -623,14 +697,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				}
 			});
 
-		$("#tea_lot_all")
-			.off("click", "#download_all_lots_btn")
-			.on("click", "#download_all_lots_btn", function (e) {
-				e.preventDefault();
-				download_all_lots_excel();
-			});
-
-		$("#tea_lot_all")
+		$("#tea_lot_all_container")
 			.off("click", ".lot-detail-link")
 			.on("click", ".lot-detail-link", function (e) {
 				e.preventDefault();
