@@ -414,8 +414,6 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			$("#cards").html(html);
 		});
 	}
-
-	// --------------------------------------------------
 	// ALL LOTS - FILTERABLE TABLE + MODAL
 	// --------------------------------------------------
 
@@ -437,6 +435,17 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	}
 
 	function render_all_lots_table() {
+		// Save focus state before re-render so the user can keep typing
+		var focused_filter_id = null;
+		var cursor_start = 0;
+		var cursor_end = 0;
+		var active = document.activeElement;
+		if (active && active.id && active.id.indexOf("flt_") === 0) {
+			focused_filter_id = active.id;
+			cursor_start = active.selectionStart || 0;
+			cursor_end = active.selectionEnd || 0;
+		}
+
 		var data = all_lots_data;
 		if (!data.length) {
 			$("#tea_lot_all").html(
@@ -573,6 +582,18 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 		html += `</tbody></table></div></div>${pagination_html}</div>`;
 		$("#tea_lot_all").html(html);
+
+		// Restore focus to the filter input the user was typing in
+		if (focused_filter_id) {
+			var $input = $("#" + focused_filter_id);
+			if ($input.length) {
+				$input.focus();
+				var inputEl = $input[0];
+				if (inputEl.setSelectionRange) {
+					inputEl.setSelectionRange(cursor_start, cursor_end);
+				}
+			}
+		}
 
 		$("#tea_lot_all")
 			.off("input", ".col-filter")
