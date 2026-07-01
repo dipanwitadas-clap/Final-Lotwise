@@ -513,6 +513,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 							<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
 								<i class="fa fa-download"></i> Download
 							</button>
+							<span style="font-size:12px;font-weight:600;color:#4b5563;">Purchase Date :</span>
 							<div id="flt_from_date_wrapper" style="display:inline-block;width:160px;"></div>
 							<span style="font-size:12px;color:#6b7280;">to</span>
 							<div id="flt_to_date_wrapper" style="display:inline-block;width:160px;"></div>

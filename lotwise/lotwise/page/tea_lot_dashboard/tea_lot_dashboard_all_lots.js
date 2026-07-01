@@ -119,6 +119,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 							<h4>All Tea Lots</h4>
 							<span class="lot-count-badge" id="total_lot_count">0 Total</span>
 							<span class="lot-badge" id="filtered_lot_count" style="background:#fef3c7;color:#92400e;display:none;">0 Filtered</span>
+							<span style="font-size:12px;font-weight:600;color:#4b5563;">Purchase Date :</span>
 							<div id="flt_from_date_wrapper" style="display:inline-block;width:160px;"></div>
 							<span style="font-size:12px;color:#6b7280;">to</span>
 							<div id="flt_to_date_wrapper" style="display:inline-block;width:160px;"></div>
