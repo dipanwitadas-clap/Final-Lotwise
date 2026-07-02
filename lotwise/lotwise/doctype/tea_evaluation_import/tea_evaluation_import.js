@@ -28,7 +28,7 @@
 
 frappe.ui.form.on("Tea Evaluation Import", {
 	refresh(frm) {
-		frm.disable_save();
+		// frm.disable_save();
 
 		// ==================================================
 		// LOAD EXCEL DATA BUTTON
