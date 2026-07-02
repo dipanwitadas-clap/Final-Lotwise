@@ -262,6 +262,25 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	margin-left:8px;
 }
 
+/* Evaluation tab compact controls */
+#eval_taster_field .frappe-control {
+	margin-bottom: 0 !important;
+}
+#eval_taster_field .frappe-control .form-group {
+	margin-bottom: 0 !important;
+}
+#eval_taster_field .frappe-control .clearfix {
+	display: none !important;
+}
+#eval_taster_field .frappe-control .control-input {
+	margin-top: 0 !important;
+}
+#eval_taster_field input {
+	height: 26px !important;
+	font-size: 11px !important;
+	padding: 2px 6px !important;
+}
+
 /* Compact date filter controls */
 #flt_from_date_wrapper .frappe-control,
 #flt_to_date_wrapper .frappe-control {
@@ -333,22 +352,24 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 </div>
 
 <div class="dashboard-tab-panel" id="evaluation-tab">
-<div class="lot-search-card">
-<div class="row" style="margin:0;gap:10px;display:flex;flex-wrap:wrap;align-items:end;">
-<div style="flex:1;min-width:120px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Colour</label><input type="number" class="form-control" id="eval_colour" placeholder="e.g. 8" step="0.001"></div>
-<div style="flex:1;min-width:120px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Strength</label><input type="number" class="form-control" id="eval_strength" placeholder="e.g. 4" step="0.001"></div>
-<div style="flex:1;min-width:120px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Taste</label><input type="number" class="form-control" id="eval_taste" placeholder="e.g. 9" step="0.001"></div>
-<div style="flex:1;min-width:120px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Briskness</label><input type="number" class="form-control" id="eval_briskness" placeholder="e.g. 10" step="0.001"></div>
-<div style="flex:1;min-width:120px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Quality Grade</label>
-<select class="form-control" id="eval_quality_grade"><option value="">All</option><option value="A">A</option><option value="A++">A++</option><option value="A+++">A+++</option><option value="B">B</option><option value="B+">B+</option><option value="B++">B++</option><option value="B-">B-</option><option value="C">C</option><option value="C+">C+</option><option value="D">D</option><option value="D+">D+</option><option value="E">E</option><option value="E+">E+</option></select></div>
-</div>
-<div style="margin:10px 0 0;gap:10px;display:flex;flex-wrap:wrap;align-items:end;">
-<div style="flex:1;min-width:180px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Taster</label><div id="eval_taster_field"></div></div>
-<div style="flex:1;min-width:120px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Stage</label>
-<select class="form-control" id="eval_stage"><option value="">All</option><option value="Pre-purchase">Pre-purchase</option><option value="Arrival">Arrival</option><option value="Blend QC">Blend QC</option><option value="Storage">Storage</option></select></div>
-<div style="display:flex;align-items:end;gap:6px;padding-bottom:1px;">
-<button class="btn btn-primary btn-sm" id="eval_search_btn"><i class="fa fa-search"></i> Search</button>
-<button class="btn btn-default btn-sm" id="eval_clear_btn"><i class="fa fa-eraser"></i> Clear</button></div>
+<div class="lot-search-card" style="padding:16px;">
+<table style="width:100%;border-collapse:collapse;">
+<tr>
+<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Colour</label><div style="display:flex;gap:3px;"><select id="eval_colour_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_colour" placeholder="e.g. 8" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
+<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Strength</label><div style="display:flex;gap:3px;"><select id="eval_strength_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_strength" placeholder="e.g. 4" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
+<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Taste</label><div style="display:flex;gap:3px;"><select id="eval_taste_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_taste" placeholder="e.g. 9" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
+<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Briskness</label><div style="display:flex;gap:3px;"><select id="eval_briskness_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_briskness" placeholder="e.g. 10" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
+<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Quality Grade</label>
+<select id="eval_quality_grade" style="width:100%;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 4px;box-sizing:border-box;"><option value="">All</option><option value="A">A</option><option value="A++">A++</option><option value="A+++">A+++</option><option value="B">B</option><option value="B+">B+</option><option value="B++">B++</option><option value="B-">B-</option><option value="C">C</option><option value="C+">C+</option><option value="D">D</option><option value="D+">D+</option><option value="E">E</option><option value="E+">E+</option></select></td>
+</tr>
+</table>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding:4px 6px;">
+<div style="flex:3;min-width:180px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Taster</label><div id="eval_taster_field"></div></div>
+<div style="flex:1;min-width:110px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Stage</label>
+<select id="eval_stage" style="width:100%;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 4px;box-sizing:border-box;"><option value="">All</option><option value="Pre-purchase">Pre-purchase</option><option value="Arrival">Arrival</option><option value="Blend QC">Blend QC</option><option value="Storage">Storage</option></select></div>
+<div style="display:flex;align-items:end;gap:4px;">
+<button class="btn btn-primary btn-sm" id="eval_search_btn" style="height:26px;font-size:12px;padding:2px 12px;"><i class="fa fa-search"></i> Search</button>
+<button class="btn btn-default btn-sm" id="eval_clear_btn" style="height:26px;font-size:12px;padding:2px 12px;"><i class="fa fa-eraser"></i> Clear</button></div>
 </div>
 </div>
 <div id="evaluation_results"></div>
@@ -1234,6 +1255,9 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			$(
 				"#eval_colour,#eval_strength,#eval_taste,#eval_briskness,#eval_quality_grade,#eval_stage"
 			).val("");
+			$(
+				"#eval_colour_operator,#eval_strength_operator,#eval_taste_operator,#eval_briskness_operator"
+			).val("=");
 			if (taster_field) taster_field.set_value("");
 			$("#evaluation_results").empty();
 		});
@@ -1263,10 +1287,22 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		var quality_grade = $("#eval_quality_grade").val();
 		var stage = $("#eval_stage").val();
 		var taster_val = taster_field ? (taster_field.get_value() || "").trim() : "";
-		if (colour) args.colour = colour;
-		if (strength) args.strength = strength;
-		if (taste) args.taste = taste;
-		if (briskness) args.briskness = briskness;
+		if (colour) {
+			args.colour = colour;
+			args.colour_operator = $("#eval_colour_operator").val();
+		}
+		if (strength) {
+			args.strength = strength;
+			args.strength_operator = $("#eval_strength_operator").val();
+		}
+		if (taste) {
+			args.taste = taste;
+			args.taste_operator = $("#eval_taste_operator").val();
+		}
+		if (briskness) {
+			args.briskness = briskness;
+			args.briskness_operator = $("#eval_briskness_operator").val();
+		}
 		if (quality_grade) args.quality_grade = quality_grade;
 		if (taster_val) args.taster = taster_val;
 		if (stage) args.stage = stage;

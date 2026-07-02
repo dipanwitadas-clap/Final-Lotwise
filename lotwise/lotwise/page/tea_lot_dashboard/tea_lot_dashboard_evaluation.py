@@ -7,9 +7,13 @@ import frappe
 @frappe.whitelist()
 def get_evaluations(
 	colour: str | None = None,
+	colour_operator: str | None = None,
 	strength: str | None = None,
+	strength_operator: str | None = None,
 	taste: str | None = None,
+	taste_operator: str | None = None,
 	briskness: str | None = None,
+	briskness_operator: str | None = None,
 	quality_grade: str | None = None,
 	taster: str | None = None,
 	stage: str | None = None,
@@ -21,19 +25,23 @@ def get_evaluations(
 	params = {}
 
 	if colour is not None and colour != "":
-		conditions.append("e.colour = %(colour)s")
+		op = colour_operator or "="
+		conditions.append(f"e.colour {op} %(colour)s")
 		params["colour"] = float(colour)
 
 	if strength is not None and strength != "":
-		conditions.append("e.strength = %(strength)s")
+		op = strength_operator or "="
+		conditions.append(f"e.strength {op} %(strength)s")
 		params["strength"] = float(strength)
 
 	if taste is not None and taste != "":
-		conditions.append("e.taste = %(taste)s")
+		op = taste_operator or "="
+		conditions.append(f"e.taste {op} %(taste)s")
 		params["taste"] = float(taste)
 
 	if briskness is not None and briskness != "":
-		conditions.append("e.briskness = %(briskness)s")
+		op = briskness_operator or "="
+		conditions.append(f"e.briskness {op} %(briskness)s")
 		params["briskness"] = float(briskness)
 
 	if quality_grade is not None and quality_grade != "":
