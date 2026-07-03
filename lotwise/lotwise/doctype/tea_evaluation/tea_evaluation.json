@@ -20,6 +20,8 @@
   "taste",
   "briskness",
   "quality_grade",
+  "invoice_number",
+  "mark",
   "section_break_4j6n",
   "notes"
  ],
@@ -108,12 +110,23 @@
    "fieldtype": "Select",
    "label": "Quality Grade",
    "options": "\nA\nA++\nA+++\nB\nB+\nB++\nB-\nC\nC+\nD\nD+\nE\nE+"
+  },
+  {
+   "fieldname": "invoice_number",
+   "fieldtype": "Data",
+   "label": "Invoice Number"
+  },
+  {
+   "fieldname": "mark",
+   "fieldtype": "Link",
+   "label": "Mark",
+   "options": "Mark"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-30 15:28:58.049860",
+ "modified": "2026-07-03 16:53:28.075225",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",

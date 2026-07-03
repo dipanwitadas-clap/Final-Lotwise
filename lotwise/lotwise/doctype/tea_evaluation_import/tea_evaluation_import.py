@@ -27,6 +27,8 @@ HEADER_TO_FIELD = {
 	"quality grade": {"field": "quality_grade", "type": "str"},
 	"suggested valuation": {"field": "suggested_valuation", "type": "float"},
 	"notes": {"field": "notes", "type": "str"},
+	"invoice number": {"field": "invoice_number", "type": "str"},
+	"mark": {"field": "mark", "type": "str"},
 }
 
 
@@ -110,6 +112,28 @@ def read_excel_rows(ws, column_map, start_row):
 
 
 class TeaEvaluationImport(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.types import DF
+
+		from lotwise.lotwise.doctype.tea_evaluation_import_item.tea_evaluation_import_item import (
+			TeaEvaluationImportItem,
+		)
+
+		computed_total_evaluations: DF.Int
+		evaluation_date: DF.Date
+		import_file: DF.Attach
+		items: DF.Table[TeaEvaluationImportItem]
+		rows_created: DF.Int
+		rows_duplicate: DF.Int
+		rows_error: DF.Int
+		rows_parsed: DF.Int
+	# end: auto-generated types
+
 	# ======================================================
 	# LOAD EXCEL DATA BUTTON
 	# ======================================================
@@ -212,6 +236,8 @@ class TeaEvaluationImport(Document):
 						"quality_grade": row.quality_grade,
 						"suggested_valuation": flt(row.suggested_valuation),
 						"notes": row.notes,
+						"invoice_number": row.invoice_number,
+						"mark": row.mark,
 					}
 				)
 
