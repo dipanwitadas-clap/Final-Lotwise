@@ -185,7 +185,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			{ key: "purchase_date", label: "Purchase Date" },
 			{ key: "packages", label: "Packages", numeric: true },
 			{ key: "net_weight_total", label: "Net Wt Kg", numeric: true },
-			{ key: "rate", label: "Rate" },
+			{ key: "rate", label: "Rate", numeric: true },
 			{ key: "status", label: "Status" },
 			{ key: "holding_status", label: "Holding Status" },
 			{ key: "warehouse", label: "Warehouse" },
@@ -198,6 +198,34 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			filters[col.key] = (val || "").toLowerCase();
 		});
 
+		// Numeric filter helper: supports >, <, >=, <=, =, ==
+		function apply_numeric_filter(rowValue, filterValue) {
+			// If only an operator (no number yet), pass through so table isn't blank while typing
+			if (/^\s*([><]=?|={1,2})\s*$/.test(filterValue)) return true;
+			var match = filterValue.match(/^\s*([><]=?|={1,2})\s*([\d.]+)\s*$/);
+			if (!match) return null;
+			var op = match[1];
+			var num = parseFloat(match[2]);
+			if (isNaN(num)) return null;
+			var rv = parseFloat(rowValue);
+			if (isNaN(rv)) return false;
+			switch (op) {
+				case ">=":
+					return rv >= num;
+				case "<=":
+					return rv <= num;
+				case ">":
+					return rv > num;
+				case "<":
+					return rv < num;
+				case "=":
+				case "==":
+					return rv === num;
+				default:
+					return null;
+			}
+		}
+
 		// Filter rows - preserve original index for S.No
 		var filtered = data.filter(function (row, rowIndex) {
 			return columns.every(function (col) {
@@ -206,6 +234,11 @@ frappe.provide("lotwise.tea_lot_dashboard");
 				if (col.key === "sno") {
 					var sno = rowIndex + 1;
 					return String(sno).toLowerCase().indexOf(fv) !== -1;
+				}
+				// For numeric columns, try operator-based filter first
+				if (col.numeric) {
+					var numericResult = apply_numeric_filter(row[col.key], fv);
+					if (numericResult !== null) return numericResult;
 				}
 				var rv = (row[col.key] == null ? "" : String(row[col.key])).toLowerCase();
 				return rv.indexOf(fv) !== -1;
