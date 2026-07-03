@@ -1,8 +1,13 @@
 # Copyright (c) 2026, BusinessThat.Works and contributors
 # For license information, please see license.txt
 
-# import frappe
+import base64
+import io
+
+import frappe
+import openpyxl
 from frappe.model.document import Document
+from frappe.utils import flt
 
 
 class TeaLot(Document):
@@ -57,3 +62,72 @@ class TeaLot(Document):
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Tea Lot"
+
+
+# ============================================================
+# XLSX DOWNLOAD - EVALUATION IMPORT
+# ============================================================
+
+
+@frappe.whitelist()
+def download_evaluation_import_xlsx() -> dict:
+	"""
+	Generate xlsx with Tea Lots where status != 'Evaluated'.
+	First 3 columns (Tea Lot, Mark, Invoice Number) have data,
+	remaining columns have headers only (blank data).
+	Returns base64 encoded content for frontend download.
+	"""
+	# Fetch unevaluated Tea Lots
+	lots = frappe.db.sql(
+		"""
+		SELECT name, mark, invoice_number
+		FROM `tabTea Lot`
+		WHERE status != "Evaluated" OR status IS NULL
+		ORDER BY creation DESC
+		""",
+		as_dict=True,
+	)
+
+	# Create workbook
+	wb = openpyxl.Workbook()
+	ws = wb.active
+	ws.title = "Evaluations"
+
+	# Headers matching tea_evaluation_import.xlsx format
+	headers = [
+		"Tea Lot",
+		"Mark",
+		"Invoice Number",
+		"Taster",
+		"Stage",
+		"Liquor Mark",
+		"Evaluation Date",
+		"Colour",
+		"Strength",
+		"Taste",
+		"Briskness",
+		"Quality Grade",
+		"Suggested Valuation",
+		"Notes",
+	]
+
+	# Write headers
+	for col_idx, header in enumerate(headers, 1):
+		ws.cell(row=1, column=col_idx, value=header)
+
+	# Write data rows (only Tea Lot, Mark, Invoice Number filled)
+	for row_idx, lot in enumerate(lots, 2):
+		ws.cell(row=row_idx, column=1, value=lot.name)
+		ws.cell(row=row_idx, column=2, value=lot.mark)
+		ws.cell(row=row_idx, column=3, value=lot.invoice_number)
+		# Columns 4-14 remain blank (already None by default)
+
+	# Save to BytesIO
+	output = io.BytesIO()
+	wb.save(output)
+	output.seek(0)
+
+	# Encode to base64 for safe JSON transport
+	encoded = base64.b64encode(output.getvalue()).decode("utf-8")
+
+	return {"content": encoded, "filename": "tea_evaluation_import.xlsx"}
