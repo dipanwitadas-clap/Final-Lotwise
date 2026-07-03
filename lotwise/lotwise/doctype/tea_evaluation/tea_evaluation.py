@@ -17,7 +17,9 @@ class TeaEvaluation(Document):
 		briskness: DF.Float
 		colour: DF.Float
 		evaluation_date: DF.Date
+		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
+		mark: DF.Link | None
 		notes: DF.SmallText | None
 		quality_grade: DF.Literal[
 			"", "A", "A++", "A+++", "B", "B+", "B++", "B-", "C", "C+", "D", "D+", "E", "E+"
