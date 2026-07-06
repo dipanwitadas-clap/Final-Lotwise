@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import re
+from datetime import date, datetime
 
 import frappe
 import openpyxl
@@ -46,7 +47,30 @@ def normalize(value):
 
 def convert_value(value, field_type):
 	if field_type == "date":
-		return getdate(value) if value else None
+		if not value:
+			return None
+
+		# If openpyxl already parsed it as a datetime/date object, use it directly
+		if isinstance(value, (datetime, date)):
+			return value
+
+		# If it's a string, try DD-MM-YYYY first (common Indian format)
+		# to avoid day/month swapping
+		if isinstance(value, str):
+			value = value.strip()
+
+			# Try DD-MM-YYYY or DD/MM/YYYY
+			for sep in ("-", "/", "."):
+				parts = value.split(sep)
+
+				if len(parts) == 3 and len(parts[0]) == 2 and len(parts[1]) == 2 and len(parts[2]) == 4:
+					day, month, year = parts
+
+					if 1 <= int(day) <= 31 and 1 <= int(month) <= 12:
+						return date(int(year), int(month), int(day))
+
+		# Fallback to Frappe's getdate (which uses MM-DD-YYYY)
+		return getdate(value)
 
 	if field_type == "float":
 		return flt(value) if value else 0
@@ -125,7 +149,7 @@ class TeaEvaluationImport(Document):
 		)
 
 		computed_total_evaluations: DF.Int
-		evaluation_date: DF.Date
+		evaluation_import_date: DF.Date | None
 		import_file: DF.Attach
 		items: DF.Table[TeaEvaluationImportItem]
 		rows_created: DF.Int
