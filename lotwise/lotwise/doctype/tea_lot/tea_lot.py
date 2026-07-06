@@ -142,15 +142,14 @@ def download_evaluation_import_xlsx() -> dict:
 	#  4: Taster
 	#  5: Stage        <-- dropdown
 	#  6: Liquor Mark  <-- dropdown
-	#  7: Evaluation Date
-	#  8: Colour
-	#  9: Strength
-	# 10: Taste
-	# 11: Briskness
-	# 12: Quality Grade <-- dropdown
-	# 13: Suggested Valuation
-	# 14: Notes
-	# 15: Evaluation Date (duplicate header)
+	#  7: Colour
+	#  8: Strength
+	#  9: Taste
+	# 10: Briskness
+	# 11: Quality Grade <-- dropdown
+	# 12: Suggested Valuation
+	# 13: Notes
+	# 14: Evaluation Date
 	headers = [
 		"Tea Lot",
 		"Mark",
@@ -248,7 +247,7 @@ def download_evaluation_import_xlsx() -> dict:
 		ws.add_data_validation(liquor_dv)
 		liquor_dv.add(f"F2:F{last_data_row}")
 
-	# Column 12 (L): Quality Grade - reference $R$2:$R${grade_last_row}
+	# Column 11 (K): Quality Grade - reference $R$2:$R${grade_last_row}
 	if quality_grade_options:
 		grade_range = f"$R$2:$R${grade_last_row}"
 		grade_dv = openpyxl.worksheet.datavalidation.DataValidation(
@@ -261,7 +260,7 @@ def download_evaluation_import_xlsx() -> dict:
 		grade_dv.prompt = "Select Quality Grade from the list"
 		grade_dv.promptTitle = "Quality Grade"
 		ws.add_data_validation(grade_dv)
-		grade_dv.add(f"L2:L{last_data_row}")
+		grade_dv.add(f"K2:K{last_data_row}")
 
 	# Save to BytesIO
 	output = io.BytesIO()
