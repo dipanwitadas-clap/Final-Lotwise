@@ -158,7 +158,6 @@ def download_evaluation_import_xlsx() -> dict:
 		"Taster",
 		"Stage",
 		"Liquor Mark",
-		"Evaluation Date",
 		"Colour",
 		"Strength",
 		"Taste",
