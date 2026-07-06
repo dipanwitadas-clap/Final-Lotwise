@@ -1,6 +1,6 @@
 frappe.listview_settings["Tea Lot"] = {
 	onload: function (listview) {
-		listview.page.add_inner_button(__("Download Eval Import"), function () {
+		listview.page.add_inner_button(__("Evaluation Import"), function () {
 			frappe.call({
 				method: "lotwise.lotwise.doctype.tea_lot.tea_lot.download_evaluation_import_xlsx",
 				callback: function (r) {
