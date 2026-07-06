@@ -109,6 +109,7 @@ def download_evaluation_import_xlsx() -> dict:
 		"Quality Grade",
 		"Suggested Valuation",
 		"Notes",
+		"Evaluation Date",
 	]
 
 	# Write headers
