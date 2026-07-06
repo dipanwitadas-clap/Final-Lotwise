@@ -65,6 +65,33 @@ class TeaLot(Document):
 
 
 # ============================================================
+# HELPERS
+# ============================================================
+
+
+def get_evaluation_field_options(fieldname: str) -> list:
+	"""
+	Fetch the Select options for a given fieldname from Tea Evaluation doctype.
+	Options are stored as newline-separated values in DocField.
+	Returns a list of option strings (empty string and blank ones filtered out).
+	"""
+	options_str = frappe.db.get_value(
+		"DocField",
+		{"parent": "Tea Evaluation", "fieldname": fieldname},
+		"options",
+	)
+
+	if not options_str:
+		return []
+
+	# Options are stored as "\nOption1\nOption2\n..."
+	# Split by newline and filter out empty / whitespace-only entries
+	options = [opt.strip() for opt in options_str.split("\n") if opt.strip()]
+
+	return options
+
+
+# ============================================================
 # XLSX DOWNLOAD - EVALUATION IMPORT
 # ============================================================
 
@@ -75,7 +102,14 @@ def download_evaluation_import_xlsx() -> dict:
 	Generate xlsx with Tea Lots where status != 'Evaluated'.
 	First 3 columns (Tea Lot, Mark, Invoice Number) have data,
 	remaining columns have headers only (blank data).
-	Returns base64 encoded content for frontend download.
+
+	Stage (col 5), Liquor Mark (col 6), and Quality Grade (col 12)
+	have Excel dropdown validation with options dynamically fetched
+	from Tea Evaluation doctype field definitions.
+
+	Dropdown options are stored in hidden columns (P, Q, R) on the
+	same sheet and referenced via same-sheet range formulas for
+	maximum Excel compatibility.
 	"""
 	# Fetch unevaluated Tea Lots
 	lots = frappe.db.sql(
@@ -88,12 +122,35 @@ def download_evaluation_import_xlsx() -> dict:
 		as_dict=True,
 	)
 
+	# Fetch dropdown options dynamically from Tea Evaluation doctype
+	stage_options = get_evaluation_field_options("stage")
+	liquor_mark_options = get_evaluation_field_options("liquor_mark")
+	quality_grade_options = get_evaluation_field_options("quality_grade")
+
 	# Create workbook
 	wb = openpyxl.Workbook()
 	ws = wb.active
 	ws.title = "Evaluations"
 
-	# Headers matching tea_evaluation_import.xlsx format
+	# ============================================================
+	# Headers
+	# ============================================================
+	# Column indices (1-based):
+	#  1: Tea Lot
+	#  2: Mark
+	#  3: Invoice Number
+	#  4: Taster
+	#  5: Stage        <-- dropdown
+	#  6: Liquor Mark  <-- dropdown
+	#  7: Evaluation Date
+	#  8: Colour
+	#  9: Strength
+	# 10: Taste
+	# 11: Briskness
+	# 12: Quality Grade <-- dropdown
+	# 13: Suggested Valuation
+	# 14: Notes
+	# 15: Evaluation Date (duplicate header)
 	headers = [
 		"Tea Lot",
 		"Mark",
@@ -121,7 +178,91 @@ def download_evaluation_import_xlsx() -> dict:
 		ws.cell(row=row_idx, column=1, value=lot.name)
 		ws.cell(row=row_idx, column=2, value=lot.mark)
 		ws.cell(row=row_idx, column=3, value=lot.invoice_number)
-		# Columns 4-14 remain blank (already None by default)
+		# Columns 4-15 remain blank (already None by default)
+
+	# ============================================================
+	# Write dropdown options in hidden columns (P=16, Q=17, R=18)
+	# Same-sheet references are most reliable for Excel data validation
+	# ============================================================
+
+	# Column P (16): Stage options starting from row 2
+	for idx, opt in enumerate(stage_options, 2):
+		ws.cell(row=idx, column=16, value=opt)
+	stage_last_row = len(stage_options) + 1
+	if stage_last_row < 2:
+		stage_last_row = 2
+
+	# Column Q (17): Liquor Mark options starting from row 2
+	for idx, opt in enumerate(liquor_mark_options, 2):
+		ws.cell(row=idx, column=17, value=opt)
+	liquor_last_row = len(liquor_mark_options) + 1
+	if liquor_last_row < 2:
+		liquor_last_row = 2
+
+	# Column R (18): Quality Grade options starting from row 2
+	for idx, opt in enumerate(quality_grade_options, 2):
+		ws.cell(row=idx, column=18, value=opt)
+	grade_last_row = len(quality_grade_options) + 1
+	if grade_last_row < 2:
+		grade_last_row = 2
+
+	# Hide columns P, Q, R so users don't see the options data
+	ws.column_dimensions["P"].hidden = True
+	ws.column_dimensions["Q"].hidden = True
+	ws.column_dimensions["R"].hidden = True
+
+	# ============================================================
+	# Add Data Validation (Dropdown) using same-sheet references
+	# ============================================================
+
+	last_data_row = len(lots) + 1  # +1 for header row
+	if last_data_row < 2:
+		last_data_row = 2  # at least cover row 2 even if no data
+
+	# Column 5 (E): Stage - reference $P$2:$P${stage_last_row}
+	if stage_options:
+		stage_range = f"$P$2:$P${stage_last_row}"
+		stage_dv = openpyxl.worksheet.datavalidation.DataValidation(
+			type="list",
+			formula1=stage_range,
+			allow_blank=True,
+		)
+		stage_dv.error = "Please select a valid Stage value from the dropdown."
+		stage_dv.errorTitle = "Invalid Stage"
+		stage_dv.prompt = "Select Stage from the list"
+		stage_dv.promptTitle = "Stage"
+		ws.add_data_validation(stage_dv)
+		stage_dv.add(f"E2:E{last_data_row}")
+
+	# Column 6 (F): Liquor Mark - reference $Q$2:$Q${liquor_last_row}
+	if liquor_mark_options:
+		liquor_range = f"$Q$2:$Q${liquor_last_row}"
+		liquor_dv = openpyxl.worksheet.datavalidation.DataValidation(
+			type="list",
+			formula1=liquor_range,
+			allow_blank=True,
+		)
+		liquor_dv.error = "Please select a valid Liquor Mark value from the dropdown."
+		liquor_dv.errorTitle = "Invalid Liquor Mark"
+		liquor_dv.prompt = "Select Liquor Mark from the list"
+		liquor_dv.promptTitle = "Liquor Mark"
+		ws.add_data_validation(liquor_dv)
+		liquor_dv.add(f"F2:F{last_data_row}")
+
+	# Column 12 (L): Quality Grade - reference $R$2:$R${grade_last_row}
+	if quality_grade_options:
+		grade_range = f"$R$2:$R${grade_last_row}"
+		grade_dv = openpyxl.worksheet.datavalidation.DataValidation(
+			type="list",
+			formula1=grade_range,
+			allow_blank=True,
+		)
+		grade_dv.error = "Please select a valid Quality Grade value from the dropdown."
+		grade_dv.errorTitle = "Invalid Quality Grade"
+		grade_dv.prompt = "Select Quality Grade from the list"
+		grade_dv.promptTitle = "Quality Grade"
+		ws.add_data_validation(grade_dv)
+		grade_dv.add(f"L2:L{last_data_row}")
 
 	# Save to BytesIO
 	output = io.BytesIO()
