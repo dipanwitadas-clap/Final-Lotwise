@@ -15,7 +15,7 @@ class TeaEvaluationImportItem(Document):
 
 		briskness: DF.Float
 		colour: DF.Float
-		evaluation_date: DF.Date
+		evaluation_date: DF.Date | None
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
 		mark: DF.Link | None
@@ -34,7 +34,7 @@ class TeaEvaluationImportItem(Document):
 		strength: DF.Float
 		suggested_valuation: DF.Currency
 		taste: DF.Float
-		taster: DF.Link
+		taster: DF.Link | None
 		tea_lot: DF.Link
 	# end: auto-generated types
 
