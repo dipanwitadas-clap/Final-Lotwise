@@ -32,6 +32,30 @@ HEADER_TO_FIELD = {
 	"mark": {"field": "mark", "type": "str"},
 }
 
+# ==========================================================
+# DYNAMIC SELECT OPTIONS HELPER
+# ==========================================================
+
+
+def get_tea_evaluation_select_options(fieldname):
+	"""Fetch select options dynamically from Tea Evaluation doctype meta."""
+	meta = frappe.get_meta("Tea Evaluation")
+	field = meta.get_field(fieldname)
+	if not field or not field.options:
+		return set()
+	# Options string format: "\nOption1\nOption2\n..."
+	return {opt for opt in field.options.split("\n") if opt}
+
+
+def get_tea_evaluation_mandatory_fields():
+	"""Dynamically fetch mandatory (reqd) field names from Tea Evaluation doctype."""
+	meta = frappe.get_meta("Tea Evaluation")
+	mandatory = []
+	for field in meta.fields:
+		if field.get("reqd") and field.get("fieldname"):
+			mandatory.append(field.get("fieldname"))
+	return mandatory
+
 
 # ==========================================================
 # HELPERS
@@ -131,6 +155,47 @@ def read_excel_rows(ws, column_map, start_row):
 
 
 # ==========================================================
+# VALIDATION HELPER
+# ==========================================================
+
+
+def validate_import_row(row):
+	"""Validate a single import row's Link and Select fields.
+	Sets row_status = 'Error' with a clear message if invalid.
+	Returns True if valid, False if invalid.
+	"""
+	# Validate Link fields: check if value exists in DB
+	for link_field, link_doctype in [("tea_lot", "Tea Lot"), ("taster", "Taster"), ("mark", "Mark")]:
+		value = row.get(link_field)
+		if value:
+			if not frappe.db.exists(link_doctype, value):
+				row["row_status"] = "Error"
+				row["message"] = f"Invalid {link_field}: '{value}' not found in {link_doctype}"
+				return False
+
+	# Validate Select fields: check if value is in allowed options (fetched dynamically from Tea Evaluation doctype)
+	for select_field, label in [
+		("stage", "Stage"),
+		("liquor_mark", "Liquor Mark"),
+		("quality_grade", "Quality Grade"),
+	]:
+		value = row.get(select_field)
+		if value and value not in get_tea_evaluation_select_options(select_field):
+			row["row_status"] = "Error"
+			row["message"] = f"Invalid {label}: '{value}' is not a valid option"
+			return False
+
+	# Validate date field
+	eval_date = row.get("evaluation_date")
+	if eval_date and not isinstance(eval_date, (date, datetime)):
+		row["row_status"] = "Error"
+		row["message"] = f"Invalid Evaluation Date: '{eval_date}' is not a valid date"
+		return False
+
+	return True
+
+
+# ==========================================================
 # DOCTYPE
 # ==========================================================
 
@@ -181,16 +246,49 @@ class TeaEvaluationImport(Document):
 
 		self.set("items", [])
 
+		invalid_rows = []
+		valid_count = 0
+
 		for row in rows:
+			errors = []
+			tea_lot_value = row.get("tea_lot")
+
+			# Validate all Link fields
+			if tea_lot_value and not frappe.db.exists("Tea Lot", tea_lot_value):
+				errors.append(f"Tea Lot '{tea_lot_value}' not found")
+
+			taster_value = row.get("taster")
+			if taster_value and not frappe.db.exists("Taster", taster_value):
+				errors.append(f"Taster '{taster_value}' not found")
+
+			mark_value = row.get("mark")
+			if mark_value and not frappe.db.exists("Mark", mark_value):
+				errors.append(f"Mark '{mark_value}' not found")
+
+			if errors:
+				invalid_rows.append("Tea Lot {0}: {1}".format(tea_lot_value or "(blank)", ", ".join(errors)))
+				continue
+
 			self.append("items", row)
+			valid_count += 1
 
-		self.rows_parsed = len(rows)
+		self.rows_parsed = valid_count
 
-		self.computed_total_evaluations = len(rows)
+		self.computed_total_evaluations = valid_count
 
 		self.save()
 
-		return {"rows": len(rows)}
+		# Show popup for invalid rows
+		if invalid_rows:
+			frappe.msgprint(
+				_("Following entries were skipped due to invalid data:<br>{0}").format(
+					"<br>".join(f"- {r}" for r in invalid_rows)
+				),
+				title=_("Invalid Entries Skipped"),
+				indicator="orange",
+			)
+
+		return {"rows": valid_count}
 
 	# ======================================================
 	# CREATE TEA EVALUATION BUTTON
@@ -204,18 +302,32 @@ class TeaEvaluationImport(Document):
 
 		duplicates = 0
 
+		# Dynamically fetch mandatory fields from Tea Evaluation doctype
+		mandatory_fields = get_tea_evaluation_mandatory_fields()
+
 		for row in self.items:
 			if row.row_status == "Created":
 				continue
 
 			try:
-				if not row.tea_lot or not row.taster or not row.stage:
-					row.row_status = "Error"
-
-					row.message = "Tea Lot, Taster and Stage required"
-
+				if row.row_status == "Error":
 					errors += 1
+					continue
 
+				# Check all mandatory fields from Tea Evaluation doctype dynamically
+				missing = []
+				for fieldname in mandatory_fields:
+					if not getattr(row, fieldname, None):
+						# Map fieldname to a readable label
+						meta = frappe.get_meta("Tea Evaluation")
+						field = meta.get_field(fieldname)
+						label = field.label if field else fieldname
+						missing.append(label)
+
+				if missing:
+					row.row_status = "Error"
+					row.message = f"Required fields missing: {', '.join(missing)}"
+					errors += 1
 					continue
 
 				if not frappe.db.exists("Tea Lot", row.tea_lot):
@@ -234,6 +346,34 @@ class TeaEvaluationImport(Document):
 
 					errors += 1
 
+					continue
+
+				if row.stage not in get_tea_evaluation_select_options("stage"):
+					row.row_status = "Error"
+					row.message = f"Invalid Stage: '{row.stage}' is not a valid option"
+					errors += 1
+					continue
+
+				if row.liquor_mark and row.liquor_mark not in get_tea_evaluation_select_options(
+					"liquor_mark"
+				):
+					row.row_status = "Error"
+					row.message = f"Invalid Liquor Mark: '{row.liquor_mark}' is not a valid option"
+					errors += 1
+					continue
+
+				if row.quality_grade and row.quality_grade not in get_tea_evaluation_select_options(
+					"quality_grade"
+				):
+					row.row_status = "Error"
+					row.message = f"Invalid Quality Grade: '{row.quality_grade}' is not a valid option"
+					errors += 1
+					continue
+
+				if row.mark and not frappe.db.exists("Mark", row.mark):
+					row.row_status = "Error"
+					row.message = f"Invalid Mark: '{row.mark}' not found"
+					errors += 1
 					continue
 
 				if self.is_duplicate(row.tea_lot, row.taster, row.stage, row.evaluation_date):

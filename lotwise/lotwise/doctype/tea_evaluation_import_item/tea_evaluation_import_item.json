@@ -38,16 +38,14 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Taster",
-   "options": "Taster",
-   "reqd": 1
+   "options": "Taster"
   },
   {
    "fieldname": "stage",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Stage",
-   "options": "\nPre-purchase\nArrival\nBlend QC\nStorage\nPurchase Sample\nBag Sample",
-   "reqd": 1
+   "options": "\nPre-purchase\nArrival\nBlend QC\nStorage\nPurchase Sample\nBag Sample"
   },
   {
    "fieldname": "liquor_mark",
@@ -59,8 +57,7 @@
    "fieldname": "evaluation_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Evaluation Date",
-   "reqd": 1
+   "label": "Evaluation Date"
   },
   {
    "fieldname": "colour",
@@ -131,7 +128,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-03 17:19:44.423802",
+ "modified": "2026-07-06 12:57:20.566552",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation Import Item",
