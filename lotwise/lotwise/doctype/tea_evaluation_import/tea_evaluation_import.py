@@ -20,7 +20,7 @@ HEADER_TO_FIELD = {
 	"taster": {"field": "taster", "type": "str"},
 	"stage": {"field": "stage", "type": "str"},
 	"liquor mark": {"field": "liquor_mark", "type": "str"},
-	"evaluation date": {"field": "evaluation_date", "type": "date"},
+	"evaluation date dd mm yyyy": {"field": "evaluation_date", "type": "date"},
 	"colour": {"field": "colour", "type": "float"},
 	"strength": {"field": "strength", "type": "float"},
 	"taste": {"field": "taste", "type": "float"},
