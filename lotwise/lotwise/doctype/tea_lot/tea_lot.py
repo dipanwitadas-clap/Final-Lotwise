@@ -149,7 +149,7 @@ def download_evaluation_import_xlsx() -> dict:
 	# 11: Quality Grade <-- dropdown
 	# 12: Suggested Valuation
 	# 13: Notes
-	# 14: Evaluation Date
+	# 14: Evaluation Date (DD-MM-YYYY)
 	headers = [
 		"Tea Lot",
 		"Mark",
@@ -164,7 +164,7 @@ def download_evaluation_import_xlsx() -> dict:
 		"Quality Grade",
 		"Suggested Valuation",
 		"Notes",
-		"Evaluation Date",
+		"Evaluation Date (DD-MM-YYYY)",
 	]
 
 	# Write headers
