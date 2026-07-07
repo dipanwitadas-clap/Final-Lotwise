@@ -246,47 +246,52 @@ class TeaEvaluationImport(Document):
 
 		self.set("items", [])
 
-		invalid_rows = []
-		valid_count = 0
-
+		# --- First pass: validate ALL rows and collect ALL errors ---
+		all_errors = []
 		for row in rows:
-			errors = []
+			row_errors = []
 			tea_lot_value = row.get("tea_lot")
+			taster_value = row.get("taster")
+			mark_value = row.get("mark")
 
 			# Validate all Link fields
 			if tea_lot_value and not frappe.db.exists("Tea Lot", tea_lot_value):
-				errors.append(f"Tea Lot '{tea_lot_value}' not found")
+				row_errors.append(f"Tea Lot '{tea_lot_value}' not found")
 
-			taster_value = row.get("taster")
 			if taster_value and not frappe.db.exists("Taster", taster_value):
-				errors.append(f"Taster '{taster_value}' not found")
+				row_errors.append(f"Taster '{taster_value}' not found")
 
-			mark_value = row.get("mark")
 			if mark_value and not frappe.db.exists("Mark", mark_value):
-				errors.append(f"Mark '{mark_value}' not found")
+				row_errors.append(f"Mark '{mark_value}' not found")
 
-			if errors:
-				invalid_rows.append("Tea Lot {0}: {1}".format(tea_lot_value or "(blank)", ", ".join(errors)))
-				continue
+			if row_errors:
+				all_errors.append(
+					"Tea Lot {0}: {1}".format(tea_lot_value or "(blank)", ", ".join(row_errors))
+				)
 
+		# --- If ANY error exists, abort ---
+		if all_errors:
+			self.save()
+			frappe.throw(
+				_(
+					"Cannot load data due to validation errors. Please fix the following and try again:<br>{0}"
+				).format("<br>".join(f"- {r}" for r in all_errors)),
+				title=_("Validation Errors"),
+			)
+
+		# --- Second pass: all rows are valid, add everything to child table ---
+		for row in rows:
+			if not row.get("evaluation_date"):
+				row["evaluation_date"] = self.evaluation_import_date
 			self.append("items", row)
-			valid_count += 1
+
+		valid_count = len(rows)
 
 		self.rows_parsed = valid_count
 
 		self.computed_total_evaluations = valid_count
 
 		self.save()
-
-		# Show popup for invalid rows
-		if invalid_rows:
-			frappe.msgprint(
-				_("Following entries were skipped due to invalid data:<br>{0}").format(
-					"<br>".join(f"- {r}" for r in invalid_rows)
-				),
-				title=_("Invalid Entries Skipped"),
-				indicator="orange",
-			)
 
 		return {"rows": valid_count}
 
@@ -391,7 +396,7 @@ class TeaEvaluationImport(Document):
 						"tea_lot": row.tea_lot,
 						"taster": row.taster,
 						"stage": row.stage,
-						"evaluation_date": row.evaluation_date or self.evaluation_date,
+						"evaluation_date": row.evaluation_date or self.evaluation_import_date,
 						"liquor_mark": row.liquor_mark,
 						"colour": flt(row.colour),
 						"strength": flt(row.strength),
