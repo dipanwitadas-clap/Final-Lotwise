@@ -787,70 +787,39 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	function download_all_lots_excel() {
-		if (!filtered_lots_data || !filtered_lots_data.length) {
-			frappe.msgprint({
-				title: __("No Data"),
-				indicator: "orange",
-				message: __("No tea lots to download."),
-			});
-			return;
-		}
-
-		var columns = [
-			{ key: "name", label: "Tea Lot ID" },
-			{ key: "lot_no", label: "Lot No" },
-			{ key: "mark", label: "Mark" },
-			{ key: "grade", label: "Grade" },
-			{ key: "seller", label: "Seller" },
-			{ key: "invoice_number", label: "Invoice No" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
-			{ key: "acquisition_channel", label: "Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
-			{ key: "packages", label: "Packages" },
-			{ key: "net_weight_total", label: "Net Wt Kg" },
-			{ key: "rate", label: "Rate" },
-			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
-			{ key: "warehouse", label: "Warehouse" },
-		];
-
-		// Build CSV content
-		var csv_content =
-			columns
-				.map(function (col) {
-					return col.label;
-				})
-				.join(",") + "\n";
-
-		filtered_lots_data.forEach(function (row) {
-			var row_data = columns.map(function (col) {
-				var val = row[col.key];
-				if (val == null) val = "";
-				if (col.key === "rate") val = val || 0;
-				return val;
-			});
-			csv_content += row_data.join(",") + "\n";
+		frappe.call({
+			method: "lotwise.lotwise.page.tea_lot_dashboard.tea_lot_dashboard_all_lots.download_all_lots_xlsx",
+			args: {},
+			callback: function (r) {
+				if (!r.message || !r.message.content) {
+					frappe.msgprint({
+						title: __("Error"),
+						indicator: "red",
+						message: __("Failed to generate Excel."),
+					});
+					return;
+				}
+				var data = r.message;
+				var binary = atob(data.content);
+				var array = new Uint8Array(binary.length);
+				for (var i = 0; i < binary.length; i++) {
+					array[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([array], {
+					type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				});
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement("a");
+				a.href = url;
+				a.download = data.filename || "Tea_Lots.xlsx";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function () {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				}, 100);
+			},
 		});
-
-		// Download
-		var date_str = frappe.datetime.now_date();
-		var filename = "Tea_Lots_" + date_str + ".csv";
-
-		var blob = new Blob([csv_content], { type: "text/csv" });
-		if (navigator.msSaveBlob) {
-			navigator.msSaveBlob(blob, filename);
-		} else {
-			var url = URL.createObjectURL(blob);
-			var a = document.createElement("a");
-			a.href = url;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			setTimeout(function () {
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
-			}, 100);
-		}
 	}
 
 	// --------------------------------------------------
@@ -1047,67 +1016,39 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	function download_mark_excel(mark, lots) {
-		if (!lots.length) {
-			frappe.msgprint({
-				title: __("No Data"),
-				indicator: "orange",
-				message: __("No tea lots to download."),
-			});
-			return;
-		}
-
-		var columns = [
-			{ key: "lot_no", label: "Lot No" },
-			{ key: "name", label: "Tea Lot ID" },
-			{ key: "grade", label: "Grade" },
-			{ key: "invoice_number", label: "Invoice Number" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
-			{ key: "acquisition_channel", label: "Acquisition Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
-			{ key: "packages", label: "Packages" },
-			{ key: "net_weight_total", label: "Net Weight Kg" },
-			{ key: "rate", label: "Rate" },
-			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
-		];
-
-		// Build CSV content
-		var csv_content =
-			columns
-				.map(function (col) {
-					return col.label;
-				})
-				.join(",") + "\n";
-
-		lots.forEach(function (row) {
-			var row_data = columns.map(function (col) {
-				var val = row[col.key];
-				if (val == null) val = "";
-				if (col.key === "rate") val = val || 0;
-				return val;
-			});
-			csv_content += row_data.join(",") + "\n";
+		frappe.call({
+			method: "lotwise.lotwise.page.tea_lot_dashboard.tea_lot_dashboard_mark.download_mark_xlsx",
+			args: { mark: mark },
+			callback: function (r) {
+				if (!r.message || !r.message.content) {
+					frappe.msgprint({
+						title: __("Error"),
+						indicator: "red",
+						message: __("Failed to generate Excel."),
+					});
+					return;
+				}
+				var data = r.message;
+				var binary = atob(data.content);
+				var array = new Uint8Array(binary.length);
+				for (var i = 0; i < binary.length; i++) {
+					array[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([array], {
+					type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				});
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement("a");
+				a.href = url;
+				a.download = data.filename || "Tea_Lots_Mark.xlsx";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function () {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				}, 100);
+			},
 		});
-
-		// Download
-		var date_str = frappe.datetime.now_date();
-		var filename = "Tea_Lots_Mark_" + (mark || "All") + "_" + date_str + ".csv";
-
-		var blob = new Blob([csv_content], { type: "text/csv" });
-		if (navigator.msSaveBlob) {
-			navigator.msSaveBlob(blob, filename);
-		} else {
-			var url = URL.createObjectURL(blob);
-			var a = document.createElement("a");
-			a.href = url;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			setTimeout(function () {
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
-			}, 100);
-		}
 	}
 
 	// --------------------------------------------------
@@ -1201,67 +1142,39 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	function download_grade_excel(grade, lots) {
-		if (!lots.length) {
-			frappe.msgprint({
-				title: __("No Data"),
-				indicator: "orange",
-				message: __("No tea lots to download."),
-			});
-			return;
-		}
-
-		var columns = [
-			{ key: "lot_no", label: "Lot No" },
-			{ key: "name", label: "Tea Lot ID" },
-			{ key: "mark", label: "Mark" },
-			{ key: "invoice_number", label: "Invoice Number" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
-			{ key: "acquisition_channel", label: "Acquisition Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
-			{ key: "packages", label: "Packages" },
-			{ key: "net_weight_total", label: "Net Weight Kg" },
-			{ key: "rate", label: "Rate" },
-			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
-		];
-
-		// Build CSV content
-		var csv_content =
-			columns
-				.map(function (col) {
-					return col.label;
-				})
-				.join(",") + "\n";
-
-		lots.forEach(function (row) {
-			var row_data = columns.map(function (col) {
-				var val = row[col.key];
-				if (val == null) val = "";
-				if (col.key === "rate") val = val || 0;
-				return val;
-			});
-			csv_content += row_data.join(",") + "\n";
+		frappe.call({
+			method: "lotwise.lotwise.page.tea_lot_dashboard.tea_lot_dashboard_grade.download_grade_xlsx",
+			args: { grade: grade },
+			callback: function (r) {
+				if (!r.message || !r.message.content) {
+					frappe.msgprint({
+						title: __("Error"),
+						indicator: "red",
+						message: __("Failed to generate Excel."),
+					});
+					return;
+				}
+				var data = r.message;
+				var binary = atob(data.content);
+				var array = new Uint8Array(binary.length);
+				for (var i = 0; i < binary.length; i++) {
+					array[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([array], {
+					type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				});
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement("a");
+				a.href = url;
+				a.download = data.filename || "Tea_Lots_Grade.xlsx";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function () {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				}, 100);
+			},
 		});
-
-		// Download
-		var date_str = frappe.datetime.now_date();
-		var filename = "Tea_Lots_Grade_" + (grade || "All") + "_" + date_str + ".csv";
-
-		var blob = new Blob([csv_content], { type: "text/csv" });
-		if (navigator.msSaveBlob) {
-			navigator.msSaveBlob(blob, filename);
-		} else {
-			var url = URL.createObjectURL(blob);
-			var a = document.createElement("a");
-			a.href = url;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			setTimeout(function () {
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
-			}, 100);
-		}
 	}
 
 	// --------------------------------------------------
