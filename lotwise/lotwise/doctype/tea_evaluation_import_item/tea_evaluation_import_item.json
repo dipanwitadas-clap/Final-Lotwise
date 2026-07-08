@@ -59,26 +59,30 @@
    "in_list_view": 1,
    "label": "Evaluation Date"
   },
-  {
-   "fieldname": "colour",
-   "fieldtype": "Float",
-   "label": "Colour"
-  },
-  {
-   "fieldname": "strength",
-   "fieldtype": "Float",
-   "label": "Strength"
-  },
-  {
-   "fieldname": "taste",
-   "fieldtype": "Float",
-   "label": "Taste"
-  },
-  {
-   "fieldname": "briskness",
-   "fieldtype": "Float",
-   "label": "Briskness"
-  },
+   {
+    "fieldname": "colour",
+    "fieldtype": "Select",
+    "label": "Colour",
+    "options": "\n0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+   },
+   {
+    "fieldname": "strength",
+    "fieldtype": "Select",
+    "label": "Strength",
+    "options": "\n0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+   },
+   {
+    "fieldname": "taste",
+    "fieldtype": "Select",
+    "label": "Taste",
+    "options": "\n0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+   },
+   {
+    "fieldname": "briskness",
+    "fieldtype": "Select",
+    "label": "Briskness",
+    "options": "\n0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+   },
   {
    "fieldname": "quality_grade",
    "fieldtype": "Select",
