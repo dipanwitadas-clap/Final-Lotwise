@@ -14,8 +14,8 @@ class TeaEvaluation(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		briskness: DF.Literal["", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-		colour: DF.Literal["", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+		briskness: DF.Int
+		colour: DF.Int
 		evaluation_date: DF.Date
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
@@ -27,9 +27,9 @@ class TeaEvaluation(Document):
 		stage: DF.Literal[
 			"", "Pre-purchase", "Arrival", "Blend QC", "Storage", "Purchase Sample", "Bag Sample"
 		]
-		strength: DF.Literal["", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+		strength: DF.Int
 		suggested_valuation: DF.Currency
-		taste: DF.Literal["", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+		taste: DF.Int
 		taster: DF.Link
 		tea_lot: DF.Link
 	# end: auto-generated types
