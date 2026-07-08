@@ -352,27 +352,19 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 </div>
 
 <div class="dashboard-tab-panel" id="evaluation-tab">
-<div class="lot-search-card" style="padding:16px;">
-<table style="width:100%;border-collapse:collapse;">
-<tr>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Colour</label><div style="display:flex;gap:3px;"><select id="eval_colour_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_colour" placeholder="e.g. 8" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Strength</label><div style="display:flex;gap:3px;"><select id="eval_strength_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_strength" placeholder="e.g. 4" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Taste</label><div style="display:flex;gap:3px;"><select id="eval_taste_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_taste" placeholder="e.g. 9" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Briskness</label><div style="display:flex;gap:3px;"><select id="eval_briskness_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_briskness" placeholder="e.g. 10" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Quality Grade</label>
-<select id="eval_quality_grade" style="width:100%;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 4px;box-sizing:border-box;"><option value="">All</option><option value="A">A</option><option value="A++">A++</option><option value="A+++">A+++</option><option value="B">B</option><option value="B+">B+</option><option value="B++">B++</option><option value="B-">B-</option><option value="C">C</option><option value="C+">C+</option><option value="D">D</option><option value="D+">D+</option><option value="E">E</option><option value="E+">E+</option></select></td>
-</tr>
-</table>
-<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding:4px 6px;">
-<div style="flex:3;min-width:180px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Taster</label><div id="eval_taster_field"></div></div>
-<div style="flex:1;min-width:110px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Stage</label>
-<select id="eval_stage" style="width:100%;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 4px;box-sizing:border-box;"><option value="">All</option><option value="Pre-purchase">Pre-purchase</option><option value="Arrival">Arrival</option><option value="Blend QC">Blend QC</option><option value="Storage">Storage</option></select></div>
-<div style="display:flex;align-items:end;gap:4px;">
-<button class="btn btn-primary btn-sm" id="eval_search_btn" style="height:26px;font-size:12px;padding:2px 12px;"><i class="fa fa-search"></i> Search</button>
-<button class="btn btn-default btn-sm" id="eval_clear_btn" style="height:26px;font-size:12px;padding:2px 12px;"><i class="fa fa-eraser"></i> Clear</button></div>
+<div class="detail-box">
+<div class="section-heading">
+<div class="section-title-wrap">
+<h4>Tea Evaluations</h4>
+<span class="lot-count-badge" id="eval_total_count">0 Total</span>
+<span class="lot-badge" id="eval_filtered_count" style="background:#fef3c7;color:#92400e;display:none;">0 Filtered</span>
+<button class="btn btn-default btn-sm" id="download_eval_btn" title="Download Excel">
+<i class="fa fa-download"></i> Download
+</button>
 </div>
 </div>
 <div id="evaluation_results"></div>
+</div>
 </div>
 
 </div>
@@ -1273,107 +1265,251 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	}
 
 	// --------------------------------------------------
-	// EVALUATION TAB
+	// EVALUATION TAB - INLINE FILTER TABLE (like All Lots)
 	// --------------------------------------------------
 
-	var taster_field = null;
-
-	function create_evaluation_search() {
-		$("#eval_search_btn").on("click", function () {
-			load_evaluations();
-		});
-		$("#eval_clear_btn").on("click", function () {
-			$(
-				"#eval_colour,#eval_strength,#eval_taste,#eval_briskness,#eval_quality_grade,#eval_stage"
-			).val("");
-			$(
-				"#eval_colour_operator,#eval_strength_operator,#eval_taste_operator,#eval_briskness_operator"
-			).val("=");
-			if (taster_field) taster_field.set_value("");
-			$("#evaluation_results").empty();
-		});
-		taster_field = frappe.ui.form.make_control({
-			parent: $("#eval_taster_field"),
-			df: {
-				fieldname: "taster",
-				label: "Taster",
-				fieldtype: "Link",
-				options: "Taster",
-				placeholder: "Select taster",
-				onchange: function () {
-					load_evaluations();
-				},
-			},
-			render_input: true,
-		});
-		taster_field.refresh();
-	}
+	var eval_data = [];
+	var eval_filtered_data = [];
+	var eval_filter_timeout = null;
+	var eval_current_page = 0;
+	var eval_page_size = 10;
 
 	function load_evaluations() {
-		var args = {};
-		var colour = $("#eval_colour").val().trim();
-		var strength = $("#eval_strength").val().trim();
-		var taste = $("#eval_taste").val().trim();
-		var briskness = $("#eval_briskness").val().trim();
-		var quality_grade = $("#eval_quality_grade").val();
-		var stage = $("#eval_stage").val();
-		var taster_val = taster_field ? (taster_field.get_value() || "").trim() : "";
-		if (colour) {
-			args.colour = colour;
-			args.colour_operator = $("#eval_colour_operator").val();
-		}
-		if (strength) {
-			args.strength = strength;
-			args.strength_operator = $("#eval_strength_operator").val();
-		}
-		if (taste) {
-			args.taste = taste;
-			args.taste_operator = $("#eval_taste_operator").val();
-		}
-		if (briskness) {
-			args.briskness = briskness;
-			args.briskness_operator = $("#eval_briskness_operator").val();
-		}
-		if (quality_grade) args.quality_grade = quality_grade;
-		if (taster_val) args.taster = taster_val;
-		if (stage) args.stage = stage;
+		if (!$("#evaluation_results").length) return;
 
 		$("#evaluation_results").html(
-			`<div class="detail-box text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading evaluations...</div>`
+			`<div class="section-body text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading evaluations...</div>`
 		);
-		api_from("tea_lot_dashboard_evaluation", "get_evaluations", args, function (data) {
-			var evals = (data && data.evaluations) || [];
-			$("#evaluation_results").html(eval_table(evals));
-
-			$("#evaluation_results")
-				.off("click", "#download_eval_btn")
-				.on("click", "#download_eval_btn", function () {
-					download_evaluation_excel(evals);
-				});
+		api_from("tea_lot_dashboard_evaluation", "get_evaluations", {}, function (data) {
+			eval_data = (data && data.evaluations) || [];
+			eval_current_page = 0;
+			render_evaluations_table();
 		});
 	}
 
-	function eval_table(evals) {
-		if (!evals.length)
-			return `<div class="detail-box text-center text-muted">No Evaluations found.</div>`;
-		var h = `<div class="detail-box"><div class="section-heading"><div class="section-title-wrap"><h4>Tea Evaluation Results</h4><span class="lot-badge">${fmt(
-			evals.length
-		)} Records</span>
-		<button class="btn btn-default btn-sm" id="download_eval_btn" title="Download Excel">
-			<i class="fa fa-download"></i> Download
-		</button></div></div><div class="section-body" style="overflow-x:auto;"><table class="table table-bordered"><tr><th>Tea Evaluation ID</th><th>Tea Lot</th><th>Lot No</th><th>Mark</th><th>Colour</th><th>Strength</th><th>Taste</th><th>Briskness</th><th>Quality Grade</th><th>Taster</th><th>Stage</th><th>Eval Date</th><th>Suggested Valuation</th><th>Notes</th></tr>`;
-		evals.forEach(function (e) {
-			h += `<tr><td>${vd(e.name)}</td><td>${vd(e.tea_lot)}</td><td>${vd(
-				e.tea_lot_no
-			)}</td><td>${vd(e.tea_lot_mark)}</td><td>${fmt(e.colour)}</td><td>${fmt(
-				e.strength
-			)}</td><td>${fmt(e.taste)}</td><td>${fmt(e.briskness)}</td><td>${vd(
-				e.quality_grade
-			)}</td><td>${vd(e.taster)}</td><td>${vd(e.stage)}</td><td>${vd(
-				e.evaluation_date
-			)}</td><td>${money(e.suggested_valuation)}</td><td>${vd(e.notes)}</td></tr>`;
+	// Bind download button for evaluations (server-side .xlsx)
+	$(page.main).on("click", "#download_eval_btn", function () {
+		frappe.call({
+			method: "lotwise.lotwise.page.tea_lot_dashboard.tea_lot_dashboard_evaluation.download_evaluation_xlsx",
+			args: {},
+			callback: function (r) {
+				if (!r.message || !r.message.content) {
+					frappe.msgprint({
+						title: __("Error"),
+						indicator: "red",
+						message: __("Failed to generate Excel."),
+					});
+					return;
+				}
+				var data = r.message;
+				var binary = atob(data.content);
+				var array = new Uint8Array(binary.length);
+				for (var i = 0; i < binary.length; i++) {
+					array[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([array], {
+					type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				});
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement("a");
+				a.href = url;
+				a.download = data.filename || "tea_evaluations.xlsx";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function () {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				}, 100);
+			},
 		});
-		return h + `</table></div></div>`;
+	});
+
+	function render_evaluations_table() {
+		// Save focus state before re-render so the user can keep typing
+		var focused_filter_id = null;
+		var cursor_start = 0;
+		var cursor_end = 0;
+		var active = document.activeElement;
+		if (active && active.id && active.id.indexOf("eval_flt_") === 0) {
+			focused_filter_id = active.id;
+			cursor_start = active.selectionStart || 0;
+			cursor_end = active.selectionEnd || 0;
+		}
+
+		var data = eval_data;
+		if (!data.length) {
+			$("#eval_total_count").text("0 Total");
+			$("#eval_filtered_count").hide();
+			$("#evaluation_results").html(
+				`<div class="section-body text-center text-muted">No Evaluations found.</div>`
+			);
+			return;
+		}
+
+		var columns = [
+			{ key: "sno", label: "S.No" },
+			{ key: "name", label: "Tea Eval ID" },
+			{ key: "tea_lot", label: "Tea Lot" },
+			{ key: "tea_lot_no", label: "Lot No" },
+			{ key: "tea_lot_mark", label: "Mark" },
+			{ key: "colour", label: "Colour", numeric: true },
+			{ key: "strength", label: "Strength", numeric: true },
+			{ key: "taste", label: "Taste", numeric: true },
+			{ key: "briskness", label: "Briskness", numeric: true },
+			{ key: "quality_grade", label: "Quality Grade" },
+			{ key: "taster", label: "Taster" },
+			{ key: "stage", label: "Stage" },
+			{ key: "evaluation_date", label: "Eval Date" },
+			{ key: "suggested_valuation", label: "Suggested Val", numeric: true },
+			{ key: "notes", label: "Notes" },
+		];
+
+		// Read current filter values
+		var filters = {};
+		columns.forEach(function (col) {
+			var val = $("#eval_flt_" + col.key).val();
+			filters[col.key] = (val || "").toLowerCase();
+		});
+
+		// Numeric filter helper: supports >, <, >=, <=, =, ==
+		function apply_numeric_filter(rowValue, filterValue) {
+			if (/^\s*([><]=?|={1,2})\s*$/.test(filterValue)) return true;
+			var match = filterValue.match(/^\s*([><]=?|={1,2})\s*([\d.]+)\s*$/);
+			if (!match) return null;
+			var op = match[1];
+			var num = parseFloat(match[2]);
+			if (isNaN(num)) return null;
+			var rv = parseFloat(rowValue);
+			if (isNaN(rv)) return false;
+			switch (op) {
+				case ">=":
+					return rv >= num;
+				case "<=":
+					return rv <= num;
+				case ">":
+					return rv > num;
+				case "<":
+					return rv < num;
+				case "=":
+				case "==":
+					return rv === num;
+				default:
+					return null;
+			}
+		}
+
+		// Filter rows and store in global for download
+		eval_filtered_data = data.filter(function (row, rowIndex) {
+			return columns.every(function (col) {
+				var fv = filters[col.key];
+				if (!fv) return true;
+				if (col.key === "sno") {
+					return (
+						String(rowIndex + 1)
+							.toLowerCase()
+							.indexOf(fv) !== -1
+					);
+				}
+				if (col.numeric) {
+					var numericResult = apply_numeric_filter(row[col.key], fv);
+					if (numericResult !== null) return numericResult;
+				}
+				var rv = (row[col.key] == null ? "" : String(row[col.key])).toLowerCase();
+				return rv.indexOf(fv) !== -1;
+			});
+		});
+
+		// Add original index for correct S.No
+		var filtered_with_index = eval_filtered_data.map(function (row) {
+			return { row: row, original_index: data.indexOf(row) };
+		});
+
+		// Pagination
+		eval_current_page = 0;
+		var total_pages = Math.ceil(eval_filtered_data.length / eval_page_size);
+		if (total_pages === 0) total_pages = 1;
+		var start_idx = eval_current_page * eval_page_size;
+		var page_data = filtered_with_index.slice(start_idx, start_idx + eval_page_size);
+
+		// Update heading counts
+		$("#eval_total_count").text(fmt(data.length) + " Total");
+		if (eval_filtered_data.length !== data.length) {
+			$("#eval_filtered_count")
+				.text(fmt(eval_filtered_data.length) + " Filtered")
+				.show();
+		} else {
+			$("#eval_filtered_count").hide();
+		}
+
+		var html = `<div class="section-body" style="padding:0;"><div class="all-lots-wrap">
+		<table class="table table-bordered" id="eval_table"><thead><tr>`;
+
+		columns.forEach(function (col) {
+			var cur_val = filters[col.key] || "";
+			html += `<th><span class="col-head">${esc(col.label)}</span>
+				<input class="col-filter" id="eval_flt_${col.key}" type="text" value="${esc(
+				cur_val
+			)}" placeholder="filter" data-col="${col.key}" autocomplete="off" /></th>`;
+		});
+
+		html += `</tr></thead><tbody>`;
+
+		if (!page_data.length) {
+			html += `<tr><td colspan="${columns.length}" class="text-center text-muted" style="padding:20px;">No matching evaluations found.</td></tr>`;
+		} else {
+			page_data.forEach(function (item) {
+				var e = item.row;
+				var original_idx = item.original_index;
+				html += "<tr>";
+				columns.forEach(function (col) {
+					var val = e[col.key];
+					if (col.key === "sno") {
+						html += "<td>" + (original_idx + 1) + "</td>";
+					} else if (col.numeric && col.key === "suggested_valuation") {
+						html += "<td>" + (val == null ? "-" : money(val)) + "</td>";
+					} else if (col.numeric) {
+						html += "<td>" + (val == null ? "-" : esc(val)) + "</td>";
+					} else {
+						html += "<td>" + vd(val) + "</td>";
+					}
+				});
+				html += "</tr>";
+			});
+		}
+
+		// Pagination info
+		var show_start = eval_filtered_data.length ? start_idx + 1 : 0;
+		var show_end = Math.min(start_idx + eval_page_size, eval_filtered_data.length);
+		var pagination_html = `
+			<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #edf0f4;background:#fbfcfe;">
+				<span style="font-size:12px;color:#6b7280;">Showing ${show_start}-${show_end} of ${eval_filtered_data.length}</span>
+			</div>
+		`;
+
+		html += `</tbody></table></div></div>${pagination_html}`;
+		$("#evaluation_results").html(html);
+
+		// Restore focus
+		if (focused_filter_id) {
+			var $input = $("#" + focused_filter_id);
+			if ($input.length) {
+				$input.focus();
+				var inputEl = $input[0];
+				if (inputEl.setSelectionRange) {
+					inputEl.setSelectionRange(cursor_start, cursor_end);
+				}
+			}
+		}
+
+		// Bind filter input events with debounce
+		$("#evaluation_results")
+			.off("input", ".col-filter")
+			.on("input", ".col-filter", function () {
+				if (eval_filter_timeout) clearTimeout(eval_filter_timeout);
+				eval_filter_timeout = setTimeout(function () {
+					render_evaluations_table();
+				}, 200);
+			});
 	}
 
 	// --------------------------------------------------
@@ -1611,5 +1747,4 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	create_lot_search();
 	create_mark_search();
 	create_grade_search();
-	create_evaluation_search();
 };

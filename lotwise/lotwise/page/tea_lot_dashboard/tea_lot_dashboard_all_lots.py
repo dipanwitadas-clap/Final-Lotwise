@@ -1,7 +1,11 @@
 # Copyright (c) 2026, BusinessThat.Works and contributors
 # For license information, please see license.txt
 
+import base64
+import io
+
 import frappe
+import openpyxl
 
 
 @frappe.whitelist()
