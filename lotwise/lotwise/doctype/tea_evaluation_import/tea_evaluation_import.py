@@ -21,10 +21,10 @@ HEADER_TO_FIELD = {
 	"stage": {"field": "stage", "type": "str"},
 	"liquor mark": {"field": "liquor_mark", "type": "str"},
 	"evaluation date dd mm yyyy": {"field": "evaluation_date", "type": "date"},
-	"colour": {"field": "colour", "type": "str"},
-	"strength": {"field": "strength", "type": "str"},
-	"taste": {"field": "taste", "type": "str"},
-	"briskness": {"field": "briskness", "type": "str"},
+	"colour": {"field": "colour", "type": "int"},
+	"strength": {"field": "strength", "type": "int"},
+	"taste": {"field": "taste", "type": "int"},
+	"briskness": {"field": "briskness", "type": "int"},
 	"quality grade": {"field": "quality_grade", "type": "str"},
 	"suggested valuation": {"field": "suggested_valuation", "type": "float"},
 	"notes": {"field": "notes", "type": "str"},
@@ -95,6 +95,14 @@ def convert_value(value, field_type):
 
 		# Fallback to Frappe's getdate (which uses MM-DD-YYYY)
 		return getdate(value)
+
+	if field_type == "int":
+		if value is None or value == "":
+			return None
+		try:
+			return int(float(str(value).strip()))
+		except (ValueError, TypeError):
+			return None
 
 	if field_type == "float":
 		return flt(value) if value else 0
