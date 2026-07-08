@@ -127,9 +127,6 @@ def download_evaluation_import_xlsx() -> dict:
 	liquor_mark_options = get_evaluation_field_options("liquor_mark")
 	quality_grade_options = get_evaluation_field_options("quality_grade")
 
-	# Fixed 0-10 options for Colour, Strength, Taste, Briskness
-	numeric_options = [str(i) for i in range(0, 11)]  # ["0","1",...,"10"]
-
 	# Create workbook
 	wb = openpyxl.Workbook()
 	ws = wb.active
@@ -213,34 +210,6 @@ def download_evaluation_import_xlsx() -> dict:
 	ws.column_dimensions["R"].hidden = True
 
 	# ============================================================
-	# Write dropdown options in hidden columns (S=19, T=20, U=21, V=22)
-	# for Colour, Strength, Taste, Briskness (0-10)
-	# ============================================================
-
-	# Column S (19): Colour options (0-10) starting from row 2
-	for idx, opt in enumerate(numeric_options, 2):
-		ws.cell(row=idx, column=19, value=opt)
-	numeric_last_row = len(numeric_options) + 1  # = 11 + 1 = 12
-
-	# Column T (20): Strength options (0-10) starting from row 2
-	for idx, opt in enumerate(numeric_options, 2):
-		ws.cell(row=idx, column=20, value=opt)
-
-	# Column U (21): Taste options (0-10) starting from row 2
-	for idx, opt in enumerate(numeric_options, 2):
-		ws.cell(row=idx, column=21, value=opt)
-
-	# Column V (22): Briskness options (0-10) starting from row 2
-	for idx, opt in enumerate(numeric_options, 2):
-		ws.cell(row=idx, column=22, value=opt)
-
-	# Hide columns S, T, U, V so users don't see the options data
-	ws.column_dimensions["S"].hidden = True
-	ws.column_dimensions["T"].hidden = True
-	ws.column_dimensions["U"].hidden = True
-	ws.column_dimensions["V"].hidden = True
-
-	# ============================================================
 	# Add Data Validation (Dropdown) using same-sheet references
 	# ============================================================
 
@@ -292,62 +261,6 @@ def download_evaluation_import_xlsx() -> dict:
 		grade_dv.promptTitle = "Quality Grade"
 		ws.add_data_validation(grade_dv)
 		grade_dv.add(f"K2:K{last_data_row}")
-
-	# Column 7 (G): Colour - reference $S$2:$S${numeric_last_row}
-	colour_range = f"$S$2:$S${numeric_last_row}"
-	colour_dv = openpyxl.worksheet.datavalidation.DataValidation(
-		type="list",
-		formula1=colour_range,
-		allow_blank=True,
-	)
-	colour_dv.error = "Please select a valid Colour value from the dropdown."
-	colour_dv.errorTitle = "Invalid Colour"
-	colour_dv.prompt = "Select Colour (0-10) from the list"
-	colour_dv.promptTitle = "Colour"
-	ws.add_data_validation(colour_dv)
-	colour_dv.add(f"G2:G{last_data_row}")
-
-	# Column 8 (H): Strength - reference $T$2:$T${numeric_last_row}
-	strength_range = f"$T$2:$T${numeric_last_row}"
-	strength_dv = openpyxl.worksheet.datavalidation.DataValidation(
-		type="list",
-		formula1=strength_range,
-		allow_blank=True,
-	)
-	strength_dv.error = "Please select a valid Strength value from the dropdown."
-	strength_dv.errorTitle = "Invalid Strength"
-	strength_dv.prompt = "Select Strength (0-10) from the list"
-	strength_dv.promptTitle = "Strength"
-	ws.add_data_validation(strength_dv)
-	strength_dv.add(f"H2:H{last_data_row}")
-
-	# Column 9 (I): Taste - reference $U$2:$U${numeric_last_row}
-	taste_range = f"$U$2:$U${numeric_last_row}"
-	taste_dv = openpyxl.worksheet.datavalidation.DataValidation(
-		type="list",
-		formula1=taste_range,
-		allow_blank=True,
-	)
-	taste_dv.error = "Please select a valid Taste value from the dropdown."
-	taste_dv.errorTitle = "Invalid Taste"
-	taste_dv.prompt = "Select Taste (0-10) from the list"
-	taste_dv.promptTitle = "Taste"
-	ws.add_data_validation(taste_dv)
-	taste_dv.add(f"I2:I{last_data_row}")
-
-	# Column 10 (J): Briskness - reference $V$2:$V${numeric_last_row}
-	briskness_range = f"$V$2:$V${numeric_last_row}"
-	briskness_dv = openpyxl.worksheet.datavalidation.DataValidation(
-		type="list",
-		formula1=briskness_range,
-		allow_blank=True,
-	)
-	briskness_dv.error = "Please select a valid Briskness value from the dropdown."
-	briskness_dv.errorTitle = "Invalid Briskness"
-	briskness_dv.prompt = "Select Briskness (0-10) from the list"
-	briskness_dv.promptTitle = "Briskness"
-	ws.add_data_validation(briskness_dv)
-	briskness_dv.add(f"J2:J{last_data_row}")
 
 	# Save to BytesIO
 	output = io.BytesIO()
