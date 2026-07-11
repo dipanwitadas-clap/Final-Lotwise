@@ -5,30 +5,28 @@
  "creation": "2026-06-11 18:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
-  "field_order": [
-   "source_section",
-   "import_file",
-   "acquisition_channel",
-   "col_break_1",
-   "company",
-   "purchase_date",
-   "col_break_1b",
-   "centre",
-   "sale_no",
-   "blend",
-   "recon_section",
-   "computed_total_packages",
-   "col_break_2",
-   "computed_total_net_weight",
-   "summary_section",
-   "rows_parsed",
-   "rows_created",
-   "col_break_3",
-   "rows_error",
-   "rows_duplicate",
-   "items_section",
-   "items"
-  ],
+ "field_order": [
+  "source_section",
+  "import_file",
+  "acquisition_channel",
+  "col_break_1",
+  "company",
+  "col_break_1b",
+  "sale_no",
+  "blend",
+  "recon_section",
+  "computed_total_packages",
+  "col_break_2",
+  "computed_total_net_weight",
+  "summary_section",
+  "rows_parsed",
+  "rows_created",
+  "col_break_3",
+  "rows_error",
+  "rows_duplicate",
+  "items_section",
+  "items"
+ ],
  "fields": [
   {
    "fieldname": "source_section",
@@ -61,22 +59,8 @@
    "label": "Company"
   },
   {
-   "fieldname": "purchase_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Purchase Date"
-  },
-  {
    "fieldname": "col_break_1b",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "centre",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Auction Centre"
   },
   {
    "fieldname": "sale_no",
@@ -160,7 +144,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-06-18 13:05:19.911916",
+ "modified": "2026-07-09 16:54:47.460424",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",
