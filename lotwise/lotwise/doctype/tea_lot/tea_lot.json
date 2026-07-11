@@ -3,7 +3,6 @@
  "allow_bulk_edit": 1,
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "LOT-.YYYY.-.#####",
  "creation": "2026-06-10 10:06:08.543447",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -157,8 +156,9 @@
   },
   {
    "fieldname": "centre",
-   "fieldtype": "Data",
-   "label": "Centre"
+   "fieldtype": "Link",
+   "label": "Centre",
+   "options": "Auction Centre"
   },
   {
    "fieldname": "division",
@@ -250,7 +250,7 @@
    "fieldname": "blend",
    "fieldtype": "Select",
    "label": "Blend",
-   "options": "\nPREMIUM PACK"
+   "options": "\nPREMIUM PACK\nPremium"
   },
   {
    "fieldname": "source_doctype",
@@ -330,11 +330,10 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-09 12:29:15.818305",
+ "modified": "2026-07-10 10:38:14.779124",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
