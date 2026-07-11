@@ -6,8 +6,9 @@ import io
 
 import frappe
 import openpyxl
+from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 
 
 class TeaLot(Document):
@@ -21,9 +22,9 @@ class TeaLot(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		awr_date: DF.Date | None
-		blend: DF.Literal["", "PREMIUM PACK"]
+		blend: DF.Literal["", "PREMIUM PACK", "Premium"]
 		broker: DF.Link | None
-		centre: DF.Data | None
+		centre: DF.Link | None
 		certification: DF.Data | None
 		chest_serial_range: DF.Data | None
 		density: DF.Float
@@ -62,6 +63,29 @@ class TeaLot(Document):
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Tea Lot"
+
+	def autoname(self):
+		centre_code = frappe.db.get_value(
+			"Auction Centre",
+			self.centre,
+			"auction_centre_code",
+		)
+
+		if not centre_code:
+			frappe.throw(_("Auction Centre Code not found."))
+
+		if not self.purchase_date:
+			frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
+
+		if not self.lot_no:
+			frappe.throw(_("Lot No is required to generate the Tea Lot name."))
+
+		if not self.sale_no:
+			frappe.throw(_("Sale No is required to generate the Tea Lot name."))
+
+		year = getdate(self.purchase_date).strftime("%y")
+
+		self.name = f"{centre_code}-{self.lot_no}-{self.sale_no}-{year}"
 
 
 # ============================================================
