@@ -24,7 +24,7 @@ class TeaLot(Document):
 		awr_date: DF.Date | None
 		blend: DF.Literal["", "PREMIUM PACK", "Premium"]
 		broker: DF.Link | None
-		centre: DF.Link | None
+		auction_centre: DF.Link | None
 		certification: DF.Data | None
 		chest_serial_range: DF.Data | None
 		density: DF.Float
@@ -67,7 +67,7 @@ class TeaLot(Document):
 	def autoname(self):
 		centre_code = frappe.db.get_value(
 			"Auction Centre",
-			self.centre,
+			self.auction_centre,
 			"auction_centre_code",
 		)
 
