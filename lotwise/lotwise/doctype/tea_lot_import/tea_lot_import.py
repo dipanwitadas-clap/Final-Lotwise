@@ -266,7 +266,7 @@ class TeaLotImport(Document):
 					"liquor_mark": liquor or None,
 					"blend": self.blend or None,
 					"sale_no": self.sale_no or None,
-					"centre": row.auction_centre or None,
+					"auction_centre": row.auction_centre or None,
 					"purchase_date": row.purchase_date or None,
 					"source_doctype": self.doctype or None,
 					"source_doctype_id": self.name or None,
