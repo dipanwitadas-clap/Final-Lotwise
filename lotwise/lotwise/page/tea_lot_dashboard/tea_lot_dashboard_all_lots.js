@@ -570,8 +570,8 @@ frappe.provide("lotwise.tea_lot_dashboard");
 				<td>${value_or_dash(l.sale_no)}</td>
 			</tr>
 			<tr>
-				<th>Centre</th>
-				<td>${value_or_dash(l.centre)}</td>
+				<th>Auction Centre</th>
+				<td>${value_or_dash(l.auction_centre)}</td>
 				<th>Division</th>
 				<td>${value_or_dash(l.division)}</td>
 			</tr>

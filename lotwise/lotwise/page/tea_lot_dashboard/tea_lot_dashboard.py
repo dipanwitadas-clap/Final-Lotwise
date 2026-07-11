@@ -127,7 +127,7 @@ def get_lot_details(lot_no: str) -> dict:
 		"awr_date": lot.awr_date,
 		"sale_no": lot.sale_no,
 		"broker": lot.broker,
-		"centre": lot.centre,
+		"auction_centre": lot.auction_centre,
 		"division": lot.division,
 		"manufacturer_ref": lot.manufacturer_ref,
 		"chest_serial_range": lot.chest_serial_range,

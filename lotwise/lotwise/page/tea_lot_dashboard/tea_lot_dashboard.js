@@ -893,7 +893,9 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			<tr><th>Purchase Date</th><td>${vd(l.purchase_date)}</td><th>GP No</th><td>${vd(l.gp_no)}</td></tr>
 			<tr><th>GP Date</th><td>${vd(l.gp_date)}</td><th>AWR Date</th><td>${vd(l.awr_date)}</td></tr>
 			<tr><th>Broker</th><td>${vd(l.broker)}</td><th>Sale No</th><td>${vd(l.sale_no)}</td></tr>
-			<tr><th>Centre</th><td>${vd(l.centre)}</td><th>Division</th><td>${vd(l.division)}</td></tr>
+			<tr><th>Auction Centre</th><td>${vd(l.auction_centre)}</td><th>Division</th><td>${vd(
+			l.division
+		)}</td></tr>
 			<tr><th>Manufacturer Ref</th><td>${vd(l.manufacturer_ref)}</td><th>Chest Serial Range</th><td>${vd(
 			l.chest_serial_range
 		)}</td></tr>
@@ -1582,8 +1584,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				<tr><th>Blend</th><td>${vd(l.blend)}</td><th>Warehouse</th><td>${vd(l.warehouse)}</td></tr>
 				<tr><th>Purchase Date</th><td>${vd(l.purchase_date)}</td><th>GP No</th><td>${vd(l.gp_no)}</td></tr>
 				<tr><th>GP Date</th><td>${vd(l.gp_date)}</td><th>AWR Date</th><td>${vd(l.awr_date)}</td></tr>
-				<tr><th>Broker</th><td>${vd(l.broker)}</td><th>Sale No</th><td>${vd(l.sale_no)}</td></tr>
-				<tr><th>Centre</th><td>${vd(l.centre)}</td><th>Division</th><td>${vd(l.division)}</td></tr>
+			<tr><th>Broker</th><td>${vd(l.broker)}</td><th>Sale No</th><td>${vd(l.sale_no)}</td></tr>
+			<tr><th>Auction Centre</th><td>${vd(l.auction_centre)}</td><th>Division</th><td>${vd(
+				l.division
+			)}</td></tr>
 				<tr><th>Manufacturer Ref</th><td>${vd(l.manufacturer_ref)}</td><th>Chest Serial Range</th><td>${vd(
 				l.chest_serial_range
 			)}</td></tr>
