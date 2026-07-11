@@ -1,7 +1,7 @@
 {
  "app": "lotwise",
  "charts": [],
- "content": "[{\"id\":\"aCXz4JU82G\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Welcome to the Lotwise workspace</span>\",\"col\":12}},{\"id\":\"0HFoYSPnYT\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters &amp; Reports</b>\",\"col\":12}},{\"id\":\"2dHpy280Fw\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"GXMcFmcf0k\",\"type\":\"card\",\"data\":{\"card_name\":\"Tea Lot & Evaluation\",\"col\":4}},{\"id\":\"Raj9-Ko_Aw\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase List\",\"col\":4}},{\"id\":\"mvjooQnfK0\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"7gnYmFroNb\",\"type\":\"card\",\"data\":{\"card_name\":\"Dashboard\",\"col\":4}}]",
+ "content": "[{\"id\":\"aCXz4JU82G\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Welcome to the Lotwise workspace</span>\",\"col\":12}},{\"id\":\"0HFoYSPnYT\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters &amp; Reports</b>\",\"col\":12}},{\"id\":\"GXMcFmcf0k\",\"type\":\"card\",\"data\":{\"card_name\":\"Tea Lot & Evaluation\",\"col\":4}},{\"id\":\"Raj9-Ko_Aw\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase List\",\"col\":4}},{\"id\":\"2dHpy280Fw\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"mvjooQnfK0\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"7gnYmFroNb\",\"type\":\"card\",\"data\":{\"card_name\":\"Dashboard\",\"col\":4}}]",
  "creation": "2026-06-10 16:15:24.488297",
  "custom_blocks": [],
  "docstatus": 0,
@@ -28,85 +28,6 @@
    "label": "Tea Lot Import",
    "link_count": 0,
    "link_to": "Tea Lot Import",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Masters",
-   "link_count": 7,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Segments",
-   "link_count": 0,
-   "link_to": "Tea Segment",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Marks",
-   "link_count": 0,
-   "link_to": "Mark",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sellers",
-   "link_count": 0,
-   "link_to": "Seller",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Grades",
-   "link_count": 0,
-   "link_to": "Grade",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Packings",
-   "link_count": 0,
-   "link_to": "Packing",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Brokers",
-   "link_count": 0,
-   "link_to": "Broker",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Broker Warehouse name code",
-   "link_count": 0,
-   "link_to": "Broker Warehouse name code",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -187,9 +108,98 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Masters",
+   "link_count": 8,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Segments",
+   "link_count": 0,
+   "link_to": "Tea Segment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Marks",
+   "link_count": 0,
+   "link_to": "Mark",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sellers",
+   "link_count": 0,
+   "link_to": "Seller",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Grades",
+   "link_count": 0,
+   "link_to": "Grade",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Packings",
+   "link_count": 0,
+   "link_to": "Packing",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Auction Centre",
+   "link_count": 0,
+   "link_to": "Auction Centre",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Brokers",
+   "link_count": 0,
+   "link_to": "Broker",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Broker Warehouse name code",
+   "link_count": 0,
+   "link_to": "Broker Warehouse name code",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-07-08 11:14:17.386495",
+ "modified": "2026-07-12 00:33:17.330017",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",
