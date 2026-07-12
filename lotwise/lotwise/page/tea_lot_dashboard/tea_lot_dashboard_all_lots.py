@@ -42,7 +42,8 @@ def get_all_lots(from_date: str | None = None, to_date: str | None = None) -> di
 			status,
 			holding_status,
 			seller,
-			warehouselocation AS warehouse
+			warehouselocation AS warehouse,
+			auction_centre
 		FROM `tabTea Lot`
 		WHERE {" AND ".join(conditions)}
 		ORDER BY creation DESC
@@ -77,7 +78,8 @@ def download_all_lots_xlsx():
 			status,
 			holding_status,
 			seller,
-			warehouselocation AS warehouse
+			warehouselocation AS warehouse,
+			auction_centre
 		FROM `tabTea Lot`
 		WHERE docstatus < 2
 		ORDER BY creation DESC
@@ -101,6 +103,7 @@ def download_all_lots_xlsx():
 		"Holding Status",
 		"Seller",
 		"Warehouse",
+		"Auction Centre",
 	]
 
 	wb = openpyxl.Workbook()
@@ -126,6 +129,7 @@ def download_all_lots_xlsx():
 		ws.cell(row=row_idx, column=13, value=lot.holding_status)
 		ws.cell(row=row_idx, column=14, value=lot.seller)
 		ws.cell(row=row_idx, column=15, value=lot.warehouse)
+		ws.cell(row=row_idx, column=16, value=lot.auction_centre)
 
 	output = io.BytesIO()
 	wb.save(output)

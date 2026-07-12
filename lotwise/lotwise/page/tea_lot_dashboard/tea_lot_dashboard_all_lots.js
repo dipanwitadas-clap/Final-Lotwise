@@ -189,6 +189,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			{ key: "status", label: "Status" },
 			{ key: "holding_status", label: "Holding Status" },
 			{ key: "warehouse", label: "Warehouse" },
+			{ key: "auction_centre", label: "Auction Centre" },
 		];
 
 		// Read current filter values
