@@ -6,33 +6,33 @@
  "creation": "2026-06-10 10:06:08.543447",
  "doctype": "DocType",
  "engine": "InnoDB",
-  "field_order": [
-   "section_break_mgxs",
-   "acquisition_channel",
-   "seller",
-   "invoice_number",
-   "packing",
-   "packages",
-   "rate",
-   "density",
-   "liquor_mark",
-   "purchase_date",
-   "column_break_uyqw",
-   "status",
-   "mark",
-   "grade",
-   "net_weight_total",
-   "intended_segment",
-   "source_doctype",
-   "source_doctype_id",
-   "holding_status",
-   "do_reference",
-   "do_date",
-   "section_break_7zcb",
-   "broker",
-   "sale_no",
-   "auction_centre",
-   "division",
+ "field_order": [
+  "section_break_mgxs",
+  "acquisition_channel",
+  "seller",
+  "invoice_number",
+  "packing",
+  "packages",
+  "rate",
+  "density",
+  "liquor_mark",
+  "purchase_date",
+  "column_break_uyqw",
+  "status",
+  "mark",
+  "grade",
+  "net_weight_total",
+  "intended_segment",
+  "source_doctype",
+  "source_doctype_id",
+  "holding_status",
+  "do_reference",
+  "do_date",
+  "section_break_7zcb",
+  "broker",
+  "sale_no",
+  "auction_centre",
+  "division",
   "lot_no",
   "manufacturer_ref",
   "chest_serial_range",
@@ -88,8 +88,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Mark",
-   "options": "Mark",
-   "reqd": 1
+   "options": "Mark"
   },
   {
    "fieldname": "grade",
@@ -104,8 +103,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Invoice Number",
-   "reqd": 1
+   "label": "Invoice Number"
   },
   {
    "fieldname": "packing",
@@ -158,6 +156,7 @@
    "fieldname": "auction_centre",
    "fieldtype": "Link",
    "label": "Auction Centre",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\"",
    "options": "Auction Centre"
   },
   {
@@ -267,7 +266,8 @@
   {
    "fieldname": "purchase_date",
    "fieldtype": "Date",
-   "label": "Purchase Date"
+   "label": "Purchase Date",
+   "reqd": 1
   },
   {
    "fieldname": "holding_status",
@@ -330,7 +330,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-10 10:38:14.779124",
+ "modified": "2026-07-12 19:47:03.833689",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

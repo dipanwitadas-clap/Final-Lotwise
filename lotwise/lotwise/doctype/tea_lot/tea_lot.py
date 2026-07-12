@@ -21,10 +21,10 @@ class TeaLot(Document):
 		from frappe.types import DF
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
+		auction_centre: DF.Link | None
 		awr_date: DF.Date | None
 		blend: DF.Literal["", "PREMIUM PACK", "Premium"]
 		broker: DF.Link | None
-		auction_centre: DF.Link | None
 		certification: DF.Data | None
 		chest_serial_range: DF.Data | None
 		density: DF.Float
@@ -37,17 +37,17 @@ class TeaLot(Document):
 		gross_wtpkg: DF.Float
 		holding_status: DF.Literal["", "Committed", "Received", "In Stock"]
 		intended_segment: DF.Link | None
-		invoice_number: DF.Data
+		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
 		lot_no: DF.Data | None
 		manufacturer_ref: DF.Data | None
-		mark: DF.Link
+		mark: DF.Link | None
 		mfg_monthyear: DF.Data | None
 		net_weight_total: DF.Float
 		net_wtpkg: DF.Float
 		packages: DF.Int
 		packing: DF.Link | None
-		purchase_date: DF.Date | None
+		purchase_date: DF.Date
 		purchase_from: DF.Data | None
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
