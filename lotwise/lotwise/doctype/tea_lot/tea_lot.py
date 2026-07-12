@@ -62,8 +62,6 @@ class TeaLot(Document):
 		warehouselocation: DF.Data | None
 	# end: auto-generated types
 
-	_DOCTYPE_NAME = "Tea Lot"
-
 	def autoname(self):
 		centre_code = frappe.db.get_value(
 			"Auction Centre",
@@ -94,11 +92,7 @@ class TeaLot(Document):
 
 
 def get_evaluation_field_options(fieldname: str) -> list:
-	"""
-	Fetch the Select options for a given fieldname from Tea Evaluation doctype.
-	Options are stored as newline-separated values in DocField.
-	Returns a list of option strings (empty string and blank ones filtered out).
-	"""
+	"""Fetch select options for a fieldname from Tea Evaluation doctype."""
 	options_str = frappe.db.get_value(
 		"DocField",
 		{"parent": "Tea Evaluation", "fieldname": fieldname},
@@ -122,19 +116,7 @@ def get_evaluation_field_options(fieldname: str) -> list:
 
 @frappe.whitelist()
 def download_evaluation_import_xlsx() -> dict:
-	"""
-	Generate xlsx with Tea Lots where status != 'Evaluated'.
-	First 3 columns (Tea Lot, Mark, Invoice Number) have data,
-	remaining columns have headers only (blank data).
-
-	Stage (col 5), Liquor Mark (col 6), and Quality Grade (col 12)
-	have Excel dropdown validation with options dynamically fetched
-	from Tea Evaluation doctype field definitions.
-
-	Dropdown options are stored in hidden columns (P, Q, R) on the
-	same sheet and referenced via same-sheet range formulas for
-	maximum Excel compatibility.
-	"""
+	"""Generate xlsx for Tea Lot evaluation import with dropdown validations."""
 	# Fetch unevaluated Tea Lots
 	lots = frappe.db.sql(
 		"""
@@ -159,21 +141,6 @@ def download_evaluation_import_xlsx() -> dict:
 	# ============================================================
 	# Headers
 	# ============================================================
-	# Column indices (1-based):
-	#  1: Tea Lot
-	#  2: Mark
-	#  3: Invoice Number
-	#  4: Taster
-	#  5: Stage        <-- dropdown
-	#  6: Liquor Mark  <-- dropdown
-	#  7: Colour
-	#  8: Strength
-	#  9: Taste
-	# 10: Briskness
-	# 11: Quality Grade <-- dropdown
-	# 12: Suggested Valuation
-	# 13: Notes
-	# 14: Evaluation Date (DD-MM-YYYY)
 	headers = [
 		"Tea Lot",
 		"Mark",

@@ -71,7 +71,6 @@
    "default": "Offered",
    "fieldname": "status",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
    "options": "\nOffered\nEvaluated"
@@ -85,7 +84,6 @@
   {
    "fieldname": "mark",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Mark",
    "options": "Mark"
@@ -155,6 +153,8 @@
   {
    "fieldname": "auction_centre",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Auction Centre",
    "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\"",
    "options": "Auction Centre"
@@ -330,7 +330,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-12 19:47:03.833689",
+ "modified": "2026-07-12 20:54:24.345915",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
