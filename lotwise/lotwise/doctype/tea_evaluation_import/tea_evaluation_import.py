@@ -323,14 +323,10 @@ class TeaEvaluationImport(Document):
 				continue
 
 			try:
-				if row.row_status == "Error":
-					errors += 1
-					continue
-
 				# Check all mandatory fields from Tea Evaluation doctype dynamically
 				missing = []
 				for fieldname in mandatory_fields:
-					if not getattr(row, fieldname, None):
+					if not row.get(fieldname):
 						# Map fieldname to a readable label
 						meta = frappe.get_meta("Tea Evaluation")
 						field = meta.get_field(fieldname)
