@@ -113,7 +113,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Masters",
-   "link_count": 8,
+   "link_count": 9,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -131,9 +131,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Marks",
+   "label": "Taster",
    "link_count": 0,
-   "link_to": "Mark",
+   "link_to": "Taster",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -141,9 +141,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Sellers",
+   "label": "Auction Centre",
    "link_count": 0,
-   "link_to": "Seller",
+   "link_to": "Auction Centre",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -161,9 +161,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Packings",
+   "label": "Marks",
    "link_count": 0,
-   "link_to": "Packing",
+   "link_to": "Mark",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -171,9 +171,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Auction Centre",
+   "label": "Packings",
    "link_count": 0,
-   "link_to": "Auction Centre",
+   "link_to": "Packing",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -197,9 +197,19 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sellers",
+   "link_count": 0,
+   "link_to": "Seller",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-07-12 00:33:17.330017",
+ "modified": "2026-07-13 12:18:57.243070",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",
