@@ -64,7 +64,7 @@
   },
   {
    "fieldname": "sale_no",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Sale No"
@@ -144,7 +144,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-07-09 16:54:47.460424",
+ "modified": "2026-07-14 11:24:56.491904",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",

@@ -87,7 +87,7 @@ def _extract_metadata(ws):
 	meta["company"] = _str(ws.cell(2, 2).value)
 	meta["blend"] = _str(ws.cell(3, 2).value)
 	meta["reference_no"] = _str(ws.cell(4, 2).value)
-	meta["sale_no"] = _str(ws.cell(5, 2).value)
+	meta["sale_no"] = cint(ws.cell(5, 2).value)
 	return meta
 
 
@@ -143,7 +143,7 @@ class TeaLotImport(Document):
 		rows_duplicate: DF.Int
 		rows_error: DF.Int
 		rows_parsed: DF.Int
-		sale_no: DF.Data | None
+		sale_no: DF.Int
 	# end: auto-generated types
 
 	"""Parse Dalmia XLSX -> items table -> create Tea Lots."""
