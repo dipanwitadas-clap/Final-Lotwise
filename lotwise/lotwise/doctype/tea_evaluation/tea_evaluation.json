@@ -14,6 +14,7 @@
   "liquor_mark",
   "evaluation_date",
   "suggested_valuation",
+  "remarks",
   "column_break_imtm",
   "colour",
   "strength",
@@ -67,34 +68,26 @@
    "label": "Evaluation Date",
    "reqd": 1
   },
-   {
-    "fieldname": "colour",
-    "fieldtype": "Int",
-    "label": "Colour",
-    "min": 0,
-    "max": 100
-   },
-   {
-    "fieldname": "strength",
-    "fieldtype": "Int",
-    "label": "Strength",
-    "min": 0,
-    "max": 100
-   },
-   {
-    "fieldname": "taste",
-    "fieldtype": "Int",
-    "label": "Taste",
-    "min": 0,
-    "max": 100
-   },
-   {
-    "fieldname": "briskness",
-    "fieldtype": "Int",
-    "label": "Briskness",
-    "min": 0,
-    "max": 100
-   },
+  {
+   "fieldname": "colour",
+   "fieldtype": "Int",
+   "label": "Colour"
+  },
+  {
+   "fieldname": "strength",
+   "fieldtype": "Int",
+   "label": "Strength"
+  },
+  {
+   "fieldname": "taste",
+   "fieldtype": "Int",
+   "label": "Taste"
+  },
+  {
+   "fieldname": "briskness",
+   "fieldtype": "Int",
+   "label": "Briskness"
+  },
   {
    "fieldname": "suggested_valuation",
    "fieldtype": "Currency",
@@ -129,12 +122,17 @@
    "fieldtype": "Link",
    "label": "Mark",
    "options": "Mark"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-03 16:53:28.075225",
+ "modified": "2026-07-14 09:46:52.654899",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",

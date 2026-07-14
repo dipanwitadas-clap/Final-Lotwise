@@ -24,6 +24,7 @@ class TeaEvaluation(Document):
 		quality_grade: DF.Literal[
 			"", "A", "A++", "A+++", "B", "B+", "B++", "B-", "C", "C+", "D", "D+", "E", "E+"
 		]
+		remarks: DF.Data | None
 		stage: DF.Literal[
 			"", "Pre-purchase", "Arrival", "Blend QC", "Storage", "Purchase Sample", "Bag Sample"
 		]
