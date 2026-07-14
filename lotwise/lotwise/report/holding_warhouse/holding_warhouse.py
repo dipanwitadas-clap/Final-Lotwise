@@ -19,19 +19,19 @@ def get_columns():
 	return [
 		{"label": _("Lot ID"), "fieldname": "name", "fieldtype": "Link", "options": "Tea Lot", "width": 160},
 		{"label": _("Lot No"), "fieldname": "lot_no", "fieldtype": "Data", "width": 110},
+		{"label": _("Sale No"), "fieldname": "sale_no", "fieldtype": "Int", "width": 90},
 		{"label": _("Channel"), "fieldname": "acquisition_channel", "fieldtype": "Data", "width": 120},
+		{
+			"label": _("Auction Centre"),
+			"fieldname": "auction_centre",
+			"fieldtype": "Link",
+			"options": "Auction Centre",
+			"width": 150,
+		},
 		{"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 105},
 		{"label": _("Holding"), "fieldname": "holding_status", "fieldtype": "Data", "width": 110},
-		{"label": _("Seller"), "fieldname": "seller", "fieldtype": "Link", "options": "Seller", "width": 150},
 		{"label": _("Mark"), "fieldname": "mark", "fieldtype": "Link", "options": "Mark", "width": 130},
 		{"label": _("Grade"), "fieldname": "grade", "fieldtype": "Link", "options": "Grade", "width": 90},
-		{
-			"label": _("Segment"),
-			"fieldname": "intended_segment",
-			"fieldtype": "Link",
-			"options": "Tea Segment",
-			"width": 100,
-		},
 		{"label": _("Pkgs"), "fieldname": "packages", "fieldtype": "Int", "width": 80},
 		{
 			"label": _("Net Wt Kg"),
@@ -56,13 +56,12 @@ def get_conditions(filters, table_alias=None):
 	filter_map = {
 		"name": "name",
 		"acquisition_channel": "acquisition_channel",
+		"auction_centre": "auction_centre",
 		"lot_no": "lot_no",
 		"status": "status",
 		"holding_status": "holding_status",
 		"mark": "mark",
 		"grade": "grade",
-		"seller": "seller",
-		"intended_segment": "intended_segment",
 	}
 
 	for key, field in filter_map.items():
@@ -78,6 +77,14 @@ def get_conditions(filters, table_alias=None):
 		conditions.append(f"{prefix}purchase_date <= %(to_date)s")
 		values["to_date"] = filters["to_date"]
 
+	if filters.get("sale_no_from"):
+		conditions.append(f"{prefix}sale_no >= %(sale_no_from)s")
+		values["sale_no_from"] = filters["sale_no_from"]
+
+	if filters.get("sale_no_to"):
+		conditions.append(f"{prefix}sale_no <= %(sale_no_to)s")
+		values["sale_no_to"] = filters["sale_no_to"]
+
 	return conditions, values
 
 
@@ -89,13 +96,13 @@ def get_data(filters):
 		SELECT
 			tl.name,
 			tl.lot_no,
+			tl.sale_no,
 			tl.acquisition_channel,
+			tl.auction_centre,
 			tl.status,
 			tl.holding_status,
-			tl.seller,
 			tl.mark,
 			tl.grade,
-			tl.intended_segment,
 			tl.packages,
 			tl.net_weight_total,
 			tl.rate,
@@ -122,7 +129,6 @@ def get_report_summary(filters):
 			sum(packages) as total_packages,
 			sum(net_weight_total) as total_weight,
 			count(distinct mark) as total_marks,
-			count(distinct seller) as total_sellers,
 			COALESCE(SUM(net_weight_total * rate) / NULLIF(SUM(net_weight_total),0), 0) AS avg_rate
 		FROM `tabTea Lot`
 		WHERE {" AND ".join(conditions)}
@@ -136,6 +142,5 @@ def get_report_summary(filters):
 		{"label": _("Total Packages"), "value": result.total_packages or 0, "indicator": "green"},
 		{"label": _("Net Weight (Kg)"), "value": round(result.total_weight or 0, 2), "indicator": "orange"},
 		{"label": _("Total Marks"), "value": result.total_marks or 0, "indicator": "purple"},
-		{"label": _("Total Sellers"), "value": result.total_sellers or 0, "indicator": "red"},
 		{"label": _("Avg Rate/kg"), "value": round(result.avg_rate or 0, 2), "indicator": "yellow"},
 	]

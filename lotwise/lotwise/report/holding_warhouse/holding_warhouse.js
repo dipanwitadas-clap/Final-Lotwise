@@ -85,16 +85,21 @@ frappe.query_reports["Holding Warhouse"] = {
 			options: "Grade",
 		},
 		{
-			fieldname: "seller",
-			label: __("Seller"),
+			fieldname: "auction_centre",
+			label: __("Auction Centre"),
 			fieldtype: "Link",
-			options: "Seller",
+			options: "Auction Centre",
 		},
 		{
-			fieldname: "intended_segment",
-			label: __("Segment"),
-			fieldtype: "Link",
-			options: "Tea Segment",
+			fieldname: "sale_no_from",
+			label: __("Sale No From"),
+			fieldtype: "Int",
+		},
+
+		{
+			fieldname: "sale_no_to",
+			label: __("Sale No To"),
+			fieldtype: "Int",
 		},
 	],
 
