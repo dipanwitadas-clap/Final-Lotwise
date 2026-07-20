@@ -52,7 +52,7 @@ class TeaLot(Document):
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
 		rate: DF.Currency
-		sale_no: DF.Data | None
+		sale_no: DF.Int
 		seller: DF.Link | None
 		source_doctype: DF.Link | None
 		source_doctype_id: DF.DynamicLink | None
@@ -107,6 +107,120 @@ def get_evaluation_field_options(fieldname: str) -> list:
 	options = [opt.strip() for opt in options_str.split("\n") if opt.strip()]
 
 	return options
+
+
+# ============================================================
+# API: GET TEA LOTS FOR EVALUATION DATATABLE
+# ============================================================
+
+
+@frappe.whitelist()
+def get_tea_lots_for_evaluation() -> dict:
+	"""Fetch Tea Lots with their data for the inline evaluation DataTable."""
+	filters_json = frappe.form_dict.get("filters")
+	filters_dict = {}
+	valid_fields = {
+		"name",
+		"sale_no",
+		"lot_no",
+		"auction_centre",
+		"grade",
+		"mark",
+		"invoice_number",
+		"status",
+		"acquisition_channel",
+		"holding_status",
+	}
+
+	if filters_json:
+		try:
+			import json
+
+			filters = json.loads(filters_json)
+			for field, value in filters.items():
+				if value and str(value).strip() and field in valid_fields:
+					filters_dict[field] = ["like", "%" + str(value) + "%"]
+		except Exception:
+			pass
+
+	# Get pagination parameters
+	start = int(frappe.form_dict.get("start", 0))
+	page_length = int(frappe.form_dict.get("page_length", 20))
+
+	# Get total count for pagination
+	total_count = frappe.db.count("Tea Lot", filters=filters_dict if filters_dict else None)
+
+	# Fetch paginated data
+	lots = frappe.get_list(
+		"Tea Lot",
+		fields=["name", "sale_no", "lot_no", "auction_centre", "grade", "mark", "invoice_number"],
+		filters=filters_dict if filters_dict else None,
+		order_by="creation desc",
+		start=start,
+		page_length=page_length,
+	)
+
+	# Fetch dropdown options for evaluation fields
+	stage_options = get_evaluation_field_options("stage")
+	liquor_mark_options = get_evaluation_field_options("liquor_mark")
+	quality_grade_options = get_evaluation_field_options("quality_grade")
+
+	return {
+		"lots": lots,
+		"stage_options": stage_options,
+		"liquor_mark_options": liquor_mark_options,
+		"quality_grade_options": quality_grade_options,
+		"total_count": total_count,
+		"start": start,
+		"page_length": page_length,
+	}
+
+
+# ============================================================
+# API: CREATE TEA EVALUATION (from inline DataTable)
+# ============================================================
+
+
+@frappe.whitelist()
+def create_tea_evaluation() -> dict:
+	"""
+	Create a Tea Evaluation from the inline DataTable row data.
+	Expects POST data via frappe.call with args:
+		tea_lot, taster, stage, liquor_mark, evaluation_date,
+		suggested_valuation, colour, strength, taste, briskness,
+		quality_grade, invoice_number, mark, notes
+	"""
+	data = frappe.local.form_dict
+
+	required = ["tea_lot", "taster", "stage", "evaluation_date"]
+	missing = [f for f in required if not data.get(f)]
+	if missing:
+		frappe.throw(_("Missing required fields: {0}").format(", ".join(missing)))
+
+	eval_doc = frappe.get_doc(
+		{
+			"doctype": "Tea Evaluation",
+			"tea_lot": data.get("tea_lot"),
+			"taster": data.get("taster"),
+			"stage": data.get("stage"),
+			"liquor_mark": data.get("liquor_mark"),
+			"evaluation_date": data.get("evaluation_date"),
+			"suggested_valuation": flt(data.get("suggested_valuation")),
+			"colour": flt(data.get("colour")),
+			"strength": flt(data.get("strength")),
+			"taste": flt(data.get("taste")),
+			"briskness": flt(data.get("briskness")),
+			"quality_grade": data.get("quality_grade"),
+			"invoice_number": data.get("invoice_number"),
+			"mark": data.get("mark"),
+			"density": flt(data.get("density")),
+			"remarks": data.get("remarks"),
+		}
+	)
+
+	eval_doc.insert()
+
+	return {"name": eval_doc.name, "tea_lot": eval_doc.tea_lot}
 
 
 # ============================================================
@@ -262,3 +376,52 @@ def download_evaluation_import_xlsx() -> dict:
 	encoded = base64.b64encode(output.getvalue()).decode("utf-8")
 
 	return {"content": encoded, "filename": "tea_evaluation_import.xlsx"}
+
+
+# ============================================================
+# API: BULK DELETE TEA LOTS
+# ============================================================
+
+
+# @frappe.whitelist()
+# def delete_tea_lots():
+# 	"""Delete multiple Tea Lots quickly using direct SQL.
+
+# 	Uses fast bulk SQL deletion instead of frappe.delete_doc
+# 	to avoid expensive hooks/validations per document.
+# 	Also deletes linked Tea Evaluations first.
+# 	"""
+# 	import json
+
+# 	names = frappe.form_dict.get("names")
+# 	if isinstance(names, str):
+# 		names = json.loads(names)
+
+# 	if not names or not isinstance(names, list):
+# 		frappe.throw(_("No Tea Lots selected for deletion."))
+
+# 	if not frappe.has_permission("Tea Lot", "delete"):
+# 		frappe.throw(_("Not permitted to delete Tea Lots."))
+
+# 	# Build parameterized placeholders for SQL IN clause
+# 	placeholders = ", ".join(["%s"] * len(names))
+
+# 	# 1. First delete any Tea Evaluations linked to these Tea Lots
+# 	frappe.db.sql(
+# 		f"DELETE FROM `tabTea Evaluation` WHERE tea_lot IN ({placeholders})",
+# 		names,
+# 	)
+
+# 	# 2. Then delete the Tea Lots themselves (fast SQL, no hooks/validations)
+# 	frappe.db.sql(
+# 		f"DELETE FROM `tabTea Lot` WHERE name IN ({placeholders})",
+# 		names,
+# 	)
+
+# 	frappe.db.commit()
+
+# 	# Clear cache for deleted documents
+# 	for name in names:
+# 		frappe.clear_document_cache("Tea Lot", name)
+
+# 	return {"deleted_count": len(names), "deleted": names}
