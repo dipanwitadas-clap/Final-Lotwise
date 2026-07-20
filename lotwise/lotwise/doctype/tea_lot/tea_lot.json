@@ -144,7 +144,7 @@
   },
   {
    "fieldname": "sale_no",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Sale No",
@@ -330,7 +330,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-12 20:54:24.345915",
+ "modified": "2026-07-14 11:24:01.850196",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
