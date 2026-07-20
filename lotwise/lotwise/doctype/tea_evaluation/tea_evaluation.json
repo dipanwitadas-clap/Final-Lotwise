@@ -23,6 +23,7 @@
   "quality_grade",
   "invoice_number",
   "mark",
+  "density",
   "section_break_4j6n",
   "notes"
  ],
@@ -127,12 +128,18 @@
    "fieldname": "remarks",
    "fieldtype": "Data",
    "label": "Remarks"
+  },
+  {
+   "fieldname": "density",
+   "fieldtype": "Float",
+   "label": "Density",
+   "precision": "2"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-14 09:46:52.654899",
+ "modified": "2026-07-18 11:21:15.047254",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",
