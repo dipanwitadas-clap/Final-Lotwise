@@ -14,8 +14,8 @@ class Broker(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		auction_centre: DF.Link | None
 		broker_name: DF.Data
-		centre: DF.Data | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Broker"

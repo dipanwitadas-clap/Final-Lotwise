@@ -9,7 +9,7 @@
  "engine": "InnoDB",
  "field_order": [
   "broker_name",
-  "centre"
+  "auction_centre"
  ],
  "fields": [
   {
@@ -22,15 +22,16 @@
    "unique": 1
   },
   {
-   "fieldname": "centre",
-   "fieldtype": "Data",
-   "label": "Centre"
+   "fieldname": "auction_centre",
+   "fieldtype": "Link",
+   "label": "Auction Centre",
+   "options": "Auction Centre"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-21 12:33:36.609348",
+ "modified": "2026-07-21 12:45:10.236406",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Broker",
