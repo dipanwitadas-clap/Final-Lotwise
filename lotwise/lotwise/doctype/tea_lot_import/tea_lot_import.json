@@ -144,7 +144,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-07-14 11:24:56.491904",
+ "modified": "2026-07-21 14:06:02.590760",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",

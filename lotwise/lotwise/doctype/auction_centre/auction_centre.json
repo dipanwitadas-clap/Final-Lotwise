@@ -14,19 +14,23 @@
   {
    "fieldname": "auction_centre",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Auction Centre",
    "unique": 1
   },
   {
    "fieldname": "auction_centre_code",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Auction Centre Code"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-09 17:20:30.368225",
+ "modified": "2026-07-21 14:05:11.534157",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Auction Centre",
