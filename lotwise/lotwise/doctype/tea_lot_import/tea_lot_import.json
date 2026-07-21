@@ -11,6 +11,7 @@
   "acquisition_channel",
   "col_break_1",
   "company",
+  "purchase_type",
   "col_break_1b",
   "sale_no",
   "blend",
@@ -71,8 +72,9 @@
   },
   {
    "fieldname": "blend",
-   "fieldtype": "Data",
-   "label": "Blend / Brand"
+   "fieldtype": "Link",
+   "label": "Blend / Brand",
+   "options": "Blend"
   },
   {
    "collapsible": 1,
@@ -134,6 +136,12 @@
    "fieldtype": "Table",
    "label": "Items",
    "options": "Tea Lot Import Item"
+  },
+  {
+   "fieldname": "purchase_type",
+   "fieldtype": "Select",
+   "label": "Purchase Type",
+   "options": "\nPurchase\nOffer"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -144,7 +152,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-07-21 14:06:02.590760",
+ "modified": "2026-07-21 14:51:45.757503",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",

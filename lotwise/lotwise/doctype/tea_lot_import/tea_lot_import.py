@@ -133,12 +133,13 @@ class TeaLotImport(Document):
 		from lotwise.lotwise.doctype.tea_lot_import_item.tea_lot_import_item import TeaLotImportItem
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
-		blend: DF.Data | None
+		blend: DF.Link | None
 		company: DF.Data | None
 		computed_total_net_weight: DF.Float
 		computed_total_packages: DF.Int
 		import_file: DF.Attach
 		items: DF.Table[TeaLotImportItem]
+		purchase_type: DF.Literal["", "Purchase", "Offer"]
 		rows_created: DF.Int
 		rows_duplicate: DF.Int
 		rows_error: DF.Int

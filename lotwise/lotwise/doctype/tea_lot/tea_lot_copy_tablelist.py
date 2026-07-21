@@ -23,7 +23,7 @@ class TeaLot(Document):
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
 		awr_date: DF.Date | None
-		blend: DF.Literal["", "PREMIUM PACK", "Premium"]
+		blend: DF.Link | None
 		broker: DF.Link | None
 		certification: DF.Data | None
 		chest_serial_range: DF.Data | None

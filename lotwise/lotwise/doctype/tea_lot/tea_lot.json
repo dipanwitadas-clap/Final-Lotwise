@@ -99,8 +99,6 @@
   {
    "fieldname": "invoice_number",
    "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Invoice Number"
   },
   {
@@ -247,9 +245,9 @@
   },
   {
    "fieldname": "blend",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Blend",
-   "options": "\nPREMIUM PACK\nPremium"
+   "options": "Blend"
   },
   {
    "fieldname": "source_doctype",
@@ -330,7 +328,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-14 11:24:01.850196",
+ "modified": "2026-07-20 12:56:24.938650",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
