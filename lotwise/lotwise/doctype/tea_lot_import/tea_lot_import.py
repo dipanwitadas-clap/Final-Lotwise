@@ -254,7 +254,7 @@ class TeaLotImport(Document):
 					"doctype": "Tea Lot",
 					"acquisition_channel": self.acquisition_channel or "Auction",
 					"status": "Offered",
-					"holding_status": "Committed",
+					"purchase_status": "Committed",
 					"lot_no": lot_no,
 					"invoice_number": invoice,
 					"mark": mark_name,

@@ -592,7 +592,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			{ key: "net_weight_total", label: "Net Wt Kg", numeric: true },
 			{ key: "rate", label: "Rate", numeric: true },
 			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
+			{ key: "purchase_status", label: "Purchase Status" },
 			{ key: "warehouse", label: "Warehouse" },
 		];
 
@@ -878,7 +878,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			<tr><th>Channel</th><td>${vd(l.acquisition_channel)}</td><th>Status</th><td>${vd(
 			l.status
 		)}</td></tr>
-			<tr><th>Holding Status</th><td>${vd(l.holding_status)}</td><th>Intended Segment</th><td>${vd(
+			<tr><th>Purchase Status</th><td>${vd(l.purchase_status)}</td><th>Intended Segment</th><td>${vd(
 			l.intended_segment
 		)}</td></tr>
 			<tr><th>Packages</th><td>${fmt(l.packages)}</td><th>Net Weight</th><td>${fmt(
@@ -998,16 +998,16 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		)}</span><span class="lot-badge">${fmt(lots.length)} Lots</span>
 		<button class="btn btn-default btn-sm" id="download_mark_btn" title="Download Excel">
 			<i class="fa fa-download"></i> Download
-		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Grade</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Holding Status</th></tr>`;
+		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Grade</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Purchase Status</th></tr>`;
 		lots.forEach(function (lot) {
 			h += `<tr><td>${vd(lot.lot_no || lot.name)}</td><td>${vd(lot.name)}</td><td>${vd(
-				lot.grade
+				lot.mark
 			)}</td><td>${vd(lot.invoice_number)}</td><td>${vd(lot.liquor_mark)}</td><td>${vd(
 				lot.acquisition_channel
 			)}</td><td>${vd(lot.purchase_date)}</td><td>${fmt(lot.packages)}</td><td>${fmt(
 				lot.net_weight_total
 			)}</td><td>${money(lot.rate)}</td><td>${vd(lot.status)}</td><td>${vd(
-				lot.holding_status
+				lot.purchase_status
 			)}</td></tr>`;
 		});
 		return h + `</table></div></div>`;
@@ -1124,7 +1124,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		)}</span><span class="lot-badge">${fmt(lots.length)} Lots</span>
 		<button class="btn btn-default btn-sm" id="download_grade_btn" title="Download Excel">
 			<i class="fa fa-download"></i> Download
-		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Mark</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Holding Status</th></tr>`;
+		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Mark</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Purchase Status</th></tr>`;
 		lots.forEach(function (lot) {
 			h += `<tr><td>${vd(lot.lot_no || lot.name)}</td><td>${vd(lot.name)}</td><td>${vd(
 				lot.mark
@@ -1133,7 +1133,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			)}</td><td>${vd(lot.purchase_date)}</td><td>${fmt(lot.packages)}</td><td>${fmt(
 				lot.net_weight_total
 			)}</td><td>${money(lot.rate)}</td><td>${vd(lot.status)}</td><td>${vd(
-				lot.holding_status
+				lot.purchase_status
 			)}</td></tr>`;
 		});
 		return h + `</table></div></div>`;
@@ -1570,7 +1570,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				<tr><th>Channel</th><td>${vd(l.acquisition_channel)}</td><th>Status</th><td>${vd(
 				l.status
 			)}</td></tr>
-				<tr><th>Holding Status</th><td>${vd(l.holding_status)}</td><th>Intended Segment</th><td>${vd(
+				<tr><th>Purchase Status</th><td>${vd(l.purchase_status)}</td><th>Intended Segment</th><td>${vd(
 				l.intended_segment
 			)}</td></tr>
 				<tr><th>Packages</th><td>${fmt(l.packages)}</td><th>Net Weight</th><td>${fmt(

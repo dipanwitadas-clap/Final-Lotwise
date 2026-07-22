@@ -35,7 +35,7 @@ class TeaLot(Document):
 		gp_no: DF.Data | None
 		grade: DF.Link | None
 		gross_wtpkg: DF.Float
-		holding_status: DF.Literal["", "Committed", "Received", "In Stock"]
+		purchase_status: DF.Literal["", "Committed", "Received", "In Stock"]
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
@@ -129,7 +129,7 @@ def get_tea_lots_for_evaluation() -> dict:
 		"invoice_number",
 		"status",
 		"acquisition_channel",
-		"holding_status",
+		"purchase_status",
 	}
 
 	if filters_json:

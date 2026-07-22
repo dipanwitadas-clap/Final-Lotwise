@@ -187,7 +187,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			{ key: "net_weight_total", label: "Net Wt Kg", numeric: true },
 			{ key: "rate", label: "Rate", numeric: true },
 			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
+			{ key: "purchase_status", label: "Purchase Status" },
 			{ key: "warehouse", label: "Warehouse" },
 			{ key: "auction_centre", label: "Auction Centre" },
 		];
@@ -518,7 +518,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			</tr>
 			<tr>
 				<th>Holding Status</th>
-				<td>${value_or_dash(l.holding_status)}</td>
+				<td>${value_or_dash(l.purchase_status)}</td>
 				<th>Intended Segment</th>
 				<td>${value_or_dash(l.intended_segment)}</td>
 			</tr>

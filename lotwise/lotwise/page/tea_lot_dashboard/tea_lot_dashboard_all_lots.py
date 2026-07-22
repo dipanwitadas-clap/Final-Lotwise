@@ -40,7 +40,7 @@ def get_all_lots(from_date: str | None = None, to_date: str | None = None) -> di
 			net_weight_total,
 			rate,
 			status,
-			holding_status,
+			purchase_status,
 			seller,
 			warehouselocation AS warehouse,
 			auction_centre
@@ -76,7 +76,7 @@ def download_all_lots_xlsx():
 			net_weight_total,
 			rate,
 			status,
-			holding_status,
+			purchase_status,
 			seller,
 			warehouselocation AS warehouse,
 			auction_centre
@@ -100,7 +100,7 @@ def download_all_lots_xlsx():
 		"Net Wt Kg",
 		"Rate",
 		"Status",
-		"Holding Status",
+		"Purchase Status",
 		"Seller",
 		"Warehouse",
 		"Auction Centre",
@@ -126,7 +126,7 @@ def download_all_lots_xlsx():
 		ws.cell(row=row_idx, column=10, value=lot.net_weight_total)
 		ws.cell(row=row_idx, column=11, value=lot.rate)
 		ws.cell(row=row_idx, column=12, value=lot.status)
-		ws.cell(row=row_idx, column=13, value=lot.holding_status)
+		ws.cell(row=row_idx, column=13, value=lot.purchase_status)
 		ws.cell(row=row_idx, column=14, value=lot.seller)
 		ws.cell(row=row_idx, column=15, value=lot.warehouse)
 		ws.cell(row=row_idx, column=16, value=lot.auction_centre)

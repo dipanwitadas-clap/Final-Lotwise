@@ -33,7 +33,7 @@ def get_lots_by_grade(grade: str) -> dict:
 			net_weight_total,
 			rate,
 			status,
-			holding_status
+			purchase_status
 		FROM `tabTea Lot`
 		WHERE docstatus < 2
 			AND grade = %(grade)s
@@ -71,7 +71,7 @@ def download_grade_xlsx(grade: str):
 			net_weight_total,
 			rate,
 			status,
-			holding_status
+			purchase_status
 		FROM `tabTea Lot`
 		WHERE docstatus < 2
 			AND grade = %(grade)s
@@ -93,7 +93,7 @@ def download_grade_xlsx(grade: str):
 		"Net Weight Kg",
 		"Rate",
 		"Status",
-		"Holding Status",
+		"Purchase Status",
 	]
 
 	wb = openpyxl.Workbook()
@@ -115,7 +115,7 @@ def download_grade_xlsx(grade: str):
 		ws.cell(row=row_idx, column=9, value=lot.net_weight_total)
 		ws.cell(row=row_idx, column=10, value=lot.rate)
 		ws.cell(row=row_idx, column=11, value=lot.status)
-		ws.cell(row=row_idx, column=12, value=lot.holding_status)
+		ws.cell(row=row_idx, column=12, value=lot.purchase_status)
 
 	output = io.BytesIO()
 	wb.save(output)

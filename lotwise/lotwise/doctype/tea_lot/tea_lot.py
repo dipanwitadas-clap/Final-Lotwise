@@ -35,7 +35,7 @@ class TeaLot(Document):
 		gp_no: DF.Data | None
 		grade: DF.Link | None
 		gross_wtpkg: DF.Float
-		holding_status: DF.Literal["", "Committed", "Received", "In Stock"]
+		purchase_status: DF.Literal["", "Committed", "Received", "In Stock"]
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
@@ -62,78 +62,72 @@ class TeaLot(Document):
 		warehouselocation: DF.Data | None
 	# end: auto-generated types
 
-	# def autoname(self):
-	# 	if self.acquisition_channel == "Auction":
-	# 		centre_code = frappe.db.get_value(
-	# 			"Auction Centre",
-	# 			self.auction_centre,
-	# 			"auction_centre_code",
-	# 		)
-
-	# 		if not centre_code:
-	# 			frappe.throw(_("Auction Centre Code not found."))
-
-	# 		if not self.purchase_date:
-	# 			frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
-
-	# 		if not self.lot_no:
-	# 			frappe.throw(_("Lot No is required to generate the Tea Lot name."))
-
-	# 		if not self.sale_no:
-	# 			frappe.throw(_("Sale No is required to generate the Tea Lot name."))
-
-	# 		year = getdate(self.purchase_date).strftime("%y")
-	# 		self.name = f"{centre_code}-{self.lot_no}-{self.sale_no}-{year}"
-
-	# 	elif self.acquisition_channel == "Private":
-	# 		if not self.invoice_number:
-	# 			frappe.throw(_("Garden Invoice No. is required."))
-
-	# 		if not self.purchase_date:
-	# 			frappe.throw(_("Purchase Date is required."))
-
-	# 		if not self.mark:
-	# 			frappe.throw(_("Garden Name (Mark) is required."))
-
-	# 		if not self.grade:
-	# 			frappe.throw(_("Grade is required."))
-
-	# 		if not self.purchase_invoice_no:
-	# 			frappe.throw(_("Tax Invoice No. is required."))
-
-	# 		year = getdate(self.purchase_date).strftime("%y")
-	# 		last_four = str(self.purchase_invoice_no)[-4:]
-
-	# 		self.name = (
-	# 			f"{self.invoice_number}/"
-	# 			f"{year}/"
-	# 			f"{self.mark}/"
-	# 			f"{self.grade}/"
-	# 			f"{last_four}"
-	# 		)
-
 	def autoname(self):
-		centre_code = frappe.db.get_value(
-			"Auction Centre",
-			self.auction_centre,
-			"auction_centre_code",
-		)
+		if self.acquisition_channel == "Auction":
+			centre_code = frappe.db.get_value(
+				"Auction Centre",
+				self.auction_centre,
+				"auction_centre_code",
+			)
 
-		if not centre_code:
-			frappe.throw(_("Auction Centre Code not found."))
+			if not centre_code:
+				frappe.throw(_("Auction Centre Code not found."))
 
-		if not self.purchase_date:
-			frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
+			if not self.purchase_date:
+				frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
 
-		if not self.lot_no:
-			frappe.throw(_("Lot No is required to generate the Tea Lot name."))
+			if not self.lot_no:
+				frappe.throw(_("Lot No is required to generate the Tea Lot name."))
 
-		if not self.sale_no:
-			frappe.throw(_("Sale No is required to generate the Tea Lot name."))
+			if not self.sale_no:
+				frappe.throw(_("Sale No is required to generate the Tea Lot name."))
 
-		year = getdate(self.purchase_date).strftime("%y")
+			year = getdate(self.purchase_date).strftime("%y")
+			self.name = f"{centre_code}-{self.lot_no}-{self.sale_no}-{year}"
 
-		self.name = f"{centre_code}-{self.lot_no}-{self.sale_no}-{year}"
+		elif self.acquisition_channel == "Private":
+			if not self.invoice_number:
+				frappe.throw(_("Garden Invoice No. is required."))
+
+			if not self.purchase_date:
+				frappe.throw(_("Purchase Date is required."))
+
+			if not self.mark:
+				frappe.throw(_("Garden Name (Mark) is required."))
+
+			if not self.grade:
+				frappe.throw(_("Grade is required."))
+
+			if not self.purchase_invoice_no:
+				frappe.throw(_("Tax Invoice No. is required."))
+
+			year = getdate(self.purchase_date).strftime("%y")
+			last_four = str(self.purchase_invoice_no)[-4:]
+
+			self.name = f"{self.invoice_number}/{year}/{self.mark}/{self.grade}/{last_four}"
+
+	# def autoname(self):
+	# 	centre_code = frappe.db.get_value(
+	# 		"Auction Centre",
+	# 		self.auction_centre,
+	# 		"auction_centre_code",
+	# 	)
+
+	# 	if not centre_code:
+	# 		frappe.throw(_("Auction Centre Code not found."))
+
+	# 	if not self.purchase_date:
+	# 		frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
+
+	# 	if not self.lot_no:
+	# 		frappe.throw(_("Lot No is required to generate the Tea Lot name."))
+
+	# 	if not self.sale_no:
+	# 		frappe.throw(_("Sale No is required to generate the Tea Lot name."))
+
+	# 	year = getdate(self.purchase_date).strftime("%y")
+
+	# 	self.name = f"{centre_code}-{self.lot_no}-{self.sale_no}-{year}"
 
 
 # ============================================================
@@ -179,7 +173,7 @@ def get_tea_lots_for_evaluation() -> dict:
 		"invoice_number",
 		"status",
 		"acquisition_channel",
-		"holding_status",
+		"purchase_status",
 	}
 
 	if filters_json:

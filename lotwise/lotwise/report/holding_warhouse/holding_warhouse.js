@@ -1,7 +1,7 @@
 // Copyright (c) 2026, BusinessThat.Works
 
 const BADGE_STYLES = {
-	holding_status: {
+	purchase_status: {
 		Committed: ["#dcfce7", "#166534"],
 		Received: ["#dbeafe", "#1e40af"],
 		"In Stock": ["#fef3c7", "#92400e"],
@@ -21,7 +21,7 @@ const NUMERIC_COLUMNS = new Set(["packages", "net_weight_total", "rate"]);
 const CENTER_COLUMNS = new Set([
 	"acquisition_channel",
 	"status",
-	"holding_status",
+	"purchase_status",
 	"purchase_date",
 ]);
 
@@ -61,8 +61,8 @@ frappe.query_reports["Holding Warhouse"] = {
 			fieldtype: "Date",
 		},
 		{
-			fieldname: "holding_status",
-			label: __("Holding Status"),
+			fieldname: "purchase_status",
+			label: __("Purchase Status"),
 			fieldtype: "Select",
 			options: "\nCommitted\nReceived\nIn Stock",
 		},

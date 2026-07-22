@@ -29,7 +29,7 @@ def get_columns():
 			"width": 150,
 		},
 		{"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 105},
-		{"label": _("Holding"), "fieldname": "holding_status", "fieldtype": "Data", "width": 110},
+		{"label": _("Purchase Status"), "fieldname": "purchase_status", "fieldtype": "Data", "width": 110},
 		{"label": _("Mark"), "fieldname": "mark", "fieldtype": "Link", "options": "Mark", "width": 130},
 		{"label": _("Grade"), "fieldname": "grade", "fieldtype": "Link", "options": "Grade", "width": 90},
 		{"label": _("Pkgs"), "fieldname": "packages", "fieldtype": "Int", "width": 80},
@@ -50,7 +50,7 @@ def get_columns():
 
 def get_conditions(filters, table_alias=None):
 	prefix = f"{table_alias}." if table_alias else ""
-	conditions = [f"{prefix}holding_status in ('Committed','Received')"]
+	conditions = [f"{prefix}purchase_status in ('Committed','Received')"]
 	values = {}
 
 	filter_map = {
@@ -59,7 +59,7 @@ def get_conditions(filters, table_alias=None):
 		"auction_centre": "auction_centre",
 		"lot_no": "lot_no",
 		"status": "status",
-		"holding_status": "holding_status",
+		"purchase_status": "purchase_status",
 		"mark": "mark",
 		"grade": "grade",
 	}
@@ -100,7 +100,7 @@ def get_data(filters):
 			tl.acquisition_channel,
 			tl.auction_centre,
 			tl.status,
-			tl.holding_status,
+			tl.purchase_status,
 			tl.mark,
 			tl.grade,
 			tl.packages,

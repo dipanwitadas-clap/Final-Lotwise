@@ -80,7 +80,7 @@ def export_evaluation_lots(filters: str | None = None) -> dict:
 		"invoice_number",
 		"status",
 		"acquisition_channel",
-		"holding_status",
+		"purchase_status",
 	}
 
 	for field, value in filter_dict.items():
