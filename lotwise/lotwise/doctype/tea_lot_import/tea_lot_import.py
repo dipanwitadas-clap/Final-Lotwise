@@ -160,6 +160,14 @@ class TeaLotImport(Document):
 		self.blend = meta.get("blend")
 		self.sale_no = meta.get("sale_no")
 
+		# Validate blend exists if provided
+		if self.blend and not frappe.db.exists("Blend", self.blend):
+			frappe.throw(
+				_(
+					"Blend / Brand '{0}' not found. Please create it in the Blend master before importing."
+				).format(self.blend)
+			)
+
 		rows = _read_data_rows(ws, colmap)
 		for _idx, row in enumerate(rows, start=9):
 			if row.get("auction_centre"):
