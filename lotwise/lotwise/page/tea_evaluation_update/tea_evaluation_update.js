@@ -215,7 +215,7 @@ TeaEvaluationUpdatePage.prototype = {
 							${get_icon("filter", "16px")} Filters
 						</span>
 					</div>
-					<div class="card-body py-1">
+					<div class="card-body py-2">
 						<div class="row g-2 align-items-end eval-filter-grid">
 							<div class="col eval-field">
 								<label class="eval-field-label">Tea Lot</label>
@@ -571,6 +571,12 @@ TeaEvaluationUpdatePage.prototype = {
 		var $checked = $(".lot-select-checkbox:checked");
 		var updated_count = 0;
 
+		// Convert date values to display format for the table
+		var display_value = value;
+		if (field === "evaluation_date" && value) {
+			display_value = this.convert_iso_to_display(value);
+		}
+
 		$checked.each(function () {
 			var row_key = $(this).data("row-key");
 			if (!row_key) return;
@@ -578,7 +584,7 @@ TeaEvaluationUpdatePage.prototype = {
 				'.eval-cell[data-row-key="' + row_key + '"][data-col="' + field + '"]'
 			);
 			if ($cell.length) {
-				$cell.val(value);
+				$cell.val(display_value);
 				if (!me.edited_rows[row_key]) me.edited_rows[row_key] = {};
 				me.edited_rows[row_key][field] = value;
 				var $save_btn = me.$table_container.find(
@@ -843,13 +849,14 @@ TeaEvaluationUpdatePage.prototype = {
 				);
 
 			case "date":
+				var display_val = this.convert_iso_to_display(val);
 				return (
 					'<div class="eval-date-wrapper">' +
 					'<input type="text" class="eval-cell eval-date" ' +
 					name_attr +
 					' value="' +
-					frappe.utils.escape_html(val) +
-					'" placeholder="dd/mm/yyyy" autocomplete="off" />' +
+					frappe.utils.escape_html(display_val) +
+					'" placeholder="dd-mm-yyyy" autocomplete="off" />' +
 					'<button class="btn btn-outline-secondary btn-sm eval-date-btn" ' +
 					'data-col="' +
 					col.key +
@@ -961,7 +968,7 @@ TeaEvaluationUpdatePage.prototype = {
 				$input
 					.datepicker({
 						language: "en",
-						dateFormat: "dd/mm/yyyy",
+						dateFormat: "dd-mm-yyyy",
 						autoClose: true,
 						onSelect: function () {
 							$input.trigger("change");
@@ -1257,11 +1264,30 @@ TeaEvaluationUpdatePage.prototype = {
 
 	convert_date_to_iso: function (date_str) {
 		if (!date_str) return "";
-		var parts = date_str.split("/");
+		// If already in ISO format (yyyy-mm-dd), return as-is
+		if (/^\d{4}-\d{2}-\d{2}$/.test(date_str)) {
+			return date_str;
+		}
+		// Convert from display format (dd-mm-yyyy) to ISO (yyyy-mm-dd)
+		var parts = date_str.split("-");
 		if (parts.length === 3) {
 			return parts[2] + "-" + parts[1] + "-" + parts[0];
 		}
 		return date_str;
+	},
+
+	convert_iso_to_display: function (iso_date) {
+		if (!iso_date) return "";
+		// If already in display format (dd-mm-yyyy), return as-is
+		if (/^\d{2}-\d{2}-\d{4}$/.test(iso_date)) {
+			return iso_date;
+		}
+		// Convert from ISO format (yyyy-mm-dd) to display (dd-mm-yyyy)
+		var parts = iso_date.split("-");
+		if (parts.length === 3) {
+			return parts[2] + "-" + parts[1] + "-" + parts[0];
+		}
+		return iso_date;
 	},
 
 	set_save_button_state: function ($btn, state) {
