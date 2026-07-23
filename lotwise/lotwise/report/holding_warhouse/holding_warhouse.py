@@ -165,7 +165,11 @@ def get_report_summary(filters):
 	return [
 		{"label": _("Total Lots"), "value": result.total_lots or 0, "indicator": "blue"},
 		{"label": _("Total Packages"), "value": result.total_packages or 0, "indicator": "green"},
-		{"label": _("Net Weight (Kg)"), "value": round(result.total_weight or 0, 2), "indicator": "orange"},
+		{
+			"label": _("Net Weight (Kg)"),
+			"value": "{:,.2f}".format(round(result.total_weight or 0, 2)),
+			"indicator": "orange",
+		},
 		{"label": _("Total Marks"), "value": result.total_marks or 0, "indicator": "purple"},
 		{"label": _("Avg Rate/kg"), "value": round(result.avg_rate or 0, 2), "indicator": "yellow"},
 	]

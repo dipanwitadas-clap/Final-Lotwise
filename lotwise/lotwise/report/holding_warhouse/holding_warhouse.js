@@ -106,12 +106,13 @@ frappe.query_reports["Holding Warhouse"] = {
 	onload(report) {
 		$(report.page.main).addClass("holding-warehouse-report");
 
-		if (document.getElementById("holding-warehouse-report-style")) {
-			return;
+		let style = document.getElementById("holding-warehouse-report-style");
+		if (!style) {
+			style = document.createElement("style");
+			style.id = "holding-warehouse-report-style";
+			document.head.appendChild(style);
 		}
 
-		const style = document.createElement("style");
-		style.id = "holding-warehouse-report-style";
 		style.textContent = `
 			.holding-warehouse-report .dt-cell__content {
 				align-items: center;
@@ -149,30 +150,60 @@ frappe.query_reports["Holding Warhouse"] = {
 				text-align: center;
 			}
 
-		.holding-warehouse-badge {
-			border-radius: 999px;
-			display: inline-flex;
-			font-size: 12px;
-			font-weight: 600;
-			justify-content: center;
-			line-height: 1.2;
-			min-width: 72px;
-			padding: 4px 9px;
-			vertical-align: middle;
-		}
+			.holding-warehouse-badge {
+				border-radius: 999px;
+				display: inline-flex;
+				font-size: 12px;
+				font-weight: 600;
+				justify-content: center;
+				line-height: 1.2;
+				min-width: 72px;
+				padding: 4px 9px;
+				vertical-align: middle;
+			}
 
-		.holding-warehouse-report .dt-row-footer .dt-cell__content {
-			font-weight: 700;
-		}
-	`;
-		document.head.appendChild(style);
+			.holding-warehouse-report .dt-row-footer .dt-cell__content {
+				font-weight: 700;
+			}
+		`;
+	},
+
+	refresh(report) {
+		if (!report.data) return;
+
+		setTimeout(() => {
+			const tableBody = report.pages[0]?.querySelector(".dt-table tbody");
+			if (!tableBody) return;
+
+			const rows = tableBody.querySelectorAll("tr");
+			rows.forEach((row, index) => {
+				const rowData = report.data[index];
+				if (rowData && rowData.name === "Total") {
+					const cells = row.querySelectorAll("td");
+					cells.forEach((cell) => {
+						const content = cell.querySelector(".dt-cell__content");
+						if (content) {
+							content.style.fontWeight = "700";
+							content.style.color = "black";
+							const badge = content.querySelector(".holding-warehouse-badge");
+							if (badge) {
+								badge.style.background = "transparent";
+								badge.style.color = "black";
+								badge.style.fontWeight = "700";
+							}
+						}
+					});
+				}
+			});
+		}, 50);
 	},
 
 	formatter(value, row, column, data, default_formatter) {
 		const formatted_value = default_formatter(value, row, column, data);
 		const fieldname = column.fieldname;
+		const is_total_row = data && data.name === "Total";
 		const field_styles = BADGE_STYLES[fieldname] || {};
-		const badge_colors = field_styles[data && data[fieldname]];
+		const badge_colors = is_total_row ? null : field_styles[data && data[fieldname]];
 		const content = badge_colors ? badge(formatted_value, badge_colors) : formatted_value;
 
 		if (NUMERIC_COLUMNS.has(fieldname)) {
