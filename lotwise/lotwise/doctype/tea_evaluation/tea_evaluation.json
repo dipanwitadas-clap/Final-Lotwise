@@ -24,6 +24,7 @@
   "invoice_number",
   "mark",
   "density",
+  "lot_no",
   "section_break_4j6n",
   "notes"
  ],
@@ -134,12 +135,17 @@
    "fieldtype": "Float",
    "label": "Density",
    "precision": "2"
+  },
+  {
+   "fieldname": "lot_no",
+   "fieldtype": "Data",
+   "label": "Lot No"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-18 11:21:15.047254",
+ "modified": "2026-07-23 22:03:06.651816",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",

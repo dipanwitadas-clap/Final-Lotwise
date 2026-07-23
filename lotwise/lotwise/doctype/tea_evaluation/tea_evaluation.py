@@ -20,6 +20,7 @@ class TeaEvaluation(Document):
 		evaluation_date: DF.Date
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
+		lot_no: DF.Data | None
 		mark: DF.Link | None
 		notes: DF.SmallText | None
 		quality_grade: DF.Literal[

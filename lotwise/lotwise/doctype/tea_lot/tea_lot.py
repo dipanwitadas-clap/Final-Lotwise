@@ -256,6 +256,7 @@ def create_tea_evaluation() -> dict:
 			"briskness": flt(data.get("briskness")),
 			"quality_grade": data.get("quality_grade"),
 			"invoice_number": data.get("invoice_number"),
+			"lot_no": data.get("lot_no"),
 			"mark": data.get("mark"),
 			"density": flt(data.get("density")),
 			"remarks": data.get("remarks"),
