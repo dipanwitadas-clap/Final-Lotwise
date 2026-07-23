@@ -494,7 +494,7 @@ frappe.pages["tea-lot-evaluation"].on_page_load = function (wrapper) {
 
 				/* ===== TABLE ===== */
 				.eval-table-wrapper {
-					overflow: hidden;
+					overflow: visible;
 				}
 				#eval_table_container .table-responsive {
 					max-height: calc(100vh - 360px);
@@ -599,6 +599,53 @@ frappe.pages["tea-lot-evaluation"].on_page_load = function (wrapper) {
 				.save-row-btn:disabled {
 					opacity: 0.5;
 					cursor: not-allowed;
+				}
+
+				/* ===== COLUMN FREEZE (first 5 columns: Checkbox, #, ID, Sale No, Lot No) ===== */
+				#eval_table_container .table th:nth-child(1),
+				#eval_table_container .table td:nth-child(1) {
+					position: sticky !important;
+					left: 0;
+					z-index: 10;
+					background: #fff;
+				}
+				#eval_table_container .table th:nth-child(2),
+				#eval_table_container .table td:nth-child(2) {
+					position: sticky !important;
+					left: 36px;
+					z-index: 10;
+					background: #fff;
+				}
+				#eval_table_container .table th:nth-child(3),
+				#eval_table_container .table td:nth-child(3) {
+					position: sticky !important;
+					left: 71px;
+					z-index: 10;
+					background: #fff;
+				}
+				#eval_table_container .table th:nth-child(4),
+				#eval_table_container .table td:nth-child(4) {
+					position: sticky !important;
+					left: 211px;
+					z-index: 10;
+					background: #fff;
+				}
+				#eval_table_container .table th:nth-child(5),
+				#eval_table_container .table td:nth-child(5) {
+					position: sticky !important;
+					left: 291px;
+					z-index: 15;
+					background: #fff;
+					box-shadow: 2px 0 5px -2px rgba(0,0,0,0.05);
+				}
+				/* Ensure frozen header cells have higher z-index than body cells */
+				#eval_table_container .table thead th:nth-child(1),
+				#eval_table_container .table thead th:nth-child(2),
+				#eval_table_container .table thead th:nth-child(3),
+				#eval_table_container .table thead th:nth-child(4),
+				#eval_table_container .table thead th:nth-child(5) {
+					z-index: 20 !important;
+					background: #f3f4f6;
 				}
 
 				/* ===== PAGINATION ===== */
@@ -1752,6 +1799,7 @@ frappe.pages["tea-lot-evaluation"].on_page_load = function (wrapper) {
 		if (lot) {
 			row_data.invoice_number = lot.invoice_number || "";
 			row_data.mark = lot.mark || "";
+			row_data.lot_no = lot.lot_no || "";
 		}
 
 		return row_data;
