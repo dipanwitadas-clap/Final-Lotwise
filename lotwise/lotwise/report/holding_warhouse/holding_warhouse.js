@@ -149,18 +149,22 @@ frappe.query_reports["Holding Warhouse"] = {
 				text-align: center;
 			}
 
-			.holding-warehouse-badge {
-				border-radius: 999px;
-				display: inline-flex;
-				font-size: 12px;
-				font-weight: 600;
-				justify-content: center;
-				line-height: 1.2;
-				min-width: 72px;
-				padding: 4px 9px;
-				vertical-align: middle;
-			}
-		`;
+		.holding-warehouse-badge {
+			border-radius: 999px;
+			display: inline-flex;
+			font-size: 12px;
+			font-weight: 600;
+			justify-content: center;
+			line-height: 1.2;
+			min-width: 72px;
+			padding: 4px 9px;
+			vertical-align: middle;
+		}
+
+		.holding-warehouse-report .dt-row-footer .dt-cell__content {
+			font-weight: 700;
+		}
+	`;
 		document.head.appendChild(style);
 	},
 

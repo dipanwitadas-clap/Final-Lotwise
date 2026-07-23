@@ -12,7 +12,8 @@ def execute(filters=None):
 	data = get_data(filters)
 	summary = get_report_summary(filters)
 
-	return columns, data, None, None, summary
+	# Skip Frappe's automatic total row since we added our own custom one
+	return columns, data, None, None, summary, 1
 
 
 def get_columns():
@@ -91,7 +92,7 @@ def get_conditions(filters, table_alias=None):
 def get_data(filters):
 	conditions, values = get_conditions(filters, "tl")
 
-	return frappe.db.sql(
+	data = frappe.db.sql(
 		f"""
 		SELECT
 			tl.name,
@@ -117,6 +118,30 @@ def get_data(filters):
 		values,
 		as_dict=True,
 	)
+
+	# Add custom total row - sum packages, net_weight_total, and rate only
+	if data:
+		total_row = {
+			"name": "Total",
+			"lot_no": None,
+			"sale_no": None,
+			"acquisition_channel": None,
+			"auction_centre": None,
+			"status": None,
+			"purchase_status": None,
+			"mark": None,
+			"grade": None,
+			"packages": sum(row.get("packages") or 0 for row in data),
+			"net_weight_total": sum(row.get("net_weight_total") or 0 for row in data),
+			"rate": sum(row.get("rate") or 0 for row in data),
+			"warehouselocation": None,
+			"purchase_date": None,
+			"invoice_number": None,
+			"gp_no": None,
+		}
+		data.append(total_row)
+
+	return data
 
 
 def get_report_summary(filters):
