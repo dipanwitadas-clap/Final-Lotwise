@@ -20,6 +20,7 @@ EVALUATION_FIELDS: list[str] = [
 	"tea_lot",
 	"invoice_number",
 	"mark",
+	"lot_no",
 	"taster",
 	"stage",
 	"liquor_mark",
@@ -56,7 +57,7 @@ SINGLE_ROW_EXCLUDED_FIELDS: list[str] = ["stage"]
 
 # Filter configuration: text-search fields use ``like``, exact-match fields
 # use equality, and the date field is matched exactly.
-TEXT_SEARCH_FIELDS: list[str] = ["name", "tea_lot", "invoice_number", "mark", "taster"]
+TEXT_SEARCH_FIELDS: list[str] = ["name", "tea_lot", "invoice_number", "mark", "lot_no", "taster"]
 EXACT_MATCH_FIELDS: list[str] = ["stage", "liquor_mark", "quality_grade"]
 
 
@@ -243,6 +244,7 @@ def export_evaluations(filters: str | None = None) -> dict[str, Any]:
 		"ID",
 		"Tea Lot",
 		"Invoice No",
+		"Lot No",
 		"Mark",
 		"Taster",
 		"Stage",
@@ -263,6 +265,7 @@ def export_evaluations(filters: str | None = None) -> dict[str, Any]:
 			eval.get("name", ""),
 			eval.get("tea_lot", ""),
 			eval.get("invoice_number", ""),
+			eval.get("lot_no", ""),
 			eval.get("mark", ""),
 			eval.get("taster", ""),
 			eval.get("stage", ""),

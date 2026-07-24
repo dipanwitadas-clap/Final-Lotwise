@@ -96,6 +96,7 @@ function TeaEvaluationUpdatePage(wrapper) {
 		{ key: "tea_lot", label: "Tea Lot", width: 140, clickable: true },
 		{ key: "invoice_number", label: "Invoice No", width: 100 },
 		{ key: "mark", label: "Mark", width: 80 },
+		{ key: "lot_no", label: "Lot No", width: 100 },
 		{ key: "stage", label: "Stage", width: 110 },
 	];
 
@@ -226,6 +227,10 @@ TeaEvaluationUpdatePage.prototype = {
 								<div id="filter_invoice_number_field"></div>
 							</div>
 							<div class="col eval-field">
+								<label class="eval-field-label">Lot No</label>
+								<div id="filter_lot_no_field"></div>
+							</div>
+							<div class="col eval-field">
 								<label class="eval-field-label">Mark</label>
 								<div id="filter_mark_field"></div>
 							</div>
@@ -352,6 +357,7 @@ TeaEvaluationUpdatePage.prototype = {
 		var filter_configs = [
 			{ fieldname: "tea_lot", label: "Tea Lot", fieldtype: "Link", options: "Tea Lot" },
 			{ fieldname: "invoice_number", label: "Invoice No", fieldtype: "Data" },
+			{ fieldname: "lot_no", label: "Lot No", fieldtype: "Data" },
 			{ fieldname: "mark", label: "Mark", fieldtype: "Link", options: "Mark" },
 			{ fieldname: "taster", label: "Taster", fieldtype: "Link", options: "Taster" },
 			{ fieldname: "stage", label: "Stage", fieldtype: "Select", options: "" },
