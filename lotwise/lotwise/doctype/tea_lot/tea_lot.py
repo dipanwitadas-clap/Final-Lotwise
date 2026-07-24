@@ -279,7 +279,7 @@ def download_evaluation_import_xlsx() -> dict:
 	# Fetch unevaluated Tea Lots
 	lots = frappe.db.sql(
 		"""
-		SELECT name, mark, invoice_number
+		SELECT name, mark, invoice_number,lot_no
 		FROM `tabTea Lot`
 		WHERE status != "Evaluated" OR status IS NULL
 		ORDER BY creation DESC
@@ -304,6 +304,7 @@ def download_evaluation_import_xlsx() -> dict:
 		"Tea Lot",
 		"Mark",
 		"Invoice Number",
+		"Lot No",
 		"Taster",
 		"Stage",
 		"Liquor Mark",
@@ -326,7 +327,8 @@ def download_evaluation_import_xlsx() -> dict:
 		ws.cell(row=row_idx, column=1, value=lot.name)
 		ws.cell(row=row_idx, column=2, value=lot.mark)
 		ws.cell(row=row_idx, column=3, value=lot.invoice_number)
-		# Columns 4-15 remain blank (already None by default)
+		ws.cell(row=row_idx, column=4, value=lot.lot_no)
+		# Columns 5-15 remain blank (already None by default)
 
 	# ============================================================
 	# Write dropdown options in hidden columns (P=16, Q=17, R=18)
