@@ -30,6 +30,7 @@ HEADER_TO_FIELD = {
 	"notes": {"field": "notes", "type": "str"},
 	"invoice number": {"field": "invoice_number", "type": "str"},
 	"mark": {"field": "mark", "type": "str"},
+	"lot no": {"field": "lot_no", "type": "str"},
 }
 
 # ==========================================================
@@ -411,6 +412,7 @@ class TeaEvaluationImport(Document):
 						"notes": row.notes,
 						"invoice_number": row.invoice_number,
 						"mark": row.mark,
+						"lot_no": row.lot_no,
 					}
 				)
 
