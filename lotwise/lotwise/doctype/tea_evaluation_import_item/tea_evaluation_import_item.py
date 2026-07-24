@@ -18,6 +18,7 @@ class TeaEvaluationImportItem(Document):
 		evaluation_date: DF.Date | None
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
+		lot_no: DF.Data | None
 		mark: DF.Link | None
 		message: DF.SmallText | None
 		notes: DF.SmallText | None

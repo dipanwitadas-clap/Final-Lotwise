@@ -22,7 +22,8 @@
   "row_status",
   "message",
   "invoice_number",
-  "mark"
+  "mark",
+  "lot_no"
  ],
  "fields": [
   {
@@ -59,34 +60,26 @@
    "in_list_view": 1,
    "label": "Evaluation Date"
   },
-   {
-    "fieldname": "colour",
-    "fieldtype": "Int",
-    "label": "Colour",
-    "min": 0,
-    "max": 100
-   },
-   {
-    "fieldname": "strength",
-    "fieldtype": "Int",
-    "label": "Strength",
-    "min": 0,
-    "max": 100
-   },
-   {
-    "fieldname": "taste",
-    "fieldtype": "Int",
-    "label": "Taste",
-    "min": 0,
-    "max": 100
-   },
-   {
-    "fieldname": "briskness",
-    "fieldtype": "Int",
-    "label": "Briskness",
-    "min": 0,
-    "max": 100
-   },
+  {
+   "fieldname": "colour",
+   "fieldtype": "Int",
+   "label": "Colour"
+  },
+  {
+   "fieldname": "strength",
+   "fieldtype": "Int",
+   "label": "Strength"
+  },
+  {
+   "fieldname": "taste",
+   "fieldtype": "Int",
+   "label": "Taste"
+  },
+  {
+   "fieldname": "briskness",
+   "fieldtype": "Int",
+   "label": "Briskness"
+  },
   {
    "fieldname": "quality_grade",
    "fieldtype": "Select",
@@ -131,12 +124,17 @@
    "fieldtype": "Link",
    "label": "Mark",
    "options": "Mark"
+  },
+  {
+   "fieldname": "lot_no",
+   "fieldtype": "Data",
+   "label": "Lot No"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-06 12:57:20.566552",
+ "modified": "2026-07-24 10:18:16.370354",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation Import Item",
