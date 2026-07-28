@@ -145,7 +145,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-23 22:03:06.651816",
+ "modified": "2026-07-28 17:37:46.899538",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",
@@ -203,5 +203,8 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
 }

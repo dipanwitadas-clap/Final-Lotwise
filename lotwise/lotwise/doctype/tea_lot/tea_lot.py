@@ -35,7 +35,6 @@ class TeaLot(Document):
 		gp_no: DF.Data | None
 		grade: DF.Link | None
 		gross_wtpkg: DF.Float
-		purchase_status: DF.Literal["", "Committed", "Received", "In Stock"]
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
@@ -51,6 +50,7 @@ class TeaLot(Document):
 		purchase_from: DF.Data | None
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
+		purchase_status: DF.Literal["", "Committed", "Received", "In Stock"]
 		rate: DF.Currency
 		sale_no: DF.Int
 		seller: DF.Link | None
