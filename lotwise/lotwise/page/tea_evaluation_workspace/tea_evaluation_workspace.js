@@ -221,7 +221,7 @@ TeaEvaluationWorkspace.prototype = {
 		this.create_filter_fields();
 		this.bind_events();
 
-		// Hide Update-mode filters initially (New tab is active by default)
+		// Hide Update-mode-only filters initially (New tab is active by default)
 		this.filter_fields.name.$wrapper.closest(".col.ws-field").hide();
 		this.filter_fields.taster.$wrapper.closest(".col.ws-field").hide();
 		this.filter_fields.stage.$wrapper.closest(".col.ws-field").hide();
@@ -584,15 +584,15 @@ TeaEvaluationWorkspace.prototype = {
 				$("#ws_filter_quality_grade_field").closest(".col.ws-field").hide();
 				$("#ws_filter_evaluation_date_field").closest(".col.ws-field").hide();
 			} else {
-				// Hide New-mode filters
+				// Hide New-mode-only filters
 				$("#ws_filter_acquisition_channel_field").closest(".col.ws-field").hide();
-				$("#ws_filter_tea_lot_field").closest(".col.ws-field").hide();
 				$("#ws_filter_sale_no_field").closest(".col.ws-field").hide();
 				$("#ws_filter_grade_field").closest(".col.ws-field").hide();
 				$("#ws_filter_status_field").closest(".col.ws-field").hide();
 				$("#ws_filter_auction_centre_field").closest(".col.ws-field").hide();
-				// Show Update-mode filters
+				// Show Update-mode filters (including Tea Lot)
 				$("#ws_filter_name_field").closest(".col.ws-field").show();
+				$("#ws_filter_tea_lot_field").closest(".col.ws-field").show();
 				$("#ws_filter_taster_field").closest(".col.ws-field").show();
 				$("#ws_filter_stage_field").closest(".col.ws-field").show();
 				$("#ws_filter_quality_grade_field").closest(".col.ws-field").show();
