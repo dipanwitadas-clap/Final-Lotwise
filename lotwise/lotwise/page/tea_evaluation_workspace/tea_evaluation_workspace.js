@@ -105,8 +105,8 @@ function TeaEvaluationWorkspace(wrapper) {
 		{ key: "sale_no", label: "Sale No", width: 70 },
 		{ key: "mark", label: "Mark", width: 80 },
 		{ key: "grade", label: "Grade", width: 80 },
-		{ key: "auction_centre", label: "Auction Centre", width: 100 },
 		{ key: "invoice_number", label: "Invoice No", width: 100 },
+		{ key: "auction_centre", label: "Action Centre", width: 100 },
 	];
 
 	this.update_cols_readonly = [
@@ -1039,11 +1039,21 @@ TeaEvaluationWorkspace.prototype = {
 		var html =
 			'<div class="table-responsive"><table class="table table-bordered ws-table" id="ws_table"><thead><tr>';
 		html +=
-			'<th class="ws-th-checkbox"><input type="checkbox" id="ws_select_all" class="ws-select-checkbox form-check-input"></th>';
+			'<th class="ws-th-checkbox ws-frozen-col" data-frozen-index="0"><input type="checkbox" id="ws_select_all" class="ws-select-checkbox form-check-input"></th>';
 
-		readonly_cols.forEach(function (col) {
+		readonly_cols.forEach(function (col, idx) {
+			// Freeze only first 7 readonly columns (idx, name, lot_no, sale_no, mark, grade, invoice_number)
+			// auction_centre (idx 7) should NOT be frozen
+			// checkbox is frozen-index 0, so readonly columns start at index 1
+			var frozen_index = idx + 1;
+			var frozen_class = idx < 7 ? " ws-frozen-col" : "";
+			var frozen_attr = idx < 7 ? ' data-frozen-index="' + frozen_index + '"' : "";
 			html +=
-				'<th class="eval-th" style="min-width:' +
+				'<th class="eval-th' +
+				frozen_class +
+				'"' +
+				frozen_attr +
+				' style="min-width:' +
 				col.width +
 				'px;">' +
 				me.esc(col.label) +
@@ -1076,20 +1086,28 @@ TeaEvaluationWorkspace.prototype = {
 		var has_edits = !!this.edited_rows[row_key];
 		var html = '<tr data-row-key="' + row_key + '" data-idx="' + idx + '">';
 
-		// Checkbox
+		// Checkbox (frozen as index 0)
 		html +=
-			'<td class="ws-td-center"><input type="checkbox" class="ws-select-checkbox form-check-input" data-row-key="' +
+			'<td class="ws-td-center ws-frozen-col" data-frozen-index="0"><input type="checkbox" class="ws-select-checkbox form-check-input" data-row-key="' +
 			row_key +
 			'"></td>';
 
 		// Readonly columns
 		var readonly_cols = is_new ? this.new_cols_readonly : this.update_cols_readonly;
-		readonly_cols.forEach(function (col) {
+		readonly_cols.forEach(function (col, col_idx) {
 			var val = col.key === "idx" ? me.current_start + idx + 1 : record[col.key] || "";
+			// Freeze only first 7 readonly columns (idx, name, lot_no, sale_no, mark, grade, invoice_number)
+			// checkbox is frozen-index 0, so readonly columns start at index 1
+			var frozen_class = col_idx < 7 ? " ws-frozen-col" : "";
+			var frozen_attr = col_idx < 7 ? ' data-frozen-index="' + (col_idx + 1) + '"' : "";
 			if (col.clickable) {
 				var doctype = is_new ? "Tea Lot" : "Tea Evaluation";
 				html +=
-					'<td class="ws-td"><a href="#" class="ws-id-link" data-doctype="' +
+					'<td class="ws-td' +
+					frozen_class +
+					'"' +
+					frozen_attr +
+					'><a href="#" class="ws-id-link" data-doctype="' +
 					doctype +
 					'" data-name="' +
 					me.esc(val) +
@@ -1097,9 +1115,23 @@ TeaEvaluationWorkspace.prototype = {
 					me.esc(String(val)) +
 					"</a></td>";
 			} else if (col.key === "stage") {
-				html += '<td class="ws-td">' + me.get_stage_badge_html(val) + "</td>";
+				html +=
+					'<td class="ws-td' +
+					frozen_class +
+					'"' +
+					frozen_attr +
+					">" +
+					me.get_stage_badge_html(val) +
+					"</td>";
 			} else {
-				html += '<td class="ws-td">' + me.esc(String(val)) + "</td>";
+				html +=
+					'<td class="ws-td' +
+					frozen_class +
+					'"' +
+					frozen_attr +
+					">" +
+					me.esc(String(val)) +
+					"</td>";
 			}
 		});
 

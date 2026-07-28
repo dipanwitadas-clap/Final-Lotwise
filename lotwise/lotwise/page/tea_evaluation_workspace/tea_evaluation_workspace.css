@@ -294,6 +294,79 @@
 	border-radius: 6px 6px 0 0;
 }
 
+/* =============================================================================
+   FROZEN COLUMNS
+   ============================================================================= */
+
+#ws_table_container .ws-table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+#ws_table_container .ws-table .ws-frozen-col {
+	position: sticky !important;
+	z-index: 15;
+	background: var(--card-bg);
+}
+
+#ws_table_container .ws-table thead .ws-frozen-col {
+	z-index: 20 !important;
+	background: linear-gradient(180deg, #E8E8EA 0%, #D5D8DC 100%) !important;
+}
+
+#ws_table_container .ws-table .ws-th-checkbox {
+	position: sticky !important;
+	left: 0;
+	z-index: 20 !important;
+	background: linear-gradient(180deg, #E8E8EA 0%, #D5D8DC 100%) !important;
+	min-width: 40px;
+}
+
+/* Frozen column positions - calculated based on cumulative widths */
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="0"] {
+	left: 0; /* Checkbox column */
+}
+
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="1"] {
+	left: 40px; /* Checkbox (0) + idx (40) */
+}
+
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="2"] {
+	left: 75px; /* 40 + idx (35) */
+}
+
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="3"] {
+	left: 235px; /* 75 + Tea Lot ID (160) */
+}
+
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="4"] {
+	left: 335px; /* 235 + Lot No (100) */
+}
+
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="5"] {
+	left: 405px; /* 335 + Sale No (70) */
+}
+
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="6"] {
+	left: 485px; /* 405 + Mark (80) */
+}
+
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="7"] {
+	left: 565px; /* 485 + Grade (80) */
+}
+
+/* Ensure proper borders for frozen columns */
+#ws_table_container .ws-table tbody td.ws-frozen-col {
+	border-right: 1px solid var(--border-light) !important;
+}
+
+#ws_table_container .ws-table thead th.ws-frozen-col {
+	border-right: none !important;
+}
+
+#ws_table_container .ws-table thead th:last-child {
+	border-right: 1px solid var(--border-light);
+}
 #ws_table_container .table {
 	margin-bottom: 0;
 	font-size: 13px;
