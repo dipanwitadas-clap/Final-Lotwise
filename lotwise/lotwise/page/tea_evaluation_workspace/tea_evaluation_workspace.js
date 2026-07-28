@@ -112,7 +112,7 @@ function TeaEvaluationWorkspace(wrapper) {
 	this.update_cols_readonly = [
 		{ key: "idx", label: "#", width: 35 },
 		{ key: "name", label: "Eval ID", width: 160, clickable: true },
-		{ key: "tea_lot", label: "Tea Lot", width: 140, clickable: true },
+		{ key: "tea_lot", label: "Tea Lot", width: 160, clickable: true },
 		{ key: "invoice_number", label: "Invoice No", width: 100 },
 		{ key: "mark", label: "Mark", width: 80 },
 		{ key: "lot_no", label: "Lot No", width: 100 },
@@ -220,6 +220,14 @@ TeaEvaluationWorkspace.prototype = {
 		this.build_page();
 		this.create_filter_fields();
 		this.bind_events();
+
+		// Hide Update-mode filters initially (New tab is active by default)
+		this.filter_fields.name.$wrapper.closest(".col.ws-field").hide();
+		this.filter_fields.taster.$wrapper.closest(".col.ws-field").hide();
+		this.filter_fields.stage.$wrapper.closest(".col.ws-field").hide();
+		this.filter_fields.quality_grade.$wrapper.closest(".col.ws-field").hide();
+		this.filter_fields.evaluation_date.$wrapper.closest(".col.ws-field").hide();
+
 		this.load_data();
 
 		this.page.add_inner_button(__("New Tea Evaluation"), () => {
@@ -254,48 +262,68 @@ TeaEvaluationWorkspace.prototype = {
 						</span>
 					</div>
 					<div class="card-body py-2">
-						<div class="row g-2 align-items-end ws-filter-grid">
-							<div class="col ws-field">
-								<label class="ws-field-label">Tea Lot / Eval ID</label>
-								<div id="ws_filter_name_field"></div>
-							</div>
-							<div class="col ws-field">
-								<label class="ws-field-label">Lot No</label>
-								<div id="ws_filter_lot_no_field"></div>
-							</div>
-							<div class="col ws-field">
-								<label class="ws-field-label">Invoice No</label>
-								<div id="ws_filter_invoice_number_field"></div>
-							</div>
-							<div class="col ws-field">
-								<label class="ws-field-label">Mark</label>
-								<div id="ws_filter_mark_field"></div>
-							</div>
-							<div class="col ws-field">
-								<label class="ws-field-label">Taster</label>
-								<div id="ws_filter_taster_field"></div>
-							</div>
-							<div class="col ws-field">
-								<label class="ws-field-label">Stage</label>
-								<div id="ws_filter_stage_field"></div>
-							</div>
-							<div class="col ws-field">
-								<label class="ws-field-label">Quality Grade</label>
-								<div id="ws_filter_quality_grade_field"></div>
-							</div>
-							<div class="col ws-field">
-								<label class="ws-field-label">Eval Date</label>
-								<div id="ws_filter_evaluation_date_field"></div>
-							</div>
-							<div class="col ws-field">
-								<label class="ws-field-label">Status</label>
-								<div id="ws_filter_status_field"></div>
-							</div>
-							<div class="col-auto align-self-end ws-field-btn">
-								<button class="btn btn-outline-secondary btn-sm" id="ws_clear_filters_btn">
-									${get_ws_icon("clear", "14px")} Clear
-								</button>
-							</div>
+					<div class="row g-2 align-items-end ws-filter-grid">
+						<div class="col ws-field">
+							<label class="ws-field-label">Acquisition Channel</label>
+							<div id="ws_filter_acquisition_channel_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Tea Lot</label>
+							<div id="ws_filter_tea_lot_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Tea Evaluation</label>
+							<div id="ws_filter_name_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Sale No</label>
+							<div id="ws_filter_sale_no_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Lot No</label>
+							<div id="ws_filter_lot_no_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Invoice No</label>
+							<div id="ws_filter_invoice_number_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Mark</label>
+							<div id="ws_filter_mark_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Grade</label>
+							<div id="ws_filter_grade_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Taster</label>
+							<div id="ws_filter_taster_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Stage</label>
+							<div id="ws_filter_stage_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Quality Grade</label>
+							<div id="ws_filter_quality_grade_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Eval Date</label>
+							<div id="ws_filter_evaluation_date_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Status</label>
+							<div id="ws_filter_status_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Auction Centre</label>
+							<div id="ws_filter_auction_centre_field"></div>
+						</div>
+						<div class="col-auto align-self-end ws-field-btn">
+							<button class="btn btn-outline-secondary btn-sm" id="ws_clear_filters_btn">
+								${get_ws_icon("clear", "14px")} Clear
+							</button>
+						</div>
 						</div>
 					</div>
 				</div>
@@ -441,10 +469,24 @@ TeaEvaluationWorkspace.prototype = {
 	create_filter_fields: function () {
 		var me = this;
 		var configs = [
-			{ fieldname: "name", label: "ID", fieldtype: "Data" },
+			{
+				fieldname: "acquisition_channel",
+				label: "Acquisition Channel",
+				fieldtype: "Select",
+				options: "\nAuction\nPrivate\nOutsourced",
+			},
+			{ fieldname: "tea_lot", label: "Tea Lot", fieldtype: "Link", options: "Tea Lot" },
+			{
+				fieldname: "name",
+				label: "Tea Evaluation",
+				fieldtype: "Link",
+				options: "Tea Evaluation",
+			},
+			{ fieldname: "sale_no", label: "Sale No", fieldtype: "Data" },
 			{ fieldname: "lot_no", label: "Lot No", fieldtype: "Data" },
 			{ fieldname: "invoice_number", label: "Invoice No", fieldtype: "Data" },
 			{ fieldname: "mark", label: "Mark", fieldtype: "Link", options: "Mark" },
+			{ fieldname: "grade", label: "Grade", fieldtype: "Link", options: "Grade" },
 			{ fieldname: "taster", label: "Taster", fieldtype: "Link", options: "Taster" },
 			{ fieldname: "stage", label: "Stage", fieldtype: "Select", options: "" },
 			{
@@ -459,6 +501,12 @@ TeaEvaluationWorkspace.prototype = {
 				label: "Status",
 				fieldtype: "Select",
 				options: "\nOffered\nEvaluated",
+			},
+			{
+				fieldname: "auction_centre",
+				label: "Auction Centre",
+				fieldtype: "Link",
+				options: "Auction Centre",
 			},
 		];
 
@@ -517,11 +565,38 @@ TeaEvaluationWorkspace.prototype = {
 				$("#ws_defaults_card").hide();
 			}
 
-			// Show/hide status filter (only for New mode)
+			// Show/hide mode-specific filters
 			if (me.mode === "new") {
+				// Show New-mode filters
+				$("#ws_filter_acquisition_channel_field").closest(".col.ws-field").show();
+				$("#ws_filter_tea_lot_field").closest(".col.ws-field").show();
+				$("#ws_filter_sale_no_field").closest(".col.ws-field").show();
+				$("#ws_filter_lot_no_field").closest(".col.ws-field").show();
+				$("#ws_filter_invoice_number_field").closest(".col.ws-field").show();
+				$("#ws_filter_mark_field").closest(".col.ws-field").show();
+				$("#ws_filter_grade_field").closest(".col.ws-field").show();
 				$("#ws_filter_status_field").closest(".col.ws-field").show();
+				$("#ws_filter_auction_centre_field").closest(".col.ws-field").show();
+				// Hide Update-mode-only filters
+				$("#ws_filter_name_field").closest(".col.ws-field").hide();
+				$("#ws_filter_taster_field").closest(".col.ws-field").hide();
+				$("#ws_filter_stage_field").closest(".col.ws-field").hide();
+				$("#ws_filter_quality_grade_field").closest(".col.ws-field").hide();
+				$("#ws_filter_evaluation_date_field").closest(".col.ws-field").hide();
 			} else {
+				// Hide New-mode filters
+				$("#ws_filter_acquisition_channel_field").closest(".col.ws-field").hide();
+				$("#ws_filter_tea_lot_field").closest(".col.ws-field").hide();
+				$("#ws_filter_sale_no_field").closest(".col.ws-field").hide();
+				$("#ws_filter_grade_field").closest(".col.ws-field").hide();
 				$("#ws_filter_status_field").closest(".col.ws-field").hide();
+				$("#ws_filter_auction_centre_field").closest(".col.ws-field").hide();
+				// Show Update-mode filters
+				$("#ws_filter_name_field").closest(".col.ws-field").show();
+				$("#ws_filter_taster_field").closest(".col.ws-field").show();
+				$("#ws_filter_stage_field").closest(".col.ws-field").show();
+				$("#ws_filter_quality_grade_field").closest(".col.ws-field").show();
+				$("#ws_filter_evaluation_date_field").closest(".col.ws-field").show();
 			}
 
 			// Clear edited rows & reload

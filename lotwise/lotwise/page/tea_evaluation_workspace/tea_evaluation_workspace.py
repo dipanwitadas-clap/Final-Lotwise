@@ -122,6 +122,7 @@ def _build_lot_filters(filter_dict: dict) -> dict:
 	"""Build Tea Lot filters from a filter dictionary.
 
 	Text fields use LIKE, select/exact-match fields use equality.
+	Note: 'tea_lot' is handled by mapping to 'name' since we query Tea Lots directly.
 	"""
 	text_search_fields = {
 		"name",
@@ -140,6 +141,9 @@ def _build_lot_filters(filter_dict: dict) -> dict:
 		if not value or not str(value).strip():
 			continue
 		val = str(value).strip()
+		# Map 'tea_lot' to 'name' for Tea Lot queries
+		if field == "tea_lot":
+			field = "name"
 		if field in text_search_fields:
 			filters[field] = ["like", "%" + val + "%"]
 		elif field in exact_match_fields:
