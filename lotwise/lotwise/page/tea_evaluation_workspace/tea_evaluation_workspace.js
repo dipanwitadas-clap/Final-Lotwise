@@ -1042,12 +1042,10 @@ TeaEvaluationWorkspace.prototype = {
 			'<th class="ws-th-checkbox ws-frozen-col" data-frozen-index="0"><input type="checkbox" id="ws_select_all" class="ws-select-checkbox form-check-input"></th>';
 
 		readonly_cols.forEach(function (col, idx) {
-			// Freeze only first 7 readonly columns (idx, name, lot_no, sale_no, mark, grade, invoice_number)
-			// auction_centre (idx 7) should NOT be frozen
-			// checkbox is frozen-index 0, so readonly columns start at index 1
+			// Freeze all readonly columns
 			var frozen_index = idx + 1;
-			var frozen_class = idx < 7 ? " ws-frozen-col" : "";
-			var frozen_attr = idx < 7 ? ' data-frozen-index="' + frozen_index + '"' : "";
+			var frozen_class = " ws-frozen-col";
+			var frozen_attr = ' data-frozen-index="' + frozen_index + '"';
 			html +=
 				'<th class="eval-th' +
 				frozen_class +
@@ -1096,10 +1094,10 @@ TeaEvaluationWorkspace.prototype = {
 		var readonly_cols = is_new ? this.new_cols_readonly : this.update_cols_readonly;
 		readonly_cols.forEach(function (col, col_idx) {
 			var val = col.key === "idx" ? me.current_start + idx + 1 : record[col.key] || "";
-			// Freeze only first 7 readonly columns (idx, name, lot_no, sale_no, mark, grade, invoice_number)
+			// Freeze all readonly columns
 			// checkbox is frozen-index 0, so readonly columns start at index 1
-			var frozen_class = col_idx < 7 ? " ws-frozen-col" : "";
-			var frozen_attr = col_idx < 7 ? ' data-frozen-index="' + (col_idx + 1) + '"' : "";
+			var frozen_class = " ws-frozen-col";
+			var frozen_attr = ' data-frozen-index="' + (col_idx + 1) + '"';
 			if (col.clickable) {
 				var doctype = is_new ? "Tea Lot" : "Tea Evaluation";
 				html +=

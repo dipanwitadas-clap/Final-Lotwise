@@ -355,6 +355,10 @@
 	left: 565px; /* 485 + Grade (80) */
 }
 
+#ws_table_container .ws-table .ws-frozen-col[data-frozen-index="8"] {
+	left: 665px; /* 565 + Action Centre (100) */
+}
+
 /* Ensure proper borders for frozen columns */
 #ws_table_container .ws-table tbody td.ws-frozen-col {
 	border-right: 1px solid var(--border-light) !important;
@@ -387,9 +391,6 @@
 	color: var(--ink-black);
 	text-transform: uppercase;
 	letter-spacing: 0.3px;
-	position: sticky;
-	top: 0;
-	z-index: 10;
 	border-right: 1px solid var(--border-light);
 }
 
@@ -399,6 +400,8 @@
 
 #ws_table_container .ws-table thead tr {
 	box-shadow: 0 2px 4px rgba(13, 27, 42, 0.08);
+	position: relative;
+	z-index: 1;
 }
 
 /* Table Body */
