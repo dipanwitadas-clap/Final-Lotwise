@@ -90,21 +90,8 @@
    "icon": "full-page",
    "indent": 0,
    "keep_closed": 0,
-   "label": "Tea Lot Evaluation",
-   "link_to": "tea-lot-evaluation",
-   "link_type": "Page",
-   "open_in_new_tab": 1,
-   "show_arrow": 0,
-   "type": "Link"
-  },
-  {
-   "child": 0,
-   "collapsible": 1,
-   "icon": "full-page",
-   "indent": 0,
-   "keep_closed": 0,
-   "label": "Tea Evaluation Update",
-   "link_to": "tea-evaluation-update",
+   "label": "Tea Evaluation Entry",
+   "link_to": "tea-evaluation-workspace",
    "link_type": "Page",
    "open_in_new_tab": 1,
    "show_arrow": 0,
@@ -124,7 +111,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-07-24 10:31:12.463524",
+ "modified": "2026-07-28 12:34:53.532886",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "module_onboarding": "",

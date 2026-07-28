@@ -578,7 +578,7 @@ TeaEvaluationWorkspace.prototype = {
 		$("#ws_default_eval_date_btn").on("click", function () {
 			var $input = $("#ws_default_eval_date");
 			if (!$input.data("dp")) {
-				$input
+				var dp = $input
 					.datepicker({
 						language: "en",
 						dateFormat: "dd-mm-yyyy",
@@ -588,6 +588,7 @@ TeaEvaluationWorkspace.prototype = {
 						},
 					})
 					.data("datepicker");
+				$input.data("dp", dp);
 			}
 			$input.data("dp").show();
 		});
@@ -697,12 +698,6 @@ TeaEvaluationWorkspace.prototype = {
 			$container.find('.ws-cell[data-col="evaluation_date"]').each(function () {
 				var $cell = $(this);
 				var key = $cell.data("row-key");
-				if (
-					key &&
-					me.edited_rows[key] &&
-					me.edited_rows[key]["evaluation_date"] !== undefined
-				)
-					return;
 				$cell.val(me.default_eval_date);
 				if (key) {
 					if (!me.edited_rows[key]) me.edited_rows[key] = {};
@@ -716,8 +711,8 @@ TeaEvaluationWorkspace.prototype = {
 		if (this.default_stage !== undefined) {
 			$container.find('.ws-cell[data-col="stage"]').each(function () {
 				var $cell = $(this);
-				$cell.val(me.default_stage);
 				var key = $cell.data("row-key");
+				$cell.val(me.default_stage);
 				if (key) {
 					if (!me.edited_rows[key]) me.edited_rows[key] = {};
 					me.edited_rows[key]["stage"] = me.default_stage;
@@ -1204,7 +1199,7 @@ TeaEvaluationWorkspace.prototype = {
 				'.ws-date-cell[data-row-key="' + key + '"][data-col="' + col + '"]'
 			);
 			if (!$input.data("dp")) {
-				$input
+				var dp = $input
 					.datepicker({
 						language: "en",
 						dateFormat: "dd-mm-yyyy",
@@ -1214,6 +1209,7 @@ TeaEvaluationWorkspace.prototype = {
 						},
 					})
 					.data("datepicker");
+				$input.data("dp", dp);
 			}
 			$input.data("dp").show();
 		});
