@@ -132,9 +132,8 @@ def _build_lot_filters(filter_dict: dict) -> dict:
 		"grade",
 		"mark",
 		"invoice_number",
-		"acquisition_channel",
 	}
-	exact_match_fields = {"status", "purchase_status"}
+	exact_match_fields = {"status", "purchase_status", "acquisition_channel"}
 
 	filters = {}
 	for field, value in filter_dict.items():
@@ -149,6 +148,20 @@ def _build_lot_filters(filter_dict: dict) -> dict:
 		elif field in exact_match_fields:
 			filters[field] = val
 	return filters
+
+
+def get_last_evaluation_for_lot(tea_lot_name: str) -> dict | None:
+	"""Get the most recent Tea Evaluation for a given Tea Lot."""
+	if not tea_lot_name:
+		return None
+	last_eval = frappe.get_list(
+		"Tea Evaluation",
+		filters={"tea_lot": tea_lot_name},
+		fields=ALLOWED_UPDATE_FIELDS,
+		order_by="evaluation_date desc, creation desc",
+		limit_page_length=1,
+	)
+	return last_eval[0] if last_eval else None
 
 
 # ---------------------------------------------------------------------------
@@ -201,6 +214,15 @@ def get_workspace_data(
 			start=start,
 			page_length=page_length,
 		)
+
+		# Pre-fill editable fields with last evaluation data for each lot
+		for lot in lots:
+			last_eval = get_last_evaluation_for_lot(lot.get("name"))
+			if last_eval:
+				lot["last_evaluation_data"] = last_eval
+			else:
+				lot["last_evaluation_data"] = None
+
 		result["records"] = lots
 
 	else:  # mode == "update"
@@ -395,7 +417,35 @@ def export_data(mode: str = "new", filters: str | None = None) -> dict:
 			limit_page_length=0,
 		)
 
-		headers = ["ID", "Lot No", "Sale No", "Mark", "Grade", "Auction Centre", "Invoice No"]
+		# Pre-fill with last evaluation data for each lot (same as workspace table)
+		for lot in records:
+			last_eval = get_last_evaluation_for_lot(lot.get("name"))
+			if last_eval:
+				lot["last_evaluation_data"] = last_eval
+			else:
+				lot["last_evaluation_data"] = None
+
+		headers = [
+			"ID",
+			"Lot No",
+			"Sale No",
+			"Mark",
+			"Grade",
+			"Auction Centre",
+			"Invoice No",
+			"Taster",
+			"Stage",
+			"Liquor Mark",
+			"Eval Date",
+			"Suggested Val",
+			"Colour",
+			"Strength",
+			"Taste",
+			"Briskness",
+			"Quality Grade",
+			"Density",
+			"Remarks",
+		]
 		data = [
 			[
 				r.get("name", ""),
@@ -405,6 +455,31 @@ def export_data(mode: str = "new", filters: str | None = None) -> dict:
 				r.get("grade", ""),
 				r.get("auction_centre", ""),
 				r.get("invoice_number", ""),
+				# Pre-filled evaluation data
+				r.get("last_evaluation_data", {}).get("taster", "") if r.get("last_evaluation_data") else "",
+				r.get("last_evaluation_data", {}).get("stage", "") if r.get("last_evaluation_data") else "",
+				r.get("last_evaluation_data", {}).get("liquor_mark", "")
+				if r.get("last_evaluation_data")
+				else "",
+				r.get("last_evaluation_data", {}).get("evaluation_date", "")
+				if r.get("last_evaluation_data")
+				else "",
+				r.get("last_evaluation_data", {}).get("suggested_valuation", "")
+				if r.get("last_evaluation_data")
+				else "",
+				r.get("last_evaluation_data", {}).get("colour", "") if r.get("last_evaluation_data") else "",
+				r.get("last_evaluation_data", {}).get("strength", "")
+				if r.get("last_evaluation_data")
+				else "",
+				r.get("last_evaluation_data", {}).get("taste", "") if r.get("last_evaluation_data") else "",
+				r.get("last_evaluation_data", {}).get("briskness", "")
+				if r.get("last_evaluation_data")
+				else "",
+				r.get("last_evaluation_data", {}).get("quality_grade", "")
+				if r.get("last_evaluation_data")
+				else "",
+				r.get("last_evaluation_data", {}).get("density", "") if r.get("last_evaluation_data") else "",
+				r.get("last_evaluation_data", {}).get("remarks", "") if r.get("last_evaluation_data") else "",
 			]
 			for r in records
 		]

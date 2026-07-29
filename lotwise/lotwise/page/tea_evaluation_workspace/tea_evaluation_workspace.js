@@ -1136,9 +1136,21 @@ TeaEvaluationWorkspace.prototype = {
 		// Editable columns
 		this.editable_cols.forEach(function (col) {
 			var current_val = "";
+
+			// Pre-fill with last evaluation data in new mode
+			if (
+				me.mode === "new" &&
+				record.last_evaluation_data &&
+				record.last_evaluation_data[col.key] !== undefined &&
+				record.last_evaluation_data[col.key] !== null
+			) {
+				current_val = record.last_evaluation_data[col.key];
+			}
+
+			// Override with any current edits
 			if (me.edited_rows[row_key] && me.edited_rows[row_key][col.key] !== undefined) {
 				current_val = me.edited_rows[row_key][col.key];
-			} else if (record[col.key] !== undefined && record[col.key] !== null) {
+			} else if (!current_val && record[col.key] !== undefined && record[col.key] !== null) {
 				current_val = record[col.key];
 			}
 			html +=
