@@ -68,7 +68,6 @@
    "options": "\nAuction\nPrivate\nOutsourced"
   },
   {
-   "default": "Offered",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_standard_filter": 1,
@@ -86,6 +85,7 @@
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Mark",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\"",
    "options": "Mark"
   },
   {
@@ -94,12 +94,14 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Grade",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\"",
    "options": "Grade"
   },
   {
    "fieldname": "invoice_number",
    "fieldtype": "Data",
-   "label": "Invoice Number"
+   "label": "Invoice Number",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\""
   },
   {
    "fieldname": "packing",
@@ -130,7 +132,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "eval:doc.acquisition_channel==\"Auction\"",
    "fieldname": "section_break_7zcb",
    "fieldtype": "Section Break"
   },
@@ -146,7 +147,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Sale No",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\""
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\" || doc.acquisition_channel==\"Outsourced\""
   },
   {
    "fieldname": "auction_centre",
@@ -154,7 +155,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Auction Centre",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\"",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\" || doc.acquisition_channel==\"Outsourced\"",
    "options": "Auction Centre"
   },
   {
@@ -168,7 +169,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Lot No",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\""
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\" || doc.acquisition_channel==\"Outsourced\""
   },
   {
    "fieldname": "manufacturer_ref",
@@ -286,7 +287,6 @@
    "label": "DO Date"
   },
   {
-   "depends_on": "eval:doc.acquisition_channel==\"Private\"",
    "fieldname": "section_break_qop8",
    "fieldtype": "Section Break"
   },
@@ -298,7 +298,8 @@
   {
    "fieldname": "purchase_invoice_no",
    "fieldtype": "Data",
-   "label": "Purchase Invoice No"
+   "label": "Purchase Invoice No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\""
   },
   {
    "fieldname": "purchase_invoice_date",
@@ -328,7 +329,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-28 17:38:13.670198",
+ "modified": "2026-07-29 00:07:32.042372",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
