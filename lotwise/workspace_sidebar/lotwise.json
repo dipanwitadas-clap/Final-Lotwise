@@ -91,7 +91,7 @@
    "indent": 0,
    "keep_closed": 0,
    "label": "Tea Evaluation Entry",
-   "link_to": "tea-evaluation-workspace",
+   "link_to": "tea-evaluation-entry",
    "link_type": "Page",
    "open_in_new_tab": 1,
    "show_arrow": 0,
@@ -111,7 +111,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-07-28 12:34:53.532886",
+ "modified": "2026-07-30 10:07:46.861487",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "module_onboarding": "",
