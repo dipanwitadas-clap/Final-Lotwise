@@ -196,6 +196,7 @@ class TeaLotImport(Document):
 		meta = frappe.get_meta("Tea Lot")
 		allowed_liquor = _get_liquor_options()
 		created = duplicate = error = 0
+		channel = self.acquisition_channel or "Auction"
 
 		for row in self.items:
 			if row.row_status == "Created":
@@ -205,38 +206,15 @@ class TeaLotImport(Document):
 				invoice = (row.invoice_number or "").strip()
 				lot_no = (row.lot_no or "").strip()
 				auction_centre = (row.auction_centre or "").strip()
+				grade_code = (row.grade_raw or "").strip()
+				liquor = (row.liquor_mark or "").strip()
 
-				if not auction_centre:
-					row.row_status = "Error"
-					row.message = _("Auction Centre is required.")
-					error += 1
-					continue
-
-				auction_centre_code = frappe.db.get_value(
-					"Auction Centre",
-					auction_centre,
-					"auction_centre_code",
-				)
-				if not auction_centre_code:
-					row.row_status = "Error"
-					row.message = _("Invalid Auction Centre.")
-					error += 1
-					continue
-
+				# ---- common validations ----
 				if not mark_name or not invoice:
 					row.row_status = "Error"
 					row.message = _("Missing Mark or Invoice Number.")
 					error += 1
 					continue
-
-				liquor = (row.liquor_mark or "").strip()
-				if liquor and allowed_liquor and liquor not in allowed_liquor:
-					row.row_status = "Error"
-					row.message = _("Invalid Liquor Mark: {0}").format(liquor)
-					error += 1
-					continue
-
-				grade_code = (row.grade_raw or "").strip()
 
 				if not frappe.db.exists("Mark", mark_name):
 					row.row_status = "Error"
@@ -250,20 +228,96 @@ class TeaLotImport(Document):
 					error += 1
 					continue
 
-				year = getdate(row.purchase_date).strftime("%y")
-				tea_lot_name = f"{auction_centre_code}-{lot_no}-{self.sale_no}-{year}"
-				if frappe.db.exists("Tea Lot", tea_lot_name):
-					row.row_status = "Duplicate"
-					row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
-					duplicate += 1
+				if liquor and allowed_liquor and liquor not in allowed_liquor:
+					row.row_status = "Error"
+					row.message = _("Invalid Liquor Mark: {0}").format(liquor)
+					error += 1
 					continue
 
+				# ---- channel-specific validations & duplicate checks ----
+				if channel in ("Auction", "Outsourced"):
+					if not auction_centre:
+						row.row_status = "Error"
+						row.message = _("Auction Centre is required for Auction/Outsourced lots.")
+						error += 1
+						continue
+
+					auction_centre_code = frappe.db.get_value(
+						"Auction Centre",
+						auction_centre,
+						"auction_centre_code",
+					)
+					if not auction_centre_code:
+						row.row_status = "Error"
+						row.message = _("Invalid Auction Centre.")
+						error += 1
+						continue
+
+					if not lot_no:
+						row.row_status = "Error"
+						row.message = _("Lot No is required for Auction/Outsourced lots.")
+						error += 1
+						continue
+
+					if not self.sale_no:
+						row.row_status = "Error"
+						row.message = _("Sale No is required for Auction/Outsourced lots.")
+						error += 1
+						continue
+
+					year = getdate(row.purchase_date).strftime("%y")
+					tea_lot_name = f"{auction_centre_code}-{lot_no}-{self.sale_no}-{year}"
+					if frappe.db.exists("Tea Lot", tea_lot_name):
+						row.row_status = "Duplicate"
+						row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
+						duplicate += 1
+						continue
+
+				elif channel == "Private":
+					if not row.purchase_invoice_no:
+						row.row_status = "Error"
+						row.message = _("Purchase Invoice No is required for Private lots.")
+						error += 1
+						continue
+
+					if not grade_code:
+						row.row_status = "Error"
+						row.message = _("Grade is required for Private lots.")
+						error += 1
+						continue
+
+					if not row.purchase_date:
+						row.row_status = "Error"
+						row.message = _("Purchase Date is required for Private lots.")
+						error += 1
+						continue
+
+					year = getdate(row.purchase_date).strftime("%y")
+					purchase_invoice_no = str(row.purchase_invoice_no)
+					if "-" in purchase_invoice_no:
+						first, second = purchase_invoice_no.rsplit("-", 1)
+						last_part = f"{first[-1]}-{second}"
+					else:
+						last_part = purchase_invoice_no
+
+					tea_lot_name = f"{invoice}-{year}-{mark_name}-{grade_code}-{last_part}"
+					if frappe.db.exists("Tea Lot", tea_lot_name):
+						row.row_status = "Duplicate"
+						row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
+						duplicate += 1
+						continue
+
+				else:  # Default channel
+					# No additional validations; autoname will generate a unique name
+					pass
+
+				# ---- build values dict ----
 				values = {
 					"doctype": "Tea Lot",
-					"acquisition_channel": self.acquisition_channel or "Auction",
+					"acquisition_channel": channel,
 					"status": "Offered",
 					"purchase_status": "Committed",
-					"lot_no": lot_no,
+					"lot_no": lot_no or None,
 					"invoice_number": invoice,
 					"mark": mark_name,
 					"grade": grade_code or None,
@@ -275,7 +329,7 @@ class TeaLotImport(Document):
 					"liquor_mark": liquor or None,
 					"blend": self.blend or None,
 					"sale_no": self.sale_no or None,
-					"auction_centre": row.auction_centre or None,
+					"auction_centre": auction_centre or None,
 					"purchase_date": row.purchase_date or None,
 					"source_doctype": self.doctype or None,
 					"source_doctype_id": self.name or None,
