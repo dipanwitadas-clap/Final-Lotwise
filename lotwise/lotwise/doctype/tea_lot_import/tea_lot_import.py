@@ -196,7 +196,7 @@ class TeaLotImport(Document):
 		meta = frappe.get_meta("Tea Lot")
 		allowed_liquor = _get_liquor_options()
 		created = duplicate = error = 0
-		channel = self.acquisition_channel or "Auction"
+		channel = self.acquisition_channel
 
 		for row in self.items:
 			if row.row_status == "Created":
