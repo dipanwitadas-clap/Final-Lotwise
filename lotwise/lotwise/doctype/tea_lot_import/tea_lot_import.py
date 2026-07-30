@@ -361,6 +361,92 @@ class TeaLotImport(Document):
 		self.save()
 		return {"created": created, "errors": error, "duplicates": duplicate}
 
+	@frappe.whitelist()
+	def export_error_rows(self):
+		"""Export rows with row_status = 'Error' to an Excel file and return base64 content."""
+		import base64
+		import io
+
+		from openpyxl import Workbook
+
+		error_rows = [item for item in self.items if item.row_status == "Error"]
+		if not error_rows:
+			frappe.throw(_("No error rows to export."))
+
+		# Define headers (labels from Tea Lot Import Item fields)
+		headers = [
+			"#",
+			"Lot No",
+			"Invoice Number",
+			"Garden / Mark",
+			"Grade",
+			"Auction Centre",
+			"Purchase Date",
+			"No of Pkgs",
+			"Wt. (Kgs.) Per Pkg",
+			"Nett. Wt. (Kgs.)",
+			"Rate / Kg",
+			"Liquor Mark",
+			"Density",
+			"Bill Mode",
+			"Sample Pkgs",
+			"Sample Wt",
+			"Remarks",
+			"Status",
+			"Message",
+			"Tea Lot",
+			"Purchase From",
+			"Purchase Invoice No",
+			"Purchase Invoice Date",
+			"Warehouse Name",
+			"Total Amount (Tax Invoice)",
+		]
+
+		wb = Workbook()
+		ws = wb.active
+		ws.title = "Errors"
+
+		# Write header row
+		for col_idx, header in enumerate(headers, 1):
+			ws.cell(row=1, column=col_idx, value=header)
+
+		# Write data rows
+		for row_idx, item in enumerate(error_rows, start=2):
+			ws.cell(row=row_idx, column=1, value=row_idx - 1)
+			ws.cell(row=row_idx, column=2, value=item.lot_no or "")
+			ws.cell(row=row_idx, column=3, value=item.invoice_number or "")
+			ws.cell(row=row_idx, column=4, value=item.mark_raw or "")
+			ws.cell(row=row_idx, column=5, value=item.grade_raw or "")
+			ws.cell(row=row_idx, column=6, value=item.auction_centre or "")
+			ws.cell(row=row_idx, column=7, value=str(item.purchase_date or ""))
+			ws.cell(row=row_idx, column=8, value=item.packages or 0)
+			ws.cell(row=row_idx, column=9, value=item.gross_wtpkg or 0.0)
+			ws.cell(row=row_idx, column=10, value=item.net_weight_total or 0.0)
+			ws.cell(row=row_idx, column=11, value=item.rate or 0.0)
+			ws.cell(row=row_idx, column=12, value=item.liquor_mark or "")
+			ws.cell(row=row_idx, column=13, value=item.density or 0.0)
+			ws.cell(row=row_idx, column=14, value=item.bill_mode or "")
+			ws.cell(row=row_idx, column=15, value=item.sam_pkg or "")
+			ws.cell(row=row_idx, column=16, value=item.sam_wt or "")
+			ws.cell(row=row_idx, column=17, value=item.remarks or "")
+			ws.cell(row=row_idx, column=18, value=item.row_status or "")
+			ws.cell(row=row_idx, column=19, value=item.message or "")
+			ws.cell(row=row_idx, column=20, value=item.tea_lot or "")
+			ws.cell(row=row_idx, column=21, value=item.purchase_from or "")
+			ws.cell(row=row_idx, column=22, value=item.purchase_invoice_no or "")
+			ws.cell(row=row_idx, column=23, value=str(item.purchase_invoice_date or ""))
+			ws.cell(row=row_idx, column=24, value=item.warehouse_name or "")
+			ws.cell(row=row_idx, column=25, value=item.total_amount_as_per_to_tax_invoice or 0.0)
+
+		output = io.BytesIO()
+		wb.save(output)
+		output.seek(0)
+
+		encoded = base64.b64encode(output.getvalue()).decode("utf-8")
+		filename = f"{self.name}_errors.xlsx"
+
+		return {"filename": filename, "content": encoded}
+
 	# ---- internals ----
 
 	def _load_sheet(self):
