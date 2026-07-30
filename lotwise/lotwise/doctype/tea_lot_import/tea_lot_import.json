@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_import": 1,
  "allow_rename": 1,
  "autoname": "TLIM-.YYYY.-.#####",
  "creation": "2026-06-11 18:00:00",
@@ -153,7 +152,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-07-30 16:37:45.375331",
+ "modified": "2026-07-30 17:16:06.508156",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",
