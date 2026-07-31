@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "taster_name",
+  "user",
   "active"
  ],
  "fields": [
@@ -24,12 +25,18 @@
    "fieldname": "active",
    "fieldtype": "Check",
    "label": "Active"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-16 15:59:01.149650",
+ "modified": "2026-07-30 14:36:48.221259",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Taster",

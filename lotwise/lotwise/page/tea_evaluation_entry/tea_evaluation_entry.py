@@ -119,6 +119,9 @@ def get_workspace_data(
 	"""
 	filter_dict = json.loads(filters) if filters else {}
 
+	# Check if logged-in user is linked to a Taster record
+	default_taster = frappe.db.get_value("Taster", {"user": frappe.session.user}, "name")
+
 	# Always return dropdown options
 	result = {
 		"stage_options": sorted(get_doctype_select_options("Tea Evaluation", "stage")),
@@ -126,6 +129,7 @@ def get_workspace_data(
 		"quality_grade_options": sorted(get_doctype_select_options("Tea Evaluation", "quality_grade")),
 		"total_count": 0,
 		"records": [],
+		"default_taster": default_taster or "",
 	}
 
 	# Fetch Tea Lots (all lots, user can filter by status)

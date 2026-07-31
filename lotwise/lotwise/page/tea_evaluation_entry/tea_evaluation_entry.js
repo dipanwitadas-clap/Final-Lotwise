@@ -879,6 +879,13 @@ TeaEvaluationEntry.prototype = {
 					me.update_save_all_count();
 					me.render_table();
 					me.update_pagination();
+
+					// Auto-fill taster if logged-in user is linked to a Taster record
+					if (result.default_taster) {
+						me.default_taster = result.default_taster;
+						$("#ws_default_taster").val(result.default_taster);
+						me.apply_default_taster();
+					}
 				} else {
 					me.$table_container.html(
 						'<div class="alert alert-info m-3">No data available.</div>'
