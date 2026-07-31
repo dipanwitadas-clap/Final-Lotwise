@@ -60,7 +60,7 @@
    "fieldname": "liquor_mark",
    "fieldtype": "Select",
    "label": "Liquor Mark",
-   "options": "\nA\nA-\nA+\nA++\nB\nB+\nB++\nB-\nC\nC-\nD"
+   "options": "\nA\nA-\nA+\nA++\nB\nB+\nB++\nB-\nC\nC+\nC-\nD"
   },
   {
    "default": "Today",
@@ -145,7 +145,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-31 15:50:11.241163",
+ "modified": "2026-07-31 16:45:49.070874",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",
