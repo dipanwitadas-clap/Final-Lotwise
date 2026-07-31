@@ -19,7 +19,7 @@ class TeaEvaluation(Document):
 		density: DF.Float
 		evaluation_date: DF.Date
 		invoice_number: DF.Data | None
-		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
+		liquor_mark: DF.Literal["", "A", "A-", "A+", "A++", "B", "B+", "B++", "B-", "C", "C-", "D"]
 		lot_no: DF.Data | None
 		mark: DF.Link | None
 		notes: DF.SmallText | None
