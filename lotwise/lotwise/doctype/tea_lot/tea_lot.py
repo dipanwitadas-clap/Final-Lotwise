@@ -38,7 +38,9 @@ class TeaLot(Document):
 		gross_wtpkg: DF.Float
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data | None
-		liquor_mark: DF.Literal["", "A", "A-", "A+", "A++", "B", "B+", "B++", "B-", "C", "C-", "D"]
+		liquor_mark: DF.Literal[
+			"", "A", "A-", "A+", "A++", "B", "B+", "B++", "B-", "C", "C+", "C-", "C+", "D"
+		]
 		lot_no: DF.Data | None
 		manufacturer_ref: DF.Data | None
 		mark: DF.Link | None
