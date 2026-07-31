@@ -242,7 +242,7 @@
    "fieldname": "liquor_mark",
    "fieldtype": "Select",
    "label": "Liquor Mark",
-   "options": "\nA+\nA\nB+\nB\nC+\nC"
+   "options": "\nA\nA-\nA+\nA++\nB\nB+\nB++\nB-\nC\nC-\nD"
   },
   {
    "fieldname": "blend",
@@ -329,7 +329,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-29 00:07:32.042372",
+ "modified": "2026-07-31 16:17:16.335742",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
