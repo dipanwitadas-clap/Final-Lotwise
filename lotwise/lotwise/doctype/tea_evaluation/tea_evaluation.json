@@ -15,6 +15,7 @@
   "evaluation_date",
   "suggested_valuation",
   "remarks",
+  "evaluation_stage",
   "column_break_imtm",
   "colour",
   "strength",
@@ -140,12 +141,18 @@
    "fieldname": "lot_no",
    "fieldtype": "Data",
    "label": "Lot No"
+  },
+  {
+   "fieldname": "evaluation_stage",
+   "fieldtype": "Link",
+   "label": "Evaluation Stage",
+   "options": "Evaluation Stage"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-31 16:45:49.070874",
+ "modified": "2026-08-01 12:28:29.478833",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",
