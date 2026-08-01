@@ -2,6 +2,7 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "field:liquor_mark",
  "creation": "2026-07-31 17:04:51.614567",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -12,16 +13,18 @@
   {
    "fieldname": "liquor_mark",
    "fieldtype": "Data",
-   "label": "Liquor Mark"
+   "label": "Liquor Mark",
+   "unique": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-31 17:05:14.448302",
+ "modified": "2026-08-01 13:37:29.418143",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Liquor Mark",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

@@ -2,6 +2,7 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "field:purchase_type",
  "creation": "2026-08-01 12:29:45.266563",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -12,16 +13,18 @@
   {
    "fieldname": "purchase_type",
    "fieldtype": "Data",
-   "label": "Purchase Type"
+   "label": "Purchase Type",
+   "unique": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-01 12:30:05.045182",
+ "modified": "2026-08-01 13:35:40.615537",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Purchase Type",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

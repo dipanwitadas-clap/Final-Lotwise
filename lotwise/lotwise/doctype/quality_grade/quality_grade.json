@@ -2,6 +2,7 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "field:quality_grade",
  "creation": "2026-07-31 17:14:39.352846",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -12,16 +13,18 @@
   {
    "fieldname": "quality_grade",
    "fieldtype": "Data",
-   "label": "Quality Grade"
+   "label": "Quality Grade",
+   "unique": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-31 17:14:49.608107",
+ "modified": "2026-08-01 13:36:38.104256",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Quality Grade",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
