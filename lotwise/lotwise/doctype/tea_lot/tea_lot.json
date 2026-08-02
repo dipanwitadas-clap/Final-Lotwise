@@ -29,6 +29,8 @@
   "purchase_status",
   "do_reference",
   "do_date",
+  "purchase_types",
+  "liquor_marks",
   "section_break_7zcb",
   "broker",
   "sale_no",
@@ -326,6 +328,18 @@
    "fieldtype": "Link",
    "label": "Evaluation Status",
    "options": "Evaluation Status"
+  },
+  {
+   "fieldname": "purchase_types",
+   "fieldtype": "Link",
+   "label": "Purchase Types",
+   "options": "Purchase Type"
+  },
+  {
+   "fieldname": "liquor_marks",
+   "fieldtype": "Link",
+   "label": "Liquor Marks",
+   "options": "Liquor Mark"
   }
  ],
  "grid_page_length": 50,
@@ -336,7 +350,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-08-02 16:35:10.769792",
+ "modified": "2026-08-02 19:15:49.991907",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

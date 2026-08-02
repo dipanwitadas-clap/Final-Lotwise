@@ -42,6 +42,7 @@ class TeaLot(Document):
 		liquor_mark: DF.Literal[
 			"", "A", "A-", "A+", "A++", "B", "B+", "B++", "B-", "C", "C+", "C-", "C+", "D"
 		]
+		liquor_marks: DF.Link | None
 		lot_no: DF.Data | None
 		manufacturer_ref: DF.Data | None
 		mark: DF.Link | None
@@ -55,6 +56,7 @@ class TeaLot(Document):
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
 		purchase_status: DF.Literal["", "Committed", "Received", "In Stock"]
+		purchase_types: DF.Link | None
 		rate: DF.Currency
 		sale_no: DF.Int
 		seller: DF.Link | None

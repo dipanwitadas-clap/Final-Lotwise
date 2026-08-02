@@ -21,12 +21,14 @@ class TeaEvaluation(Document):
 		evaluation_stage: DF.Link | None
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Literal["", "A", "A-", "A+", "A++", "B", "B+", "B++", "B-", "C", "C+", "C-", "D"]
+		liquor_marks: DF.Link | None
 		lot_no: DF.Data | None
 		mark: DF.Link | None
 		notes: DF.SmallText | None
 		quality_grade: DF.Literal[
 			"", "A", "A++", "A+++", "B", "B+", "B++", "B-", "C", "C+", "D", "D+", "E", "E+"
 		]
+		quality_grades: DF.Link | None
 		remarks: DF.Data | None
 		stage: DF.Literal[
 			"", "Pre-purchase", "Arrival", "Blend QC", "Storage", "Purchase Sample", "Bag Sample"
