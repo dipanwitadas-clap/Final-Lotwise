@@ -15,8 +15,6 @@
   "suggested_valuation",
   "remarks",
   "evaluation_stage",
-  "liquor_marks",
-  "quality_grades",
   "column_break_imtm",
   "colour",
   "strength",
@@ -139,24 +137,12 @@
    "fieldtype": "Link",
    "label": "Evaluation Stage",
    "options": "Evaluation Stage"
-  },
-  {
-   "fieldname": "liquor_marks",
-   "fieldtype": "Link",
-   "label": "Liquor Marks",
-   "options": "Liquor Mark"
-  },
-  {
-   "fieldname": "quality_grades",
-   "fieldtype": "Link",
-   "label": "Quality Grades",
-   "options": "Quality Grade"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-02 19:19:50.033256",
+ "modified": "2026-08-02 22:05:29.287911",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",

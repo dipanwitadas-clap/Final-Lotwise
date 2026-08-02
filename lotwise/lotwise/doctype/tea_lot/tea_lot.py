@@ -40,7 +40,6 @@ class TeaLot(Document):
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Link | None
-		liquor_marks: DF.Link | None
 		lot_no: DF.Data | None
 		manufacturer_ref: DF.Data | None
 		mark: DF.Link | None
@@ -54,7 +53,6 @@ class TeaLot(Document):
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
 		purchase_status: DF.Link | None
-		purchase_types: DF.Link | None
 		rate: DF.Currency
 		sale_no: DF.Int
 		seller: DF.Link | None

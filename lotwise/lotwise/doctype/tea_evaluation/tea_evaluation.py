@@ -21,12 +21,10 @@ class TeaEvaluation(Document):
 		evaluation_stage: DF.Link | None
 		invoice_number: DF.Data | None
 		liquor_mark: DF.Link | None
-		liquor_marks: DF.Link | None
 		lot_no: DF.Data | None
 		mark: DF.Link | None
 		notes: DF.SmallText | None
 		quality_grade: DF.Link | None
-		quality_grades: DF.Link | None
 		remarks: DF.Data | None
 		strength: DF.Int
 		suggested_valuation: DF.Currency
