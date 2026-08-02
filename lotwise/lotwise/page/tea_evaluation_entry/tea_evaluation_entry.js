@@ -110,12 +110,18 @@ function TeaEvaluationEntry(wrapper) {
 
 	this.editable_cols = [
 		{ key: "taster", label: "Taster", type: "link", options: "Taster", width: 100 },
-		{ key: "stage", label: "Stage", type: "select", options_key: "stage", width: 110 },
+		{
+			key: "evaluation_stage",
+			label: "Evaluation Stage",
+			type: "link",
+			options: "Evaluation Stage",
+			width: 130,
+		},
 		{
 			key: "liquor_mark",
 			label: "Liquor Mark",
-			type: "select",
-			options_key: "liquor_mark",
+			type: "link",
+			options: "Liquor Mark",
 			width: 100,
 		},
 		{ key: "evaluation_date", label: "Eval Date", type: "date", width: 120 },
@@ -127,8 +133,8 @@ function TeaEvaluationEntry(wrapper) {
 		{
 			key: "quality_grade",
 			label: "Quality Grade",
-			type: "select",
-			options_key: "quality_grade",
+			type: "link",
+			options: "Quality Grade",
 			width: 105,
 		},
 		{ key: "density", label: "Density", type: "float", width: 70 },
@@ -137,7 +143,7 @@ function TeaEvaluationEntry(wrapper) {
 
 	this.editable_keys = [
 		"taster",
-		"stage",
+		"evaluation_stage",
 		"liquor_mark",
 		"evaluation_date",
 		"suggested_valuation",
@@ -263,8 +269,8 @@ TeaEvaluationEntry.prototype = {
 							<div id="ws_filter_grade_field"></div>
 						</div>
 						<div class="col ws-field">
-							<label class="ws-field-label">Status</label>
-							<div id="ws_filter_status_field"></div>
+							<label class="ws-field-label">Evaluation Status</label>
+							<div id="ws_filter_evaluation_status_field"></div>
 						</div>
 						<div class="col ws-field">
 							<label class="ws-field-label">Auction Centre</label>
@@ -433,10 +439,10 @@ TeaEvaluationEntry.prototype = {
 			{ fieldname: "mark", label: "Mark", fieldtype: "Link", options: "Mark" },
 			{ fieldname: "grade", label: "Grade", fieldtype: "Link", options: "Grade" },
 			{
-				fieldname: "status",
-				label: "Status",
-				fieldtype: "Select",
-				options: "\nOffered\nEvaluated",
+				fieldname: "evaluation_status",
+				label: "Evaluation Status",
+				fieldtype: "Link",
+				options: "Evaluation Status",
 			},
 			{
 				fieldname: "auction_centre",
@@ -469,16 +475,7 @@ TeaEvaluationEntry.prototype = {
 	},
 
 	update_filter_select_options: function () {
-		var stage_field = this.filter_fields.stage;
-		if (stage_field) {
-			stage_field.df.options = ["", ...this.dropdown_options.stage].join("\n");
-			stage_field.refresh();
-		}
-		var quality_field = this.filter_fields.quality_grade;
-		if (quality_field) {
-			quality_field.df.options = ["", ...this.dropdown_options.quality_grade].join("\n");
-			quality_field.refresh();
-		}
+		// No select-based filters remain; evaluation_stage/liquor_mark/quality_grade are Link fields
 	},
 
 	// -------------------------------------------------------------------------
@@ -663,13 +660,13 @@ TeaEvaluationEntry.prototype = {
 		}
 
 		if (this.default_stage !== undefined) {
-			$container.find('.ws-cell[data-col="stage"]').each(function () {
+			$container.find('.ws-cell[data-col="evaluation_stage"]').each(function () {
 				var $cell = $(this);
 				var key = $cell.data("row-key");
 				$cell.val(me.default_stage);
 				if (key) {
 					if (!me.edited_rows[key]) me.edited_rows[key] = {};
-					me.edited_rows[key]["stage"] = me.default_stage;
+					me.edited_rows[key]["evaluation_stage"] = me.default_stage;
 				}
 			});
 		}
@@ -775,14 +772,13 @@ TeaEvaluationEntry.prototype = {
 	get_bulk_field_config: function (field) {
 		var map = {
 			taster: { label: "Taster", fieldtype: "Link", options: "Taster" },
-			evaluation_date: { label: "Eval Date", fieldtype: "Date" },
-			liquor_mark: {
-				label: "Liquor Mark",
-				fieldtype: "Select",
-				options: this.dropdown_options.liquor_mark
-					? this.dropdown_options.liquor_mark.join("\n")
-					: "",
+			evaluation_stage: {
+				label: "Evaluation Stage",
+				fieldtype: "Link",
+				options: "Evaluation Stage",
 			},
+			evaluation_date: { label: "Eval Date", fieldtype: "Date" },
+			liquor_mark: { label: "Liquor Mark", fieldtype: "Link", options: "Liquor Mark" },
 			suggested_valuation: { label: "Suggested Val", fieldtype: "Float" },
 			colour: { label: "Colour", fieldtype: "Int" },
 			strength: { label: "Strength", fieldtype: "Int" },
@@ -790,10 +786,8 @@ TeaEvaluationEntry.prototype = {
 			briskness: { label: "Briskness", fieldtype: "Int" },
 			quality_grade: {
 				label: "Quality Grade",
-				fieldtype: "Select",
-				options: this.dropdown_options.quality_grade
-					? this.dropdown_options.quality_grade.join("\n")
-					: "",
+				fieldtype: "Link",
+				options: "Quality Grade",
 			},
 			density: { label: "Density", fieldtype: "Float" },
 		};
@@ -1423,7 +1417,7 @@ TeaEvaluationEntry.prototype = {
 				invoice_number: rec.invoice_number || "",
 				auction_centre: rec.auction_centre || "",
 				taster: me.edited_rows[row_key].taster || "",
-				stage: me.edited_rows[row_key].stage || "",
+				evaluation_stage: me.edited_rows[row_key].evaluation_stage || "",
 				liquor_mark: me.edited_rows[row_key].liquor_mark || "",
 				evaluation_date: me.edited_rows[row_key].evaluation_date || "",
 				suggested_valuation: me.edited_rows[row_key].suggested_valuation || "",

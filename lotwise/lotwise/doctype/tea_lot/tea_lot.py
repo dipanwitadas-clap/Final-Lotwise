@@ -39,9 +39,7 @@ class TeaLot(Document):
 		gross_wtpkg: DF.Float
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data | None
-		liquor_mark: DF.Literal[
-			"", "A", "A-", "A+", "A++", "B", "B+", "B++", "B-", "C", "C+", "C-", "C+", "D"
-		]
+		liquor_mark: DF.Link | None
 		liquor_marks: DF.Link | None
 		lot_no: DF.Data | None
 		manufacturer_ref: DF.Data | None
@@ -55,14 +53,13 @@ class TeaLot(Document):
 		purchase_from: DF.Data | None
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
-		purchase_status: DF.Literal["", "Committed", "Received", "In Stock"]
+		purchase_status: DF.Link | None
 		purchase_types: DF.Link | None
 		rate: DF.Currency
 		sale_no: DF.Int
 		seller: DF.Link | None
 		source_doctype: DF.Link | None
 		source_doctype_id: DF.DynamicLink | None
-		status: DF.Literal["", "Offered", "Evaluated"]
 		total_amount_as_per_to_tax_invoice: DF.Float
 		warehouse_name: DF.Data | None
 		warehouselocation: DF.Data | None
@@ -196,21 +193,19 @@ class TeaLot(Document):
 
 
 def get_evaluation_field_options(fieldname: str) -> list:
-	"""Fetch select options for a fieldname from Tea Evaluation doctype."""
-	options_str = frappe.db.get_value(
-		"DocField",
-		{"parent": "Tea Evaluation", "fieldname": fieldname},
-		"options",
-	)
-
-	if not options_str:
+	"""Fetch options from the linked doctype for evaluation fields."""
+	doctype_map = {
+		"evaluation_stage": "Evaluation Stage",
+		"liquor_mark": "Liquor Mark",
+		"quality_grade": "Quality Grade",
+	}
+	doctype = doctype_map.get(fieldname)
+	if not doctype:
 		return []
 
-	# Options are stored as "\nOption1\nOption2\n..."
-	# Split by newline and filter out empty / whitespace-only entries
-	options = [opt.strip() for opt in options_str.split("\n") if opt.strip()]
-
-	return options
+	# Fetch all records from the linked doctype
+	records = frappe.get_all(doctype, pluck="name", order_by="creation asc")
+	return records or []
 
 
 # ============================================================
@@ -231,7 +226,7 @@ def get_tea_lots_for_evaluation() -> dict:
 		"grade",
 		"mark",
 		"invoice_number",
-		"status",
+		"evaluation_status",
 		"acquisition_channel",
 		"purchase_status",
 	}
@@ -265,7 +260,7 @@ def get_tea_lots_for_evaluation() -> dict:
 	)
 
 	# Fetch dropdown options for evaluation fields
-	stage_options = get_evaluation_field_options("stage")
+	stage_options = get_evaluation_field_options("evaluation_stage")
 	liquor_mark_options = get_evaluation_field_options("liquor_mark")
 	quality_grade_options = get_evaluation_field_options("quality_grade")
 
@@ -290,13 +285,13 @@ def create_tea_evaluation() -> dict:
 	"""
 	Create a Tea Evaluation from the inline DataTable row data.
 	Expects POST data via frappe.call with args:
-		tea_lot, taster, stage, liquor_mark, evaluation_date,
+		tea_lot, taster, evaluation_stage, liquor_mark, evaluation_date,
 		suggested_valuation, colour, strength, taste, briskness,
 		quality_grade, invoice_number, mark, notes
 	"""
 	data = frappe.local.form_dict
 
-	required = ["tea_lot", "taster", "stage", "evaluation_date"]
+	required = ["tea_lot", "taster", "evaluation_stage", "evaluation_date"]
 	missing = [f for f in required if not data.get(f)]
 	if missing:
 		frappe.throw(_("Missing required fields: {0}").format(", ".join(missing)))
@@ -306,7 +301,7 @@ def create_tea_evaluation() -> dict:
 			"doctype": "Tea Evaluation",
 			"tea_lot": data.get("tea_lot"),
 			"taster": data.get("taster"),
-			"stage": data.get("stage"),
+			"evaluation_stage": data.get("evaluation_stage"),
 			"liquor_mark": data.get("liquor_mark"),
 			"evaluation_date": data.get("evaluation_date"),
 			"suggested_valuation": flt(data.get("suggested_valuation")),
@@ -341,14 +336,14 @@ def download_evaluation_import_xlsx() -> dict:
 		"""
 		SELECT name, mark, invoice_number,lot_no
 		FROM `tabTea Lot`
-		WHERE status != "Evaluated" OR status IS NULL
+		WHERE evaluation_status != "Evaluated" OR evaluation_status IS NULL
 		ORDER BY creation DESC
 		""",
 		as_dict=True,
 	)
 
-	# Fetch dropdown options dynamically from Tea Evaluation doctype
-	stage_options = get_evaluation_field_options("stage")
+	# Fetch dropdown options dynamically from linked doctypes
+	stage_options = get_evaluation_field_options("evaluation_stage")
 	liquor_mark_options = get_evaluation_field_options("liquor_mark")
 	quality_grade_options = get_evaluation_field_options("quality_grade")
 

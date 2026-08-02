@@ -10,7 +10,6 @@
  "field_order": [
   "tea_lot",
   "taster",
-  "stage",
   "liquor_mark",
   "evaluation_date",
   "suggested_valuation",
@@ -51,19 +50,10 @@
    "reqd": 1
   },
   {
-   "fieldname": "stage",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Stage",
-   "options": "\nPre-purchase\nArrival\nBlend QC\nStorage\nPurchase Sample\nBag Sample",
-   "reqd": 1
-  },
-  {
    "fieldname": "liquor_mark",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Liquor Mark",
-   "options": "\nA\nA-\nA+\nA++\nB\nB+\nB++\nB-\nC\nC+\nC-\nD"
+   "options": "Liquor Mark"
   },
   {
    "default": "Today",
@@ -113,9 +103,9 @@
   },
   {
    "fieldname": "quality_grade",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Quality Grade",
-   "options": "\nA\nA++\nA+++\nB\nB+\nB++\nB-\nC\nC+\nD\nD+\nE\nE+"
+   "options": "Quality Grade"
   },
   {
    "fieldname": "invoice_number",

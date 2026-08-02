@@ -19,7 +19,6 @@
   "purchase_date",
   "evaluation_status",
   "column_break_uyqw",
-  "status",
   "mark",
   "grade",
   "net_weight_total",
@@ -69,13 +68,6 @@
    "in_standard_filter": 1,
    "label": "Acquisition Channel",
    "options": "\nAuction\nPrivate\nOutsourced"
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_standard_filter": 1,
-   "label": "Status",
-   "options": "\nOffered\nEvaluated"
   },
   {
    "fieldname": "seller",
@@ -243,9 +235,9 @@
   },
   {
    "fieldname": "liquor_mark",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Liquor Mark",
-   "options": "\nA\nA-\nA+\nA++\nB\nB+\nB++\nB-\nC\nC+\nC-\nC+\nD"
+   "options": "Liquor Mark"
   },
   {
    "fieldname": "blend",
@@ -273,11 +265,11 @@
   },
   {
    "fieldname": "purchase_status",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Purchase Status",
-   "options": "\nCommitted\nReceived\nIn Stock"
+   "options": "Purchase Status"
   },
   {
    "fieldname": "do_reference",

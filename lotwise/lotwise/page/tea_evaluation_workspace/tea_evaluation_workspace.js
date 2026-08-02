@@ -120,12 +120,18 @@ function TeaEvaluationWorkspace(wrapper) {
 
 	this.editable_cols = [
 		{ key: "taster", label: "Taster", type: "link", options: "Taster", width: 100 },
-		{ key: "stage", label: "Stage", type: "select", options_key: "stage", width: 110 },
+		{
+			key: "evaluation_stage",
+			label: "Evaluation Stage",
+			type: "link",
+			options: "Evaluation Stage",
+			width: 130,
+		},
 		{
 			key: "liquor_mark",
 			label: "Liquor Mark",
-			type: "select",
-			options_key: "liquor_mark",
+			type: "link",
+			options: "Liquor Mark",
 			width: 100,
 		},
 		{ key: "evaluation_date", label: "Eval Date", type: "date", width: 120 },
@@ -137,8 +143,8 @@ function TeaEvaluationWorkspace(wrapper) {
 		{
 			key: "quality_grade",
 			label: "Quality Grade",
-			type: "select",
-			options_key: "quality_grade",
+			type: "link",
+			options: "Quality Grade",
 			width: 105,
 		},
 		{ key: "density", label: "Density", type: "float", width: 70 },
@@ -147,7 +153,7 @@ function TeaEvaluationWorkspace(wrapper) {
 
 	this.editable_keys = [
 		"taster",
-		"stage",
+		"evaluation_stage",
 		"liquor_mark",
 		"evaluation_date",
 		"suggested_valuation",
@@ -224,7 +230,8 @@ TeaEvaluationWorkspace.prototype = {
 		// Hide Update-mode-only filters initially (New tab is active by default)
 		this.filter_fields.name.$wrapper.closest(".col.ws-field").hide();
 		this.filter_fields.taster.$wrapper.closest(".col.ws-field").hide();
-		this.filter_fields.stage.$wrapper.closest(".col.ws-field").hide();
+		this.filter_fields.evaluation_stage.$wrapper.closest(".col.ws-field").hide();
+		this.filter_fields.liquor_mark.$wrapper.closest(".col.ws-field").hide();
 		this.filter_fields.quality_grade.$wrapper.closest(".col.ws-field").hide();
 		this.filter_fields.evaluation_date.$wrapper.closest(".col.ws-field").hide();
 
@@ -300,8 +307,12 @@ TeaEvaluationWorkspace.prototype = {
 							<div id="ws_filter_taster_field"></div>
 						</div>
 						<div class="col ws-field">
-							<label class="ws-field-label">Stage</label>
-							<div id="ws_filter_stage_field"></div>
+							<label class="ws-field-label">Evaluation Stage</label>
+							<div id="ws_filter_evaluation_stage_field"></div>
+						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Liquor Mark</label>
+							<div id="ws_filter_liquor_mark_field"></div>
 						</div>
 						<div class="col ws-field">
 							<label class="ws-field-label">Quality Grade</label>
@@ -312,8 +323,8 @@ TeaEvaluationWorkspace.prototype = {
 							<div id="ws_filter_evaluation_date_field"></div>
 						</div>
 						<div class="col ws-field">
-							<label class="ws-field-label">Status</label>
-							<div id="ws_filter_status_field"></div>
+							<label class="ws-field-label">Evaluation Status</label>
+							<div id="ws_filter_evaluation_status_field"></div>
 						</div>
 						<div class="col ws-field">
 							<label class="ws-field-label">Auction Centre</label>
@@ -488,19 +499,30 @@ TeaEvaluationWorkspace.prototype = {
 			{ fieldname: "mark", label: "Mark", fieldtype: "Link", options: "Mark" },
 			{ fieldname: "grade", label: "Grade", fieldtype: "Link", options: "Grade" },
 			{ fieldname: "taster", label: "Taster", fieldtype: "Link", options: "Taster" },
-			{ fieldname: "stage", label: "Stage", fieldtype: "Select", options: "" },
+			{
+				fieldname: "evaluation_stage",
+				label: "Evaluation Stage",
+				fieldtype: "Link",
+				options: "Evaluation Stage",
+			},
+			{
+				fieldname: "liquor_mark",
+				label: "Liquor Mark",
+				fieldtype: "Link",
+				options: "Liquor Mark",
+			},
 			{
 				fieldname: "quality_grade",
 				label: "Quality Grade",
-				fieldtype: "Select",
-				options: "",
+				fieldtype: "Link",
+				options: "Quality Grade",
 			},
 			{ fieldname: "evaluation_date", label: "Eval Date", fieldtype: "Date" },
 			{
-				fieldname: "status",
-				label: "Status",
-				fieldtype: "Select",
-				options: "\nOffered\nEvaluated",
+				fieldname: "evaluation_status",
+				label: "Evaluation Status",
+				fieldtype: "Link",
+				options: "Evaluation Status",
 			},
 			{
 				fieldname: "auction_centre",
@@ -533,16 +555,7 @@ TeaEvaluationWorkspace.prototype = {
 	},
 
 	update_filter_select_options: function () {
-		var stage_field = this.filter_fields.stage;
-		if (stage_field) {
-			stage_field.df.options = ["", ...this.dropdown_options.stage].join("\n");
-			stage_field.refresh();
-		}
-		var quality_field = this.filter_fields.quality_grade;
-		if (quality_field) {
-			quality_field.df.options = ["", ...this.dropdown_options.quality_grade].join("\n");
-			quality_field.refresh();
-		}
+		// No select-based filters remain; evaluation_stage/liquor_mark/quality_grade are Link fields
 	},
 
 	// -------------------------------------------------------------------------
@@ -575,12 +588,13 @@ TeaEvaluationWorkspace.prototype = {
 				$("#ws_filter_invoice_number_field").closest(".col.ws-field").show();
 				$("#ws_filter_mark_field").closest(".col.ws-field").show();
 				$("#ws_filter_grade_field").closest(".col.ws-field").show();
-				$("#ws_filter_status_field").closest(".col.ws-field").show();
+				$("#ws_filter_evaluation_status_field").closest(".col.ws-field").show();
 				$("#ws_filter_auction_centre_field").closest(".col.ws-field").show();
 				// Hide Update-mode-only filters
 				$("#ws_filter_name_field").closest(".col.ws-field").hide();
 				$("#ws_filter_taster_field").closest(".col.ws-field").hide();
-				$("#ws_filter_stage_field").closest(".col.ws-field").hide();
+				$("#ws_filter_evaluation_stage_field").closest(".col.ws-field").hide();
+				$("#ws_filter_liquor_mark_field").closest(".col.ws-field").hide();
 				$("#ws_filter_quality_grade_field").closest(".col.ws-field").hide();
 				$("#ws_filter_evaluation_date_field").closest(".col.ws-field").hide();
 			} else {
@@ -588,13 +602,14 @@ TeaEvaluationWorkspace.prototype = {
 				$("#ws_filter_acquisition_channel_field").closest(".col.ws-field").hide();
 				$("#ws_filter_sale_no_field").closest(".col.ws-field").hide();
 				$("#ws_filter_grade_field").closest(".col.ws-field").hide();
-				$("#ws_filter_status_field").closest(".col.ws-field").hide();
+				$("#ws_filter_evaluation_status_field").closest(".col.ws-field").hide();
 				$("#ws_filter_auction_centre_field").closest(".col.ws-field").hide();
 				// Show Update-mode filters (including Tea Lot)
 				$("#ws_filter_name_field").closest(".col.ws-field").show();
 				$("#ws_filter_tea_lot_field").closest(".col.ws-field").show();
 				$("#ws_filter_taster_field").closest(".col.ws-field").show();
-				$("#ws_filter_stage_field").closest(".col.ws-field").show();
+				$("#ws_filter_evaluation_stage_field").closest(".col.ws-field").show();
+				$("#ws_filter_liquor_mark_field").closest(".col.ws-field").show();
 				$("#ws_filter_quality_grade_field").closest(".col.ws-field").show();
 				$("#ws_filter_evaluation_date_field").closest(".col.ws-field").show();
 			}
@@ -784,13 +799,13 @@ TeaEvaluationWorkspace.prototype = {
 		}
 
 		if (this.default_stage !== undefined) {
-			$container.find('.ws-cell[data-col="stage"]').each(function () {
+			$container.find('.ws-cell[data-col="evaluation_stage"]').each(function () {
 				var $cell = $(this);
 				var key = $cell.data("row-key");
 				$cell.val(me.default_stage);
 				if (key) {
 					if (!me.edited_rows[key]) me.edited_rows[key] = {};
-					me.edited_rows[key]["stage"] = me.default_stage;
+					me.edited_rows[key]["evaluation_stage"] = me.default_stage;
 				}
 			});
 		}
@@ -896,14 +911,13 @@ TeaEvaluationWorkspace.prototype = {
 	get_bulk_field_config: function (field) {
 		var map = {
 			taster: { label: "Taster", fieldtype: "Link", options: "Taster" },
-			evaluation_date: { label: "Eval Date", fieldtype: "Date" },
-			liquor_mark: {
-				label: "Liquor Mark",
-				fieldtype: "Select",
-				options: this.dropdown_options.liquor_mark
-					? this.dropdown_options.liquor_mark.join("\n")
-					: "",
+			evaluation_stage: {
+				label: "Evaluation Stage",
+				fieldtype: "Link",
+				options: "Evaluation Stage",
 			},
+			evaluation_date: { label: "Eval Date", fieldtype: "Date" },
+			liquor_mark: { label: "Liquor Mark", fieldtype: "Link", options: "Liquor Mark" },
 			suggested_valuation: { label: "Suggested Val", fieldtype: "Float" },
 			colour: { label: "Colour", fieldtype: "Int" },
 			strength: { label: "Strength", fieldtype: "Int" },
@@ -911,10 +925,8 @@ TeaEvaluationWorkspace.prototype = {
 			briskness: { label: "Briskness", fieldtype: "Int" },
 			quality_grade: {
 				label: "Quality Grade",
-				fieldtype: "Select",
-				options: this.dropdown_options.quality_grade
-					? this.dropdown_options.quality_grade.join("\n")
-					: "",
+				fieldtype: "Link",
+				options: "Quality Grade",
 			},
 			density: { label: "Density", fieldtype: "Float" },
 		};

@@ -50,14 +50,6 @@ def _str(value):
 	return None if value is None else str(value).strip()
 
 
-def _get_liquor_options():
-	"""Fetch valid liquor marks from Tea Lot doctype field (dynamic)."""
-	field = frappe.get_meta("Tea Lot").get_field("liquor_mark")
-	if not field or not field.options:
-		return set()
-	return {o.strip() for o in field.options.strip().split("\n") if o.strip()}
-
-
 def _detect_columns(ws, header_row=8):
 	"""Match Excel column headers to field configs. Throw if required columns missing."""
 	colmap = {}
@@ -194,7 +186,6 @@ class TeaLotImport(Document):
 	def create_tea_lots(self):
 		"""Create Tea Lot for each Pending row. Validates, dedupes, creates masters."""
 		meta = frappe.get_meta("Tea Lot")
-		allowed_liquor = _get_liquor_options()
 		created = duplicate = error = 0
 		channel = self.acquisition_channel
 
@@ -228,9 +219,15 @@ class TeaLotImport(Document):
 					error += 1
 					continue
 
-				if liquor and allowed_liquor and liquor not in allowed_liquor:
+				if liquor and not frappe.db.exists("Liquor Mark", liquor):
 					row.row_status = "Error"
-					row.message = _("Invalid Liquor Mark: {0}").format(liquor)
+					row.message = _("Liquor Mark '{0}' not found. Please create it first.").format(liquor)
+					error += 1
+					continue
+
+				if not frappe.db.exists("Purchase Status", "Purchase"):
+					row.row_status = "Error"
+					row.message = _("Purchase Status 'Purchase' not found. Please create it first.")
 					error += 1
 					continue
 
@@ -315,8 +312,7 @@ class TeaLotImport(Document):
 				values = {
 					"doctype": "Tea Lot",
 					"acquisition_channel": channel,
-					"status": "Offered",
-					"purchase_status": "Committed",
+					"purchase_status": "Purchase",
 					"lot_no": lot_no or None,
 					"invoice_number": invoice,
 					"mark": mark_name,

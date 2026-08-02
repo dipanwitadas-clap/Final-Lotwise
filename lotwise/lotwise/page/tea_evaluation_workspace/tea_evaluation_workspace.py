@@ -21,7 +21,7 @@ TEA_LOT_FIELDS = [
 	"grade",
 	"auction_centre",
 	"invoice_number",
-	"status",
+	"evaluation_status",
 ]
 
 EVALUATION_DISPLAY_FIELDS = [
@@ -31,7 +31,7 @@ EVALUATION_DISPLAY_FIELDS = [
 	"mark",
 	"lot_no",
 	"taster",
-	"stage",
+	"evaluation_stage",
 	"liquor_mark",
 	"evaluation_date",
 	"suggested_valuation",
@@ -46,7 +46,7 @@ EVALUATION_DISPLAY_FIELDS = [
 
 ALLOWED_UPDATE_FIELDS = [
 	"taster",
-	"stage",
+	"evaluation_stage",
 	"liquor_mark",
 	"evaluation_date",
 	"suggested_valuation",
@@ -60,13 +60,13 @@ ALLOWED_UPDATE_FIELDS = [
 ]
 
 TEXT_SEARCH_FIELDS = ["name", "tea_lot", "invoice_number", "mark", "lot_no", "taster"]
-EXACT_MATCH_FIELDS = ["stage", "liquor_mark", "quality_grade"]
+EXACT_MATCH_FIELDS = ["evaluation_stage", "liquor_mark", "quality_grade"]
 
 # Fields used when creating a new Tea Evaluation
 CREATE_FIELDS = [
 	"tea_lot",
 	"taster",
-	"stage",
+	"evaluation_stage",
 	"liquor_mark",
 	"evaluation_date",
 	"suggested_valuation",
@@ -89,12 +89,18 @@ CREATE_FIELDS = [
 
 
 def get_doctype_select_options(doctype: str, fieldname: str) -> list[str]:
-	"""Extract select options from a DocType field definition."""
-	try:
-		field = frappe.get_meta(doctype).get_field(fieldname)
-		if field and field.options:
-			return [opt.strip() for opt in field.options.split("\n") if opt.strip()]
+	"""Fetch options from the linked doctype for evaluation fields."""
+	doctype_map = {
+		"evaluation_stage": "Evaluation Stage",
+		"liquor_mark": "Liquor Mark",
+		"quality_grade": "Quality Grade",
+	}
+	linked_doctype = doctype_map.get(fieldname)
+	if not linked_doctype:
 		return []
+	try:
+		records = frappe.get_all(linked_doctype, pluck="name", order_by="creation asc")
+		return records or []
 	except Exception:
 		return []
 
@@ -133,7 +139,7 @@ def _build_lot_filters(filter_dict: dict) -> dict:
 		"mark",
 		"invoice_number",
 	}
-	exact_match_fields = {"status", "purchase_status", "acquisition_channel"}
+	exact_match_fields = {"evaluation_status", "purchase_status", "acquisition_channel"}
 
 	filters = {}
 	for field, value in filter_dict.items():
@@ -191,7 +197,7 @@ def get_workspace_data(
 
 	# Always return dropdown options
 	result = {
-		"stage_options": sorted(get_doctype_select_options("Tea Evaluation", "stage")),
+		"stage_options": sorted(get_doctype_select_options("Tea Evaluation", "evaluation_stage")),
 		"liquor_mark_options": sorted(get_doctype_select_options("Tea Evaluation", "liquor_mark")),
 		"quality_grade_options": sorted(get_doctype_select_options("Tea Evaluation", "quality_grade")),
 		"total_count": 0,
@@ -264,7 +270,7 @@ def create_evaluation() -> dict:
 	"""Create a new Tea Evaluation from workspace row data."""
 	data = frappe.local.form_dict
 
-	required = ["tea_lot", "taster", "stage", "evaluation_date"]
+	required = ["tea_lot", "taster", "evaluation_stage", "evaluation_date"]
 	missing = [f for f in required if not data.get(f)]
 	if missing:
 		frappe.throw(_("Missing required fields: {0}").format(", ".join(missing)))
@@ -274,7 +280,7 @@ def create_evaluation() -> dict:
 			"doctype": "Tea Evaluation",
 			"tea_lot": data.get("tea_lot"),
 			"taster": data.get("taster"),
-			"stage": data.get("stage"),
+			"evaluation_stage": data.get("evaluation_stage"),
 			"liquor_mark": data.get("liquor_mark"),
 			"evaluation_date": data.get("evaluation_date"),
 			"suggested_valuation": flt(data.get("suggested_valuation")),
@@ -292,8 +298,8 @@ def create_evaluation() -> dict:
 	)
 	eval_doc.insert()
 
-	# Update Tea Lot status to Evaluated
-	frappe.db.set_value("Tea Lot", data.get("tea_lot"), "status", "Evaluated")
+	# Update Tea Lot evaluation_status to Evaluated
+	frappe.db.set_value("Tea Lot", data.get("tea_lot"), "evaluation_status", "Evaluated")
 
 	return {"success": True, "name": eval_doc.name, "message": _("Evaluation created successfully.")}
 
@@ -329,7 +335,7 @@ def bulk_save(mode: str, records: str) -> dict:
 			try:
 				if mode == "new":
 					# Create new evaluation
-					required = ["tea_lot", "taster", "stage", "evaluation_date"]
+					required = ["tea_lot", "taster", "evaluation_stage", "evaluation_date"]
 					missing = [f for f in required if not row.get(f)]
 					if missing:
 						errors.append(
@@ -344,7 +350,7 @@ def bulk_save(mode: str, records: str) -> dict:
 							"doctype": "Tea Evaluation",
 							"tea_lot": row.get("tea_lot"),
 							"taster": row.get("taster"),
-							"stage": row.get("stage"),
+							"evaluation_stage": row.get("evaluation_stage"),
 							"liquor_mark": row.get("liquor_mark"),
 							"evaluation_date": row.get("evaluation_date"),
 							"suggested_valuation": flt(row.get("suggested_valuation")),
@@ -361,7 +367,7 @@ def bulk_save(mode: str, records: str) -> dict:
 						}
 					)
 					eval_doc.insert()
-					frappe.db.set_value("Tea Lot", row.get("tea_lot"), "status", "Evaluated")
+					frappe.db.set_value("Tea Lot", row.get("tea_lot"), "evaluation_status", "Evaluated")
 					created_count += 1
 
 				else:  # mode == "update"
