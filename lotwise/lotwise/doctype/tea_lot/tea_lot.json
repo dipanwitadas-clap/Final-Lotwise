@@ -17,6 +17,7 @@
   "density",
   "liquor_mark",
   "purchase_date",
+  "evaluation_status",
   "column_break_uyqw",
   "status",
   "mark",
@@ -319,6 +320,12 @@
    "fieldname": "total_amount_as_per_to_tax_invoice",
    "fieldtype": "Float",
    "label": "Total amount as per to Tax Invoice"
+  },
+  {
+   "fieldname": "evaluation_status",
+   "fieldtype": "Link",
+   "label": "Evaluation Status",
+   "options": "Evaluation Status"
   }
  ],
  "grid_page_length": 50,
@@ -329,7 +336,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-31 16:45:00.736036",
+ "modified": "2026-08-02 16:35:10.769792",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
