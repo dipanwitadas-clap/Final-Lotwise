@@ -355,9 +355,9 @@ class TeaLotImport(Document):
 				error += 1
 				frappe.log_error(frappe.get_traceback(), "Tea Lot Import: row failed")
 
-		self.rows_created = created
-		self.rows_error = error
-		self.rows_duplicate = duplicate
+		self.rows_created = sum(1 for item in self.items if item.row_status == "Created")
+		self.rows_error = sum(1 for item in self.items if item.row_status == "Error")
+		self.rows_duplicate = sum(1 for item in self.items if item.row_status == "Duplicate")
 		self.save()
 		return {"created": created, "errors": error, "duplicates": duplicate}
 
