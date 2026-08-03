@@ -16,7 +16,7 @@ class TeaLotImportItem(Document):
 
 		auction_centre: DF.Link | None
 		bill_mode: DF.Data | None
-		blend: DF.Link | None
+		blend: DF.Data | None
 		created_masters: DF.Data | None
 		density: DF.Float
 		grade_raw: DF.Data | None

@@ -32,6 +32,7 @@ HEADER_TO_FIELD = {
 	"purchase invoice date": {"field": "purchase_invoice_date", "type": "str"},
 	"warehouse name": {"field": "warehouse_name", "type": "str"},
 	"total amount as per to tax invoice": {"field": "total_amount_as_per_to_tax_invoice", "type": "float"},
+	"blend": {"field": "blend", "type": "str"},
 }
 
 
@@ -50,7 +51,7 @@ def _str(value):
 	return None if value is None else str(value).strip()
 
 
-def _detect_columns(ws, header_row=8):
+def _detect_columns(ws, header_row=7):
 	"""Match Excel column headers to field configs. Throw if required columns missing."""
 	colmap = {}
 	found = set()
@@ -73,13 +74,16 @@ def _detect_columns(ws, header_row=8):
 
 
 def _extract_metadata(ws):
-	"""Read header block from Dalmia template (rows 1-5, col B)."""
+	"""Read header block from Dalmia template (rows 1-4, col B).
+
+	Note: Blend/Brand metadata row was removed; blend is now read from
+	the 'Blend' column in the data rows.
+	"""
 	meta = {}
 	meta["acquisition_channel"] = _str(ws.cell(1, 2).value) or "Auction"
 	meta["company"] = _str(ws.cell(2, 2).value)
-	meta["blend"] = _str(ws.cell(3, 2).value)
-	meta["reference_no"] = _str(ws.cell(4, 2).value)
-	meta["sale_no"] = cint(ws.cell(5, 2).value)
+	meta["reference_no"] = _str(ws.cell(3, 2).value)
+	meta["sale_no"] = cint(ws.cell(4, 2).value)
 	return meta
 
 
@@ -92,7 +96,7 @@ def _convert_cell(value, field_type):
 	return _str(value)
 
 
-def _read_data_rows(ws, colmap, start_row=9):
+def _read_data_rows(ws, colmap, start_row=8):
 	"""Iterate data rows, return list of row dicts."""
 	rows = []
 	for row in range(start_row, ws.max_row + 1):
@@ -149,19 +153,10 @@ class TeaLotImport(Document):
 		meta = _extract_metadata(ws)
 		self.acquisition_channel = meta.get("acquisition_channel", "Auction")
 		self.company = meta.get("company")
-		self.blend = meta.get("blend")
 		self.sale_no = meta.get("sale_no")
 
-		# Validate blend exists if provided
-		if self.blend and not frappe.db.exists("Blend", self.blend):
-			frappe.throw(
-				_(
-					"Blend / Brand '{0}' not found. Please create it in the Blend master before importing."
-				).format(self.blend)
-			)
-
 		rows = _read_data_rows(ws, colmap)
-		for _idx, row in enumerate(rows, start=9):
+		for _idx, row in enumerate(rows, start=8):
 			if row.get("auction_centre"):
 				if not frappe.db.exists("Auction Centre", row["auction_centre"]):
 					frappe.throw(
@@ -228,6 +223,15 @@ class TeaLotImport(Document):
 				if not frappe.db.exists("Purchase Status", "Purchase"):
 					row.row_status = "Error"
 					row.message = _("Purchase Status 'Purchase' not found. Please create it first.")
+					error += 1
+					continue
+
+				# Validate blend exists if provided in row
+				if row.blend and not frappe.db.exists("Blend", row.blend):
+					row.row_status = "Error"
+					row.message = _("Brand '{0}' not found. Please create it in the Blend master.").format(
+						row.blend
+					)
 					error += 1
 					continue
 
@@ -323,7 +327,7 @@ class TeaLotImport(Document):
 					"rate": flt(row.rate),
 					"density": flt(row.density),
 					"liquor_mark": liquor or None,
-					"blend": self.blend or None,
+					"blend": row.blend or None,
 					"sale_no": self.sale_no or None,
 					"auction_centre": auction_centre or None,
 					"purchase_date": row.purchase_date or None,
