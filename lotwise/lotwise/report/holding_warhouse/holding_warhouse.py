@@ -173,7 +173,7 @@ def get_data(filters):
 			"grade": None,
 			"packages": sum(row.get("packages") or 0 for row in data),
 			"net_weight_total": sum(row.get("net_weight_total") or 0 for row in data),
-			"rate": sum(row.get("rate") or 0 for row in data),
+			"rate": None,
 			"warehouselocation": None,
 			"purchase_date": None,
 			"invoice_number": None,
