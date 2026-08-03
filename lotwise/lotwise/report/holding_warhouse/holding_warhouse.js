@@ -6,7 +6,7 @@ const BADGE_STYLES = {
 		Received: ["#dbeafe", "#1e40af"],
 		"In Stock": ["#fef3c7", "#92400e"],
 	},
-	status: {
+	evaluation_status: {
 		Offered: ["#f3e8ff", "#6b21a8"],
 		Evaluated: ["#fce7f3", "#9d174d"],
 	},
@@ -20,7 +20,7 @@ const BADGE_STYLES = {
 const NUMERIC_COLUMNS = new Set(["packages", "net_weight_total", "rate"]);
 const CENTER_COLUMNS = new Set([
 	"acquisition_channel",
-	"status",
+	"evaluation_status",
 	"purchase_status",
 	"purchase_date",
 ]);
@@ -63,14 +63,14 @@ frappe.query_reports["Holding Warhouse"] = {
 		{
 			fieldname: "purchase_status",
 			label: __("Purchase Status"),
-			fieldtype: "Select",
-			options: "\nCommitted\nReceived\nIn Stock",
+			fieldtype: "Link",
+			options: "Purchase Status",
 		},
 		{
-			fieldname: "status",
-			label: __("Status"),
-			fieldtype: "Select",
-			options: "\nOffered\nEvaluated",
+			fieldname: "evaluation_status",
+			label: __("Evaluation Status"),
+			fieldtype: "Link",
+			options: "Evaluation Status",
 		},
 		{
 			fieldname: "mark",

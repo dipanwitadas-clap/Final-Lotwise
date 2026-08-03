@@ -7,7 +7,87 @@
  "disabled": 0,
  "docstatus": 0,
  "doctype": "Report",
- "filters": [],
+ "filters": [
+  {
+   "fieldname": "name",
+   "fieldtype": "Link",
+   "label": "Lot ID",
+   "options": "Tea Lot",
+   "width": 160
+  },
+  {
+   "fieldname": "acquisition_channel",
+   "fieldtype": "Select",
+   "label": "Acquisition Channel",
+   "options": "\nAuction\nPrivate\nOutsourced",
+   "width": 120
+  },
+  {
+   "fieldname": "auction_centre",
+   "fieldtype": "Link",
+   "label": "Auction Centre",
+   "options": "Auction Centre",
+   "width": 150
+  },
+  {
+   "fieldname": "lot_no",
+   "fieldtype": "Data",
+   "label": "Lot No",
+   "width": 110
+  },
+  {
+   "fieldname": "evaluation_status",
+   "fieldtype": "Link",
+   "label": "Evaluation Status",
+   "options": "Evaluation Status",
+   "width": 150
+  },
+  {
+   "fieldname": "purchase_status",
+   "fieldtype": "Link",
+   "label": "Purchase Status",
+   "options": "Purchase Status",
+   "width": 130
+  },
+  {
+   "fieldname": "mark",
+   "fieldtype": "Link",
+   "label": "Mark",
+   "options": "Mark",
+   "width": 130
+  },
+  {
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "label": "Grade",
+   "options": "Grade",
+   "width": 90
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date",
+   "width": 115
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date",
+   "width": 115
+  },
+  {
+   "fieldname": "sale_no_from",
+   "fieldtype": "Int",
+   "label": "Sale No From",
+   "width": 90
+  },
+  {
+   "fieldname": "sale_no_to",
+   "fieldtype": "Int",
+   "label": "Sale No To",
+   "width": 90
+  }
+ ],
  "generate_csv": 0,
  "idx": 0,
  "is_standard": "Yes",

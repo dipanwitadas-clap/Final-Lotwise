@@ -36,7 +36,13 @@ def get_columns():
 			"options": "Evaluation Status",
 			"width": 150,
 		},
-		{"label": _("Purchase Status"), "fieldname": "purchase_status", "fieldtype": "Data", "width": 110},
+		{
+			"label": _("Purchase Status"),
+			"fieldname": "purchase_status",
+			"fieldtype": "Link",
+			"options": "Purchase Status",
+			"width": 130,
+		},
 		{"label": _("Mark"), "fieldname": "mark", "fieldtype": "Link", "options": "Mark", "width": 130},
 		{"label": _("Grade"), "fieldname": "grade", "fieldtype": "Link", "options": "Grade", "width": 90},
 		{"label": _("Pkgs"), "fieldname": "packages", "fieldtype": "Int", "width": 80},
@@ -52,12 +58,33 @@ def get_columns():
 		{"label": _("Purchase Date"), "fieldname": "purchase_date", "fieldtype": "Date", "width": 115},
 		{"label": _("Invoice No"), "fieldname": "invoice_number", "fieldtype": "Data", "width": 120},
 		{"label": _("GP No"), "fieldname": "gp_no", "fieldtype": "Data", "width": 95},
+		{"label": _("Purchase From"), "fieldname": "purchase_from", "fieldtype": "Data", "width": 130},
+		{
+			"label": _("Purchase Invoice No"),
+			"fieldname": "purchase_invoice_no",
+			"fieldtype": "Data",
+			"width": 150,
+		},
+		{
+			"label": _("Total Amount"),
+			"fieldname": "total_amount_as_per_to_tax_invoice",
+			"fieldtype": "Currency",
+			"width": 140,
+		},
+		{"label": _("Density"), "fieldname": "density", "fieldtype": "Float", "precision": 2, "width": 95},
+		{
+			"label": _("Liquor Mark"),
+			"fieldname": "liquor_mark",
+			"fieldtype": "Link",
+			"options": "Liquor Mark",
+			"width": 130,
+		},
 	]
 
 
 def get_conditions(filters, table_alias=None):
 	prefix = f"{table_alias}." if table_alias else ""
-	conditions = [f"{prefix}purchase_status in ('Committed','Received')"]
+	conditions = [f"{prefix}purchase_status IS NOT NULL"]
 	values = {}
 
 	filter_map = {
@@ -98,6 +125,8 @@ def get_conditions(filters, table_alias=None):
 def get_data(filters):
 	conditions, values = get_conditions(filters, "tl")
 
+	where_clause = " AND ".join(conditions) if conditions else "1=1"
+
 	data = frappe.db.sql(
 		f"""
 		SELECT
@@ -116,16 +145,21 @@ def get_data(filters):
 			tl.warehouselocation,
 			tl.purchase_date,
 			tl.invoice_number,
-			tl.gp_no
+			tl.gp_no,
+			tl.purchase_from,
+			tl.purchase_invoice_no,
+			tl.total_amount_as_per_to_tax_invoice,
+			tl.density,
+			tl.liquor_mark
 		FROM `tabTea Lot` tl
-		WHERE {" AND ".join(conditions)}
+		WHERE {where_clause}
 		ORDER BY tl.creation DESC
 		""",
 		values,
 		as_dict=True,
 	)
 
-	# Add custom total row - sum packages, net_weight_total, and rate only
+	# Add custom total row - sum numeric fields
 	if data:
 		total_row = {
 			"name": "Total",
@@ -144,6 +178,13 @@ def get_data(filters):
 			"purchase_date": None,
 			"invoice_number": None,
 			"gp_no": None,
+			"purchase_from": None,
+			"purchase_invoice_no": None,
+			"total_amount_as_per_to_tax_invoice": sum(
+				row.get("total_amount_as_per_to_tax_invoice") or 0 for row in data
+			),
+			"density": None,
+			"liquor_mark": None,
 		}
 		data.append(total_row)
 
@@ -152,6 +193,8 @@ def get_data(filters):
 
 def get_report_summary(filters):
 	conditions, values = get_conditions(filters)
+
+	where_clause = " AND ".join(conditions) if conditions else "1=1"
 
 	result = frappe.db.sql(
 		f"""
@@ -162,7 +205,7 @@ def get_report_summary(filters):
 			count(distinct mark) as total_marks,
 			COALESCE(SUM(net_weight_total * rate) / NULLIF(SUM(net_weight_total),0), 0) AS avg_rate
 		FROM `tabTea Lot`
-		WHERE {" AND ".join(conditions)}
+		WHERE {where_clause}
 		""",
 		values,
 		as_dict=True,
