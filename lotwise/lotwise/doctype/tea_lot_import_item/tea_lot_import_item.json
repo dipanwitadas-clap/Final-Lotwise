@@ -204,6 +204,7 @@
   {
    "fieldname": "blend",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Blend",
    "options": "Blend"
   }
@@ -211,7 +212,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-03 14:17:01.189821",
+ "modified": "2026-08-03 14:20:26.655071",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import Item",
