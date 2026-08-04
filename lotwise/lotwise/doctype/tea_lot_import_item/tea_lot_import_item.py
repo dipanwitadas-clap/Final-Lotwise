@@ -42,7 +42,7 @@ class TeaLotImportItem(Document):
 		sam_wt: DF.Data | None
 		tea_lot: DF.Link | None
 		total_amount_as_per_to_tax_invoice: DF.Float
-		warehouse_name: DF.Data | None
+		warehouse: DF.Data | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Tea Lot Import Item"
