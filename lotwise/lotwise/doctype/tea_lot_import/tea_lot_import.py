@@ -30,7 +30,7 @@ HEADER_TO_FIELD = {
 	"purchase from": {"field": "purchase_from", "type": "str"},
 	"purchase invoice no": {"field": "purchase_invoice_no", "type": "str"},
 	"purchase invoice date": {"field": "purchase_invoice_date", "type": "str"},
-	"warehouse name": {"field": "warehouse_name", "type": "str"},
+	"warehouse": {"field": "warehouse", "type": "str"},
 	"total amount as per to tax invoice": {"field": "total_amount_as_per_to_tax_invoice", "type": "float"},
 	"blend": {"field": "blend", "type": "str"},
 }
@@ -220,6 +220,14 @@ class TeaLotImport(Document):
 					error += 1
 					continue
 
+				if row.warehouse and not frappe.db.exists("Warehouse", row.warehouse):
+					row.row_status = "Error"
+					row.message = _("Warehouse '{0}' not found. Please create it first.").format(
+						row.warehouse
+					)
+					error += 1
+					continue
+
 				if not frappe.db.exists("Purchase Status", "Purchase"):
 					row.row_status = "Error"
 					row.message = _("Purchase Status 'Purchase' not found. Please create it first.")
@@ -336,7 +344,7 @@ class TeaLotImport(Document):
 					"purchase_from": row.purchase_from,
 					"purchase_invoice_no": row.purchase_invoice_no,
 					"purchase_invoice_date": row.purchase_invoice_date,
-					"warehouse_name": row.warehouse_name,
+					"warehouse": row.warehouse or None,
 					"total_amount_as_per_to_tax_invoice": flt(row.total_amount_as_per_to_tax_invoice),
 				}
 				values = {k: v for k, v in values.items() if k == "doctype" or meta.has_field(k)}
@@ -398,7 +406,7 @@ class TeaLotImport(Document):
 			"Purchase From",
 			"Purchase Invoice No",
 			"Purchase Invoice Date",
-			"Warehouse Name",
+			"Warehouse",
 			"Total Amount (Tax Invoice)",
 		]
 
@@ -435,7 +443,7 @@ class TeaLotImport(Document):
 			ws.cell(row=row_idx, column=21, value=item.purchase_from or "")
 			ws.cell(row=row_idx, column=22, value=item.purchase_invoice_no or "")
 			ws.cell(row=row_idx, column=23, value=str(item.purchase_invoice_date or ""))
-			ws.cell(row=row_idx, column=24, value=item.warehouse_name or "")
+			ws.cell(row=row_idx, column=24, value=item.warehouse or "")
 			ws.cell(row=row_idx, column=25, value=item.total_amount_as_per_to_tax_invoice or 0.0)
 
 		output = io.BytesIO()

@@ -31,7 +31,7 @@
   "purchase_from",
   "purchase_invoice_no",
   "purchase_invoice_date",
-  "warehouse_name",
+  "warehouse",
   "total_amount_as_per_to_tax_invoice"
  ],
  "fields": [
@@ -192,9 +192,9 @@
    "label": "Purchase Invoice Date"
   },
   {
-   "fieldname": "warehouse_name",
+   "fieldname": "warehouse",
    "fieldtype": "Data",
-   "label": "Warehouse Name"
+   "label": "Warehouse"
   },
   {
    "fieldname": "total_amount_as_per_to_tax_invoice",

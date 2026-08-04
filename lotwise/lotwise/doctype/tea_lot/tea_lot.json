@@ -28,6 +28,7 @@
   "purchase_status",
   "do_reference",
   "do_date",
+  "warehouse",
   "section_break_7zcb",
   "broker",
   "sale_no",
@@ -189,6 +190,7 @@
   {
    "fieldname": "warehouselocation",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Warehouse/Location"
   },
   {
@@ -306,7 +308,9 @@
   {
    "fieldname": "warehouse_name",
    "fieldtype": "Data",
-   "label": "Warehouse Name"
+   "hidden": 1,
+   "label": "Warehouse Name",
+   "options": "Warehouse"
   },
   {
    "fieldname": "total_amount_as_per_to_tax_invoice",
@@ -318,6 +322,12 @@
    "fieldtype": "Link",
    "label": "Evaluation Status",
    "options": "Evaluation Status"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
   }
  ],
  "grid_page_length": 50,
@@ -328,7 +338,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-08-02 22:04:32.440378",
+ "modified": "2026-08-04 11:31:19.995324",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
