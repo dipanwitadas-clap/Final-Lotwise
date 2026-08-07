@@ -14,7 +14,9 @@
   "no_of_lot",
   "weight",
   "remarks",
-  "image"
+  "image",
+  "from_broker",
+  "from_garden"
  ],
  "fields": [
   {
@@ -26,7 +28,7 @@
   },
   {
    "fieldname": "no_of_mark",
-   "fieldtype": "Int",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "No of Mark"
   },
@@ -40,13 +42,13 @@
   },
   {
    "fieldname": "no_of_lot",
-   "fieldtype": "Int",
+   "fieldtype": "Data",
    "label": "No of Lot"
   },
   {
    "fieldname": "weight",
    "fieldtype": "Int",
-   "label": "Weight"
+   "label": "Weight (kgs)"
   },
   {
    "fieldname": "remarks",
@@ -57,12 +59,24 @@
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "label": "Image"
+  },
+  {
+   "default": "0",
+   "fieldname": "from_broker",
+   "fieldtype": "Check",
+   "label": "From Broker"
+  },
+  {
+   "default": "0",
+   "fieldname": "from_garden",
+   "fieldtype": "Check",
+   "label": "From Garden"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-06 16:49:50.944980",
+ "modified": "2026-08-07 19:35:22.469107",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Offer Sample",

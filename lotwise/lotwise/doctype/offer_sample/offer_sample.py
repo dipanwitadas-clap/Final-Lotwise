@@ -16,9 +16,11 @@ class OfferSample(Document):
 
 		broker_name: DF.Link | None
 		date: DF.Date
+		from_broker: DF.Check
+		from_garden: DF.Check
 		image: DF.AttachImage | None
-		no_of_lot: DF.Int
-		no_of_mark: DF.Int
+		no_of_lot: DF.Data | None
+		no_of_mark: DF.Data | None
 		remarks: DF.SmallText | None
 		weight: DF.Int
 	# end: auto-generated types
