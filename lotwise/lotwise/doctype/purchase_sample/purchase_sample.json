@@ -1,0 +1,196 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "Purchase-.####",
+ "creation": "2026-08-11 14:52:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "mark",
+  "grade",
+  "invoice_number",
+  "party_name",
+  "broker",
+  "no_of_pkgs",
+  "wt_kgs",
+  "nett_wt_kgs",
+  "total_kgs",
+  "sample_qty",
+  "liquor_mark",
+  "density",
+  "bill_mode",
+  "tax_invoice_number",
+  "tax_invoice_date",
+  "tax_invoice_amount",
+  "warehouse"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "mark",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Mark",
+   "options": "Mark"
+  },
+  {
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Grade",
+   "options": "Grade"
+  },
+  {
+   "fieldname": "invoice_number",
+   "fieldtype": "Data",
+   "label": "Invoice Number"
+  },
+  {
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "label": "Party Name"
+  },
+  {
+   "fieldname": "broker",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Broker",
+   "options": "Broker"
+  },
+  {
+   "fieldname": "no_of_pkgs",
+   "fieldtype": "Int",
+   "label": "No of Pkgs"
+  },
+  {
+   "fieldname": "wt_kgs",
+   "fieldtype": "Float",
+   "label": "Wt (Kgs)"
+  },
+  {
+   "fieldname": "nett_wt_kgs",
+   "fieldtype": "Float",
+   "label": "Nett. Wt (Kgs)"
+  },
+  {
+   "fieldname": "total_kgs",
+   "fieldtype": "Float",
+   "label": "Total Kgs"
+  },
+  {
+   "fieldname": "sample_qty",
+   "fieldtype": "Float",
+   "label": "Sample Qty"
+  },
+  {
+   "fieldname": "liquor_mark",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Liquor Mark",
+   "options": "Liquor Mark"
+  },
+  {
+   "fieldname": "density",
+   "fieldtype": "Float",
+   "label": "Density",
+   "precision": "2"
+  },
+  {
+   "fieldname": "bill_mode",
+   "fieldtype": "Data",
+   "label": "Bill Mode"
+  },
+  {
+   "fieldname": "tax_invoice_number",
+   "fieldtype": "Data",
+   "label": "Tax Invoice number"
+  },
+  {
+   "fieldname": "tax_invoice_date",
+   "fieldtype": "Date",
+   "label": "Tax Invoice date"
+  },
+  {
+   "fieldname": "tax_invoice_amount",
+   "fieldtype": "Float",
+   "label": "Tax Invoice Amount"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-08-11 14:52:00",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Purchase Sample",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tea Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Taster",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Data Entry",
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
+}
