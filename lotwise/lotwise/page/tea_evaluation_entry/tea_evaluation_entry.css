@@ -226,6 +226,13 @@
 	overflow-x: auto;
 	background: var(--card-bg);
 	border-radius: 6px 6px 0 0;
+	isolation: isolate;
+}
+
+#ws_table_container .ws-table thead {
+	position: sticky;
+	top: 0;
+	z-index: 30;
 }
 
 /* =============================================================================
@@ -244,6 +251,7 @@
 }
 
 #ws_table_container .ws-table thead .ws-frozen-col {
+	top: 0;
 	z-index: 20 !important;
 	background: linear-gradient(180deg, #E8E8EA 0%, #D5D8DC 100%) !important;
 }
@@ -251,7 +259,8 @@
 #ws_table_container .ws-table .ws-th-checkbox {
 	position: sticky !important;
 	left: 0;
-	z-index: 20 !important;
+	top: 0;
+	z-index: 25 !important;
 	background: linear-gradient(180deg, #E8E8EA 0%, #D5D8DC 100%) !important;
 	min-width: 40px;
 }
@@ -316,6 +325,9 @@
 
 /* Table Header */
 #ws_table_container .ws-table thead th {
+	position: sticky;
+	top: 0;
+	z-index: 10;
 	background: linear-gradient(180deg, #E8E8EA 0%, #D5D8DC 100%);
 	padding: 6px 4px;
 	vertical-align: middle;
