@@ -112,6 +112,7 @@ def get_workspace_data(
 	filters: str | None = None,
 	start: int = 0,
 	page_length: int = 20,
+	sort_order: str = "desc",
 ) -> dict:
 	"""Fetch data for the Tea Evaluation Entry page.
 
@@ -119,10 +120,12 @@ def get_workspace_data(
 	    filters: JSON string of filter criteria.
 	    start: Pagination start offset.
 	    page_length: Number of records to fetch.
+	    sort_order: "asc" or "desc" order for the record listing.
 
 	Returns:
 	    dict with records, total_count, and dropdown options.
 	"""
+	sort_order = "asc" if sort_order == "asc" else "desc"
 	filter_dict = json.loads(filters) if filters else {}
 
 	# Check if logged-in user is linked to a Taster record
@@ -149,7 +152,7 @@ def get_workspace_data(
 		"Tea Lot",
 		fields=TEA_LOT_FIELDS,
 		filters=lot_filters,
-		order_by="creation desc",
+		order_by=f"creation {sort_order}",
 		start=start,
 		page_length=page_length,
 	)

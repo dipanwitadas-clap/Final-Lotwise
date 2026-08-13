@@ -35,6 +35,10 @@ const WS_ICONS = {
 	prev: '<polyline points="15 18 9 12 15 6"/>',
 	next: '<polyline points="9 18 15 12 9 6"/>',
 	new_eval: '<path d="M12 5v14M5 12h14"/>',
+	sort_desc:
+		'<path d="M11 5h10"/><path d="M11 9h7"/><path d="M11 13h4"/><path d="M3 17l3 3 3-3"/><path d="M6 18V4"/>',
+	sort_asc:
+		'<path d="M11 5h10"/><path d="M11 9h7"/><path d="M11 13h4"/><path d="M3 7l3-3 3 3"/><path d="M6 4v14"/>',
 };
 
 function get_ws_icon(name, size) {
@@ -79,6 +83,7 @@ function TeaEvaluationEntry(wrapper) {
 	this.total_count = 0;
 	this.filter_values = {};
 	this.filter_fields = {};
+	this.sort_order = "desc";
 
 	// Default values
 	this.default_taster = "";
@@ -359,6 +364,9 @@ TeaEvaluationEntry.prototype = {
 						<button class="btn btn-outline-success btn-sm fw-semibold" id="ws_export_btn">
 							${get_ws_icon("export", "14px")} Export Excel
 						</button>
+						<button class="btn btn-outline-secondary btn-sm" id="ws_sort_order_btn" title="Sort: Newest">
+							${get_ws_icon("sort_desc", "14px")} <span id="ws_sort_order_label">Newest</span>
+						</button>
 					</div>
 				</div>
 
@@ -597,6 +605,27 @@ TeaEvaluationEntry.prototype = {
 		$("#ws_export_btn").on("click", function () {
 			me.export_data();
 		});
+
+		// Sort order toggle
+		$("#ws_sort_order_btn").on("click", function () {
+			me.sort_order = me.sort_order === "desc" ? "asc" : "desc";
+			me.update_sort_order_btn();
+			me.current_start = 0;
+			me.load_data();
+		});
+	},
+
+	update_sort_order_btn: function () {
+		var is_desc = this.sort_order === "desc";
+		var label = is_desc ? "Newest" : "Oldest";
+		$("#ws_sort_order_btn")
+			.attr("title", "Sort: " + label)
+			.html(
+				get_ws_icon(is_desc ? "sort_desc" : "sort_asc", "14px") +
+					' <span id="ws_sort_order_label">' +
+					label +
+					"</span>"
+			);
 	},
 
 	// -------------------------------------------------------------------------
@@ -846,6 +875,7 @@ TeaEvaluationEntry.prototype = {
 				filters: JSON.stringify(this.filter_values),
 				start: this.current_start,
 				page_length: this.current_page_length,
+				sort_order: this.sort_order,
 			},
 			function (result) {
 				if (result) {
