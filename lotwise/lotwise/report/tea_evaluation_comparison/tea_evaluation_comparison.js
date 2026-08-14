@@ -109,6 +109,94 @@ frappe.query_reports["Tea Evaluation Comparison"] = {
 				color: var(--text-muted);
 				font-weight: 400;
 			}
+
+			.tea-eval-comparison-report .report-summary {
+				background: transparent;
+				border-bottom: none;
+				display: grid;
+				grid-template-columns: 1fr;
+				gap: 10px;
+				margin: 0.75rem;
+				padding: 0;
+			}
+
+			@media (min-width: 768px) {
+				.tea-eval-comparison-report .report-summary {
+					gap: 12px;
+					grid-template-columns: repeat(2, 1fr);
+					margin: 1rem;
+				}
+			}
+
+			@media (min-width: 1200px) {
+				.tea-eval-comparison-report .report-summary {
+					grid-template-columns: repeat(4, 1fr);
+				}
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-item {
+				background: var(--card-bg);
+				border: 1px solid var(--border-color);
+				border-radius: var(--border-radius-md, 8px);
+				box-sizing: border-box;
+				height: auto;
+				margin: 0;
+				overflow: hidden;
+				padding: 14px 16px 12px;
+				position: relative;
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-item::before {
+				background: var(--gray-400);
+				content: "";
+				height: 3px;
+				left: 0;
+				position: absolute;
+				right: 0;
+				top: 0;
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-item:has(.summary-value.blue)::before {
+				background: #0D1B2A;
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-item:has(.summary-value.green)::before {
+				background: #1B263B;
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-item:has(.summary-value.orange)::before {
+				background: #415A77;
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-item:has(.summary-value.purple)::before {
+				background: #778DA9;
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-item:has(.summary-value.yellow)::before {
+				background: #E0E1DD;
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-label {
+				color: var(--text-muted);
+				font-size: 12px;
+				font-weight: 600;
+				letter-spacing: 0.02em;
+				text-transform: uppercase;
+			}
+
+			.tea-eval-comparison-report .report-summary .summary-value,
+			.tea-eval-comparison-report .report-summary .summary-value.blue,
+			.tea-eval-comparison-report .report-summary .summary-value.green,
+			.tea-eval-comparison-report .report-summary .summary-value.orange,
+			.tea-eval-comparison-report .report-summary .summary-value.purple,
+			.tea-eval-comparison-report .report-summary .summary-value.yellow {
+				color: var(--text-color);
+				font-size: 24px;
+				font-weight: 700;
+				line-height: 1.25;
+				padding-bottom: 0;
+				padding-top: 8px;
+			}
 		`;
 	},
 
