@@ -182,7 +182,6 @@ def get_report_summary(data):
 	both_stages = 0
 	only_bag = 0
 	only_pre = 0
-	diff_sums = {f: [] for f in NUMERIC_SCORE_FIELDS}
 
 	for row in data:
 		has_bag = bool(row.get("bag_eval_name"))
@@ -195,24 +194,9 @@ def get_report_summary(data):
 		elif has_pre:
 			only_pre += 1
 
-		for field in NUMERIC_SCORE_FIELDS:
-			val = row.get(f"diff_{field}")
-			if val is not None:
-				diff_sums[field].append(val)
-
-	def _avg(field):
-		vals = diff_sums[field]
-		if not vals:
-			return 0
-		return round(sum(vals) / len(vals), 2)
-
 	return [
 		{"label": _("Tea Lots (filtered)"), "value": total_lots, "indicator": "blue"},
 		{"label": _("Both Stages Evaluated"), "value": both_stages, "indicator": "green"},
 		{"label": _("Only Bag Sample"), "value": only_bag, "indicator": "orange"},
 		{"label": _("Only Pre-purchase"), "value": only_pre, "indicator": "purple"},
-		{"label": _("Avg Δ Colour"), "value": _avg("colour"), "indicator": "yellow"},
-		{"label": _("Avg Δ Strength"), "value": _avg("strength"), "indicator": "yellow"},
-		{"label": _("Avg Δ Taste"), "value": _avg("taste"), "indicator": "yellow"},
-		{"label": _("Avg Δ Briskness"), "value": _avg("briskness"), "indicator": "yellow"},
 	]
