@@ -6,15 +6,12 @@ from frappe import _
 
 NUMERIC_SCORE_FIELDS = ["colour", "strength", "taste", "briskness"]
 
-DEFAULT_STAGE_1 = "Bag Sample"
-DEFAULT_STAGE_2 = "Pre-purchase"
-
 
 def execute(filters=None):
 	filters = filters or {}
 
-	stage_1 = filters.get("stage_1") or DEFAULT_STAGE_1
-	stage_2 = filters.get("stage_2") or DEFAULT_STAGE_2
+	stage_1 = filters.get("stage_1") or ""
+	stage_2 = filters.get("stage_2") or ""
 
 	columns = get_columns(stage_1, stage_2)
 	data = get_data(filters, stage_1, stage_2)
@@ -58,7 +55,7 @@ def get_columns(stage_1, stage_2):
 
 
 def _stage_columns(stage, prefix):
-	label = stage or ""
+	label = stage or ("Stage 1" if prefix == "s1" else "Stage 2")
 	return [
 		{
 			"label": _(f"{label} - Taster"),
@@ -212,6 +209,8 @@ def get_report_summary(data, stage_1, stage_2):
 	both_stages = 0
 	only_s1 = 0
 	only_s2 = 0
+	stage_1_label = stage_1 or "Stage 1"
+	stage_2_label = stage_2 or "Stage 2"
 
 	for row in data:
 		has_s1 = bool(row.get("s1_eval_name"))
@@ -227,6 +226,6 @@ def get_report_summary(data, stage_1, stage_2):
 	return [
 		{"label": _("Tea Lots (filtered)"), "value": total_lots, "indicator": "blue"},
 		{"label": _("Both Stages Evaluated"), "value": both_stages, "indicator": "green"},
-		{"label": _(f"Only {stage_1}"), "value": only_s1, "indicator": "orange"},
-		{"label": _(f"Only {stage_2}"), "value": only_s2, "indicator": "purple"},
+		{"label": _(f"Only {stage_1_label}"), "value": only_s1, "indicator": "orange"},
+		{"label": _(f"Only {stage_2_label}"), "value": only_s2, "indicator": "purple"},
 	]

@@ -7,14 +7,12 @@ frappe.query_reports["Tea Evaluation Comparison"] = {
 			label: __("Stage 1"),
 			fieldtype: "Link",
 			options: "Evaluation Stage",
-			default: "Bag Sample",
 		},
 		{
 			fieldname: "stage_2",
 			label: __("Stage 2"),
 			fieldtype: "Link",
 			options: "Evaluation Stage",
-			default: "Pre-purchase",
 		},
 		{
 			fieldname: "tea_lot",
