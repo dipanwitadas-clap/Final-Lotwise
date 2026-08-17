@@ -3,6 +3,20 @@
 frappe.query_reports["Tea Evaluation Comparison"] = {
 	filters: [
 		{
+			fieldname: "stage_1",
+			label: __("Stage 1"),
+			fieldtype: "Link",
+			options: "Evaluation Stage",
+			default: "Bag Sample",
+		},
+		{
+			fieldname: "stage_2",
+			label: __("Stage 2"),
+			fieldtype: "Link",
+			options: "Evaluation Stage",
+			default: "Pre-purchase",
+		},
+		{
 			fieldname: "tea_lot",
 			label: __("Tea Lot"),
 			fieldtype: "Link",
@@ -198,6 +212,17 @@ frappe.query_reports["Tea Evaluation Comparison"] = {
 				padding-top: 8px;
 			}
 		`;
+	},
+
+	get_datatable_options(options) {
+		// Freeze the first 4 columns (Tea Lot, Lot No, Mark, Grade)
+		options.columns = options.columns.map((col, index) => {
+			if (index < 4) {
+				col.sticky = true;
+			}
+			return col;
+		});
+		return options;
 	},
 
 	formatter(value, row, column, data, default_formatter) {

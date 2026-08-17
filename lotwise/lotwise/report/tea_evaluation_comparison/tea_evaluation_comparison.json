@@ -9,6 +9,22 @@
  "doctype": "Report",
  "filters": [
   {
+   "default": "Bag Sample",
+   "fieldname": "stage_1",
+   "fieldtype": "Link",
+   "label": "Stage 1",
+   "options": "Evaluation Stage",
+   "width": 130
+  },
+  {
+   "default": "Pre-purchase",
+   "fieldname": "stage_2",
+   "fieldtype": "Link",
+   "label": "Stage 2",
+   "options": "Evaluation Stage",
+   "width": 130
+  },
+  {
    "fieldname": "tea_lot",
    "fieldtype": "Link",
    "label": "Tea Lot",
