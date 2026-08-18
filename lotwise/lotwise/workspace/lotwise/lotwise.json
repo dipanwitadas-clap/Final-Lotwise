@@ -204,8 +204,47 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Dashboard & Report",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Lot Dashboard",
+   "link_count": 0,
+   "link_to": "tea-lot-dashboard",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Holding Warhouse",
+   "link_count": 0,
+   "link_to": "Holding Warhouse",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Tea Evaluation Comparison",
+   "link_count": 0,
+   "link_to": "Tea Evaluation Comparison",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Tea Lot & Evaluation",
-   "link_count": 7,
+   "link_count": 6,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -243,16 +282,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Offer Sample",
-   "link_count": 0,
-   "link_to": "Offer Sample",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Bag Sample",
    "link_count": 0,
    "link_to": "Bag Sample",
@@ -273,54 +302,15 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Private Offer Sample",
+   "label": "Offer Sample List",
    "link_count": 0,
-   "link_to": "Private Offer Sample",
+   "link_to": "Offer Sample List",
    "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Dashboard & Report",
-   "link_count": 3,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Lot Dashboard",
-   "link_count": 0,
-   "link_to": "tea-lot-dashboard",
-   "link_type": "Page",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 1,
-   "label": "Holding Warhouse",
-   "link_count": 0,
-   "link_to": "Holding Warhouse",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 1,
-   "label": "Tea Evaluation Comparison",
-   "link_count": 0,
-   "link_to": "Tea Evaluation Comparison",
-   "link_type": "Report",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2026-08-14 13:30:32.700486",
+ "modified": "2026-08-18 10:15:48.053452",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",
