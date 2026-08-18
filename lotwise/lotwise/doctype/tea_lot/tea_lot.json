@@ -9,6 +9,7 @@
  "field_order": [
   "section_break_mgxs",
   "acquisition_channel",
+  "offer_sample_list",
   "seller",
   "invoice_number",
   "packing",
@@ -19,13 +20,13 @@
   "purchase_date",
   "evaluation_status",
   "column_break_uyqw",
+  "purchase_status",
   "mark",
   "grade",
   "net_weight_total",
   "intended_segment",
   "source_doctype",
   "source_doctype_id",
-  "purchase_status",
   "do_reference",
   "do_date",
   "warehouse",
@@ -294,7 +295,7 @@
    "fieldname": "purchase_invoice_no",
    "fieldtype": "Data",
    "label": "Purchase Invoice No",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\""
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\" && !doc.offer_sample_list"
   },
   {
    "fieldname": "purchase_invoice_date",
@@ -328,6 +329,13 @@
    "fieldtype": "Link",
    "label": "Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel==\"Private\"",
+   "fieldname": "offer_sample_list",
+   "fieldtype": "Link",
+   "label": "Offer Sample List",
+   "options": "Offer Sample List"
   }
  ],
  "grid_page_length": 50,
@@ -338,7 +346,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-08-04 11:31:19.995324",
+ "modified": "2026-08-18 11:12:44.869850",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

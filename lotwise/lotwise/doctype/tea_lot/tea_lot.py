@@ -46,6 +46,7 @@ class TeaLot(Document):
 		mfg_monthyear: DF.Data | None
 		net_weight_total: DF.Float
 		net_wtpkg: DF.Float
+		offer_sample_list: DF.Link | None
 		packages: DF.Int
 		packing: DF.Link | None
 		purchase_date: DF.Date
@@ -100,20 +101,23 @@ class TeaLot(Document):
 			if not self.grade:
 				frappe.throw(_("Grade is required."))
 
-			if not self.purchase_invoice_no:
+			if not self.offer_sample_list and not self.purchase_invoice_no:
 				frappe.throw(_("Tax Invoice No. is required."))
 
 			year = getdate(self.purchase_date).strftime("%y")
 
-			purchase_invoice = str(self.purchase_invoice_no)
+			if not self.offer_sample_list:
+				purchase_invoice = str(self.purchase_invoice_no)
 
-			if "-" in purchase_invoice:
-				first, second = purchase_invoice.rsplit("-", 1)
-				last_part = f"{first[-1]}-{second}"
+				if "-" in purchase_invoice:
+					first, second = purchase_invoice.rsplit("-", 1)
+					last_part = f"{first[-1]}-{second}"
+				else:
+					last_part = purchase_invoice
+
+				self.name = f"{self.invoice_number}-{year}-{self.mark}-{self.grade}-{last_part}"
 			else:
-				last_part = purchase_invoice
-
-			self.name = f"{self.invoice_number}-{year}-{self.mark}-{self.grade}-{last_part}"
+				self.name = f"{self.invoice_number}-{year}-{self.mark}-{self.grade}"
 
 		else:
 			self.name = make_autoname("LOT-.####")
