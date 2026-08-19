@@ -337,6 +337,9 @@ TeaEvaluationEntry.prototype = {
 						<button class="btn btn-outline-primary btn-sm" data-field="evaluation_date">
 							${get_ws_icon("calendar", "14px")} Eval Date
 						</button>
+						<button class="btn btn-outline-primary btn-sm" data-field="evaluation_stage">
+							${get_ws_icon("edit", "14px")} Stage
+						</button>
 						<button class="btn btn-outline-primary btn-sm" data-field="liquor_mark">
 							${get_ws_icon("edit", "14px")} Liquor Mark
 						</button>
