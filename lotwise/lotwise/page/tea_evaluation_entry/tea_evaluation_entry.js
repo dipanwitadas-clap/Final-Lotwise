@@ -227,6 +227,10 @@ TeaEvaluationEntry.prototype = {
 		this.page.add_inner_button(__("New Tea Evaluation"), () => {
 			frappe.new_doc("Tea Evaluation");
 		});
+
+		this.page.add_inner_button(__("Tea Evaluation Comparison"), () => {
+			frappe.set_route("query-report", "Tea Evaluation Comparison");
+		});
 	},
 
 	// -------------------------------------------------------------------------
