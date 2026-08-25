@@ -122,6 +122,22 @@ frappe.query_reports["Tea Evaluation Comparison"] = {
 				font-weight: 400;
 			}
 
+			.tea-eval-comparison-cell.stage-col-1,
+			.tea-eval-comparison-cell.stage-col-2 {
+				margin: -7px -10px;
+				padding: 7px 10px;
+			}
+
+			.tea-eval-comparison-cell.stage-col-1 {
+				background: #DCE3EC;
+				color: #2C4A6E;
+			}
+
+			.tea-eval-comparison-cell.stage-col-2 {
+				background: #F0E4D7;
+				color: #8A5A2B;
+			}
+
 			.tea-eval-comparison-report .report-summary {
 				background: transparent;
 				border-bottom: none;
@@ -246,6 +262,13 @@ frappe.query_reports["Tea Evaluation Comparison"] = {
 			);
 		}
 
-		return `<span class="tea-eval-comparison-cell">${formatted_value}</span>`;
+		let stage_class = "";
+		if (fieldname && fieldname.startsWith("s1_")) {
+			stage_class = " stage-col-1";
+		} else if (fieldname && fieldname.startsWith("s2_")) {
+			stage_class = " stage-col-2";
+		}
+
+		return `<span class="tea-eval-comparison-cell${stage_class}">${formatted_value}</span>`;
 	},
 };
