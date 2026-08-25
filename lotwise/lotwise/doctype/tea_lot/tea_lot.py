@@ -50,7 +50,7 @@ class TeaLot(Document):
 		offer_sample_list: DF.Link | None
 		packages: DF.Int
 		packing: DF.Link | None
-		purchase_date: DF.Date
+		purchase_date: DF.Date | None
 		purchase_from: DF.Data | None
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
@@ -93,7 +93,7 @@ class TeaLot(Document):
 			if not self.invoice_number:
 				frappe.throw(_("Garden Invoice No. is required."))
 
-			if not self.purchase_date:
+			if self.purchase_status != "Offer" and not self.purchase_date:
 				frappe.throw(_("Purchase Date is required."))
 
 			if not self.mark:
@@ -105,7 +105,13 @@ class TeaLot(Document):
 			if not self.offer_sample_list and not self.purchase_invoice_no:
 				frappe.throw(_("Tax Invoice No. is required."))
 
-			year = getdate(self.purchase_date).strftime("%y")
+			if self.purchase_status == "Offer":
+				if not self.offer_date:
+					frappe.throw(_("Offer Date is required."))
+
+				year = getdate(self.offer_date).strftime("%y")
+			else:
+				year = getdate(self.purchase_date).strftime("%y")
 
 			if not self.offer_sample_list:
 				purchase_invoice = str(self.purchase_invoice_no)

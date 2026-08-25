@@ -260,10 +260,11 @@
    "options": "source_doctype"
   },
   {
+   "depends_on": "eval:doc.purchase_status!=\"Offer\"",
    "fieldname": "purchase_date",
    "fieldtype": "Date",
    "label": "Purchase Date",
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.purchase_status!=\"Offer\""
   },
   {
    "fieldname": "purchase_status",
@@ -332,7 +333,7 @@
    "options": "Warehouse"
   },
   {
-   "depends_on": "eval:doc.acquisition_channel==\"Private\"",
+   "depends_on": "eval:doc.acquisition_channel==\"Private\" && doc.purchase_status==\"Offer\"",
    "fieldname": "offer_sample_list",
    "fieldtype": "Link",
    "label": "Offer Sample List",
@@ -354,7 +355,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-08-25 16:06:21.801468",
+ "modified": "2026-08-25 17:37:36.932691",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
