@@ -298,7 +298,7 @@
    "fieldname": "purchase_invoice_no",
    "fieldtype": "Data",
    "label": "Purchase Invoice No",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\" && !doc.offer_sample_list"
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\" && !doc.offer_sample_list && doc.purchase_status!=\"Offer\""
   },
   {
    "fieldname": "purchase_invoice_date",
@@ -357,7 +357,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-08-25 21:22:35.845291",
+ "modified": "2026-08-26 00:06:54.791519",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
