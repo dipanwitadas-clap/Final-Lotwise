@@ -285,6 +285,10 @@ TeaEvaluationEntry.prototype = {
 							<label class="ws-field-label">Auction Centre</label>
 							<div id="ws_filter_auction_centre_field"></div>
 						</div>
+						<div class="col ws-field">
+							<label class="ws-field-label">Purchase Status</label>
+							<div id="ws_filter_purchase_status_field"></div>
+						</div>
 						<div class="col-auto align-self-end ws-field-btn">
 							<button class="btn btn-outline-secondary btn-sm" id="ws_clear_filters_btn">
 								${get_ws_icon("clear", "14px")} Clear
@@ -464,6 +468,12 @@ TeaEvaluationEntry.prototype = {
 				label: "Auction Centre",
 				fieldtype: "Link",
 				options: "Auction Centre",
+			},
+			{
+				fieldname: "purchase_status",
+				label: "Purchase Status",
+				fieldtype: "Link",
+				options: "Purchase Status",
 			},
 		];
 
