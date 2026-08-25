@@ -1,7 +1,7 @@
 {
  "app": "lotwise",
  "charts": [],
- "content": "[{\"id\":\"aCXz4JU82G\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Welcome to the Lotwise workspace</span>\",\"col\":12}},{\"id\":\"0HFoYSPnYT\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters &amp; Reports</b>\",\"col\":12}},{\"id\":\"GXMcFmcf0k\",\"type\":\"card\",\"data\":{\"card_name\":\"Tea Lot & Evaluation\",\"col\":4}},{\"id\":\"Raj9-Ko_Aw\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase List\",\"col\":4}},{\"id\":\"2dHpy280Fw\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"7gnYmFroNb\",\"type\":\"card\",\"data\":{\"card_name\":\"Dashboard & Report\",\"col\":4}}]",
+ "content": "[{\"id\":\"aCXz4JU82G\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Welcome to the Lotwise workspace</span>\",\"col\":12}},{\"id\":\"0HFoYSPnYT\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters &amp; Reports</b>\",\"col\":12}},{\"id\":\"GXMcFmcf0k\",\"type\":\"card\",\"data\":{\"card_name\":\"Tea Lot & Evaluation\",\"col\":4}},{\"id\":\"7gnYmFroNb\",\"type\":\"card\",\"data\":{\"card_name\":\"Dashboard & Report\",\"col\":4}},{\"id\":\"2dHpy280Fw\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}}]",
  "creation": "2026-06-10 16:15:24.488297",
  "custom_blocks": [],
  "docstatus": 0,
@@ -16,8 +16,47 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Purchase List",
-   "link_count": 1,
+   "label": "Dashboard & Report",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Lot Dashboard",
+   "link_count": 0,
+   "link_to": "tea-lot-dashboard",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Holding Warhouse",
+   "link_count": 0,
+   "link_to": "Holding Warhouse",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Tea Evaluation Comparison",
+   "link_count": 0,
+   "link_to": "Tea Evaluation Comparison",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Lot & Evaluation",
+   "link_count": 7,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -35,8 +74,68 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Tea Evaluation Entry",
+   "link_count": 0,
+   "link_to": "tea-evaluation-entry",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Offer Sample List",
+   "link_count": 0,
+   "link_to": "Offer Sample List",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Lot",
+   "link_count": 0,
+   "link_to": "Tea Lot",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bag Sample",
+   "link_count": 0,
+   "link_to": "Bag Sample",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Sample",
+   "link_count": 0,
+   "link_to": "Purchase Sample",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Evaluation",
+   "link_count": 0,
+   "link_to": "Tea Evaluation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Masters",
-   "link_count": 16,
+   "link_count": 15,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -144,16 +243,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Tea Evaluation",
-   "link_count": 0,
-   "link_to": "Tea Evaluation",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Liquor Mark",
    "link_count": 0,
    "link_to": "Liquor Mark",
@@ -200,117 +289,9 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Dashboard & Report",
-   "link_count": 3,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Lot Dashboard",
-   "link_count": 0,
-   "link_to": "tea-lot-dashboard",
-   "link_type": "Page",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 1,
-   "label": "Holding Warhouse",
-   "link_count": 0,
-   "link_to": "Holding Warhouse",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 1,
-   "label": "Tea Evaluation Comparison",
-   "link_count": 0,
-   "link_to": "Tea Evaluation Comparison",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Lot & Evaluation",
-   "link_count": 6,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Lot",
-   "link_count": 0,
-   "link_to": "Tea Lot",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Evaluation Import",
-   "link_count": 0,
-   "link_to": "Tea Evaluation Import",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Evaluation Entry",
-   "link_count": 0,
-   "link_to": "tea-evaluation-entry",
-   "link_type": "Page",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Bag Sample",
-   "link_count": 0,
-   "link_to": "Bag Sample",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Sample",
-   "link_count": 0,
-   "link_to": "Purchase Sample",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Offer Sample List",
-   "link_count": 0,
-   "link_to": "Offer Sample List",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
   }
  ],
- "modified": "2026-08-18 10:15:48.053452",
+ "modified": "2026-08-25 21:57:23.655589",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",

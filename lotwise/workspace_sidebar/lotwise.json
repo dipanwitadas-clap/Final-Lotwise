@@ -48,12 +48,12 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "list",
+   "icon": "full-page",
    "indent": 0,
    "keep_closed": 0,
-   "label": "Tea Evaluation",
-   "link_to": "Tea Evaluation",
-   "link_type": "DocType",
+   "label": "Tea Evaluation Entry",
+   "link_to": "tea-evaluation-entry",
+   "link_type": "Page",
    "open_in_new_tab": 1,
    "show_arrow": 0,
    "type": "Link"
@@ -64,8 +64,8 @@
    "icon": "list",
    "indent": 0,
    "keep_closed": 0,
-   "label": "Tea Evaluation Import",
-   "link_to": "Tea Evaluation Import",
+   "label": "Tea Evaluation",
+   "link_to": "Tea Evaluation",
    "link_type": "DocType",
    "open_in_new_tab": 1,
    "show_arrow": 0,
@@ -87,12 +87,12 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "full-page",
+   "icon": "list",
    "indent": 0,
    "keep_closed": 0,
-   "label": "Tea Evaluation Entry",
-   "link_to": "tea-evaluation-entry",
-   "link_type": "Page",
+   "label": "Tea Evaluation Comparison",
+   "link_to": "Tea Evaluation Comparison",
+   "link_type": "Report",
    "open_in_new_tab": 1,
    "show_arrow": 0,
    "type": "Link"
@@ -111,7 +111,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-07-30 10:07:46.861487",
+ "modified": "2026-08-25 22:02:28.248641",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "module_onboarding": "",

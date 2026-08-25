@@ -132,6 +132,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "fetch_from": "offer_sample_list.broker_name",
    "fieldname": "broker",
    "fieldtype": "Link",
    "label": "Broker",
@@ -341,6 +342,7 @@
   },
   {
    "depends_on": "eval:doc.purchase_status==\"Offer\"",
+   "fetch_from": "offer_sample_list.date",
    "fieldname": "offer_date",
    "fieldtype": "Date",
    "label": "Offer Date",
@@ -355,7 +357,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-08-25 17:37:36.932691",
+ "modified": "2026-08-25 21:22:35.845291",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
