@@ -225,6 +225,17 @@ frappe.query_reports["Tea Evaluation Comparison"] = {
 				padding-bottom: 0;
 				padding-top: 8px;
 			}
+
+			.tea-eval-comparison-report .page-form {
+				position: relative;
+				z-index: 20;
+			}
+
+			.tea-eval-comparison-report .page-form ul[role="listbox"] {
+				background: var(--card-bg, #fff);
+				box-shadow: var(--shadow-md, 0 2px 6px rgba(0, 0, 0, 0.15));
+				z-index: 30;
+			}
 		`;
 	},
 
@@ -237,6 +248,15 @@ frappe.query_reports["Tea Evaluation Comparison"] = {
 			return col;
 		});
 		return options;
+	},
+
+	after_datatable_render(datatable) {
+		// Core re-uses the existing DataTable instance on filter changes instead of
+		// recreating it, which skips get_datatable_options() and drops the sticky
+		// flag set above. Re-apply it here since this hook runs after every render.
+		for (let i = 0; i < 4; i++) {
+			datatable.setColumnSticky(i, true);
+		}
 	},
 
 	formatter(value, row, column, data, default_formatter) {
