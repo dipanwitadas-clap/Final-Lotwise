@@ -30,6 +30,7 @@
   "do_reference",
   "do_date",
   "warehouse",
+  "offer_date",
   "section_break_7zcb",
   "broker",
   "sale_no",
@@ -336,6 +337,13 @@
    "fieldtype": "Link",
    "label": "Offer Sample List",
    "options": "Offer Sample List"
+  },
+  {
+   "depends_on": "eval:doc.purchase_status==\"Offer\"",
+   "fieldname": "offer_date",
+   "fieldtype": "Date",
+   "label": "Offer Date",
+   "mandatory_depends_on": "eval:doc.purchase_status==\"Offer\""
   }
  ],
  "grid_page_length": 50,
@@ -346,7 +354,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-08-18 11:12:44.869850",
+ "modified": "2026-08-25 16:06:21.801468",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
