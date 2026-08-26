@@ -102,8 +102,12 @@ class TeaLot(Document):
 			if not self.grade:
 				frappe.throw(_("Grade is required."))
 
-			if not self.offer_sample_list and not self.purchase_invoice_no:
-				frappe.throw(_("Tax Invoice No. is required."))
+			if (
+				self.purchase_status != "Offer"
+				and not self.offer_sample_list
+				and not self.purchase_invoice_no
+			):
+				frappe.throw(_("purchase_invoice_no is required."))
 
 			if self.purchase_status == "Offer":
 				if not self.offer_date:
@@ -113,7 +117,7 @@ class TeaLot(Document):
 			else:
 				year = getdate(self.purchase_date).strftime("%y")
 
-			if not self.offer_sample_list:
+			if self.purchase_status != "Offer" and not self.offer_sample_list:
 				purchase_invoice = str(self.purchase_invoice_no)
 
 				if "-" in purchase_invoice:
