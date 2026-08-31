@@ -1,0 +1,151 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-28 00:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lot_inv_no",
+  "grade",
+  "chest_nos",
+  "gr_wt",
+  "net_wt",
+  "awr_dt",
+  "gp_no_dt",
+  "mfg_month_year",
+  "total_net",
+  "location",
+  "pkgs",
+  "garden",
+  "company",
+  "warehouse",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "lot_inv_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lot Inv No"
+  },
+  {
+   "columns": 1,
+   "fieldname": "grade",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grade"
+  },
+  {
+   "columns": 1,
+   "description": "e.g. 18657/18687",
+   "fieldname": "chest_nos",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Chest Nos"
+  },
+  {
+   "columns": 1,
+   "fieldname": "gr_wt",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Gr. Wt.",
+   "precision": "2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "net_wt",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Net Wt.",
+   "precision": "2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "awr_dt",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "AWR Date"
+  },
+  {
+   "columns": 1,
+   "fieldname": "gp_no_dt",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "GP No / Date"
+  },
+  {
+   "columns": 1,
+   "description": "e.g. Jul-26",
+   "fieldname": "mfg_month_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "MFG Month / Year"
+  },
+  {
+   "columns": 1,
+   "fieldname": "total_net",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Net",
+   "precision": "2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Location"
+  },
+  {
+   "columns": 1,
+   "fieldname": "pkgs",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Pkgs"
+  },
+  {
+   "columns": 1,
+   "description": "Garden / Estate name for this lot",
+   "fieldname": "garden",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Garden"
+  },
+  {
+   "columns": 1,
+   "description": "Company / producer for this lot",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company"
+  },
+  {
+   "columns": 1,
+   "fieldname": "warehouse",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Warehouse"
+  },
+  {
+   "description": "Handwritten marks (red/blue pen) detected near this lot row",
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Handwritten Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-28 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Tea Lot Image Import Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
