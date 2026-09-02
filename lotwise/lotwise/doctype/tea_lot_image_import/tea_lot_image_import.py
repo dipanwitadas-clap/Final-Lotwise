@@ -11,7 +11,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, flt
 
-DEFAULT_MODEL = "claude-opus-5"
+DEFAULT_MODEL = "claude-sonnet-5"
 MAX_IMAGE_EDGE = 1568
 
 # Child-table columns filled verbatim from the extracted JSON (strings).
@@ -165,12 +165,15 @@ class TeaLotImageImport(Document):
 		)
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
+		auction_centre: DF.Link | None
+		auction_centre_code: DF.Data | None
 		broker: DF.Data | None
 		items: DF.Table[TeaLotImageImportItem]
+		purchase_status: DF.Link | None
 		sale_no: DF.Int
 		scan_status: DF.Literal["Not Scanned", "Scanned", "Partial", "Error"]
 		series: DF.Data | None
-		source_image: DF.Attach | None
+		source_image: DF.Attach
 		total_net: DF.Float
 		total_packages: DF.Int
 	# end: auto-generated types
@@ -267,7 +270,7 @@ def _call_claude(api_key: str, image_b64: str, media_type: str) -> dict:
 	response = client.messages.create(
 		model=model,
 		max_tokens=16000,
-		system=_SYSTEM_PROMPT,
+		system=[{"type": "text", "text": _SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
 		messages=[
 			{
 				"role": "user",
@@ -280,7 +283,11 @@ def _call_claude(api_key: str, image_b64: str, media_type: str) -> dict:
 							"data": image_b64,
 						},
 					},
-					{"type": "text", "text": _USER_PROMPT},
+					{
+						"type": "text",
+						"text": _USER_PROMPT,
+						"cache_control": {"type": "ephemeral"},
+					},
 				],
 			}
 		],

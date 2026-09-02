@@ -12,8 +12,11 @@
   "col_break_1",
   "broker",
   "series",
+  "purchase_status",
   "col_break_1b",
   "sale_no",
+  "auction_centre",
+  "auction_centre_code",
   "totals_section",
   "total_packages",
   "total_net",
@@ -56,7 +59,6 @@
    "label": "Broker / Auctioneer"
   },
   {
-   "description": "e.g. CTC 7",
    "fieldname": "series",
    "fieldtype": "Data",
    "label": "Series / CTC No"
@@ -111,12 +113,30 @@
    "fieldtype": "Table",
    "label": "Tea Lot Items",
    "options": "Tea Lot Image Import Item"
+  },
+  {
+   "fieldname": "auction_centre",
+   "fieldtype": "Link",
+   "label": "Auction Centre",
+   "options": "Auction Centre"
+  },
+  {
+   "fetch_from": "auction_centre.auction_centre_code",
+   "fieldname": "auction_centre_code",
+   "fieldtype": "Data",
+   "label": "Auction Centre Code"
+  },
+  {
+   "fieldname": "purchase_status",
+   "fieldtype": "Link",
+   "label": "Purchase Status",
+   "options": "Purchase Status"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-28 00:00:00",
+ "modified": "2026-09-02 17:14:31.062104",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Image Import",

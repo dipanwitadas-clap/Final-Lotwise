@@ -14,13 +14,15 @@ class TeaLotImageImportItem(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		auction_centre: DF.Link | None
+		auction_centre_code: DF.Data | None
 		awr_dt: DF.Date | None
 		chest_nos: DF.Data | None
 		company: DF.Data | None
 		garden: DF.Data | None
 		gp_no_dt: DF.Data | None
-		grade: DF.Data | None
 		gr_wt: DF.Float
+		grade: DF.Data | None
 		location: DF.Data | None
 		lot_inv_no: DF.Data | None
 		mfg_month_year: DF.Data | None
@@ -29,6 +31,7 @@ class TeaLotImageImportItem(Document):
 		parentfield: DF.Data
 		parenttype: DF.Data
 		pkgs: DF.Data | None
+		purchase_date: DF.Date | None
 		remarks: DF.SmallText | None
 		total_net: DF.Float
 		warehouse: DF.Data | None
