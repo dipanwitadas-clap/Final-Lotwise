@@ -20,9 +20,8 @@
   "garden",
   "company",
   "warehouse",
+  "ctc_no",
   "remarks",
-  "auction_centre",
-  "auction_centre_code",
   "purchase_date"
  ],
  "fields": [
@@ -132,23 +131,18 @@
    "label": "Warehouse"
   },
   {
+   "columns": 1,
+   "description": "Series / CTC No, e.g. 'CTC 4'",
+   "fieldname": "ctc_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CTC No"
+  },
+  {
    "description": "Handwritten marks (red/blue pen) detected near this lot row",
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Handwritten Remarks"
-  },
-  {
-   "fieldname": "auction_centre",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Auction Centre",
-   "options": "Auction Centre"
-  },
-  {
-   "fetch_from": "auction_centre.auction_centre_code",
-   "fieldname": "auction_centre_code",
-   "fieldtype": "Data",
-   "label": "Auction Centre Code"
   },
   {
    "fieldname": "purchase_date",
@@ -159,7 +153,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-09-02 16:01:50.113522",
+ "modified": "2026-09-02 22:32:49.930602",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Image Import Item",

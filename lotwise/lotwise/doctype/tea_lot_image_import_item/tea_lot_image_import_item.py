@@ -14,11 +14,10 @@ class TeaLotImageImportItem(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		auction_centre: DF.Link | None
-		auction_centre_code: DF.Data | None
 		awr_dt: DF.Date | None
 		chest_nos: DF.Data | None
 		company: DF.Data | None
+		ctc_no: DF.Data | None
 		garden: DF.Data | None
 		gp_no_dt: DF.Data | None
 		gr_wt: DF.Float

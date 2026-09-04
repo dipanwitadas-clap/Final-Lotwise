@@ -10,7 +10,6 @@ from lotwise.lotwise.doctype.tea_lot_image_import import tea_lot_image_import as
 
 _FAKE_EXTRACTION = {
 	"broker": "PARCON SILIGURI",
-	"series": "CTC 4",
 	"sale_no": 27,
 	"acquisition_channel": "Auction",
 	"total_packages": 370,
@@ -44,7 +43,9 @@ class TestTeaLotImageImport(FrappeTestCase):
 		return frappe.get_doc(
 			{
 				"doctype": "Tea Lot Image Import",
-				"source_image": "/files/does-not-matter.jpg",
+				"source_images": [
+					{"file_name": "does-not-matter.jpg", "file_url": "/files/does-not-matter.jpg"}
+				],
 			}
 		).insert()
 
@@ -60,7 +61,6 @@ class TestTeaLotImageImport(FrappeTestCase):
 		self.assertEqual(result["rows"], 1)
 		self.assertEqual(doc.scan_status, "Scanned")
 		self.assertEqual(doc.broker, "PARCON SILIGURI")
-		self.assertEqual(doc.series, "CTC 4")
 		self.assertEqual(doc.sale_no, 27)
 		self.assertEqual(doc.total_packages, 370)
 		self.assertAlmostEqual(doc.total_net, 13482.20, places=2)

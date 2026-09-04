@@ -7,16 +7,13 @@
  "engine": "InnoDB",
  "field_order": [
   "source_section",
-  "source_image",
-  "acquisition_channel",
-  "col_break_1",
-  "broker",
-  "series",
-  "purchase_status",
-  "col_break_1b",
-  "sale_no",
+  "source_images",
   "auction_centre",
   "auction_centre_code",
+  "sale_no",
+  "purchase_status",
+  "broker",
+  "acquisition_channel",
   "totals_section",
   "total_packages",
   "total_net",
@@ -29,15 +26,14 @@
   {
    "fieldname": "source_section",
    "fieldtype": "Section Break",
-   "label": "Source Image"
+   "label": "Source Images"
   },
   {
-   "description": "Attach the scanned tea lot page image. The data will be extracted from this image.",
-   "fieldname": "source_image",
-   "fieldtype": "Attach",
-   "in_list_view": 1,
-   "label": "Source Image",
-   "reqd": 1
+   "description": "Upload one or more scanned tea lot catalogue pages, in page order. Data will be extracted from all of them together.",
+   "fieldname": "source_images",
+   "fieldtype": "Table",
+   "label": "Source Images",
+   "options": "Tea Lot Image Import Source"
   },
   {
    "description": "Auction, Private purchase, or Outsourced",
@@ -49,23 +45,10 @@
    "options": "\nAuction\nPrivate\nOutsourced"
   },
   {
-   "fieldname": "col_break_1",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "broker",
    "fieldtype": "Data",
    "in_standard_filter": 1,
    "label": "Broker / Auctioneer"
-  },
-  {
-   "fieldname": "series",
-   "fieldtype": "Data",
-   "label": "Series / CTC No"
-  },
-  {
-   "fieldname": "col_break_1b",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "sale_no",
@@ -136,7 +119,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-02 17:14:31.062104",
+ "modified": "2026-09-02 23:47:51.825852",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Image Import",
