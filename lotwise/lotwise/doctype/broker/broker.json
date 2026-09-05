@@ -9,7 +9,9 @@
  "engine": "InnoDB",
  "field_order": [
   "broker_name",
-  "auction_centre"
+  "auction_centre",
+  "broker_short_name",
+  "auction_centre_code"
  ],
  "fields": [
   {
@@ -28,12 +30,23 @@
    "in_standard_filter": 1,
    "label": "Auction Centre",
    "options": "Auction Centre"
+  },
+  {
+   "fieldname": "broker_short_name",
+   "fieldtype": "Data",
+   "label": "Broker Short Name"
+  },
+  {
+   "fetch_from": "auction_centre.auction_centre_code",
+   "fieldname": "auction_centre_code",
+   "fieldtype": "Data",
+   "label": "Auction Centre Code"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-21 13:04:31.980091",
+ "modified": "2026-09-05 12:45:57.753497",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Broker",
