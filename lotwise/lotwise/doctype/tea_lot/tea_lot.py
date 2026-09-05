@@ -10,6 +10,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 from frappe.utils import flt, getdate
+from openpyxl.utils import get_column_letter
 
 
 class TeaLot(Document):
@@ -345,10 +346,11 @@ def create_tea_evaluation() -> dict:
 @frappe.whitelist()
 def download_evaluation_import_xlsx() -> dict:
 	"""Generate xlsx for Tea Lot evaluation import with dropdown validations."""
-	# Fetch unevaluated Tea Lots
+	# Fetch unevaluated Tea Lots, including reference fields for context
 	lots = frappe.db.sql(
 		"""
-		SELECT name, mark, invoice_number,lot_no
+		SELECT name, mark, invoice_number, lot_no, purchase_status, grade, density,
+			liquor_mark, purchase_date, evaluation_status, sale_no, auction_centre
 		FROM `tabTea Lot`
 		WHERE evaluation_status != "Evaluated" OR evaluation_status IS NULL
 		ORDER BY creation DESC
@@ -360,6 +362,7 @@ def download_evaluation_import_xlsx() -> dict:
 	stage_options = get_evaluation_field_options("evaluation_stage")
 	liquor_mark_options = get_evaluation_field_options("liquor_mark")
 	quality_grade_options = get_evaluation_field_options("quality_grade")
+	taster_options = frappe.get_all("Taster", pluck="name", order_by="creation asc")
 
 	# Create workbook
 	wb = openpyxl.Workbook()
@@ -369,11 +372,21 @@ def download_evaluation_import_xlsx() -> dict:
 	# ============================================================
 	# Headers
 	# ============================================================
+	# Reference columns (pre-filled from Tea Lot) followed by the
+	# evaluation input columns (left blank for the taster to fill in).
 	headers = [
 		"Tea Lot",
-		"Mark",
-		"Invoice Number",
 		"Lot No",
+		"Sale No",
+		"Mark",
+		"Grade",
+		"Invoice Number",
+		"Auction Centre",
+		"Purchase Status",
+		"Density",
+		"Liquor Mark (Tea Lot)",
+		"Purchase Date (DD-MM-YYYY)",
+		"Evaluation Status",
 		"Taster",
 		"Stage",
 		"Liquor Mark",
@@ -386,49 +399,67 @@ def download_evaluation_import_xlsx() -> dict:
 		"Notes",
 		"Evaluation Date (DD-MM-YYYY)",
 	]
+	col = {header: idx for idx, header in enumerate(headers, 1)}
 
 	# Write headers
 	for col_idx, header in enumerate(headers, 1):
 		ws.cell(row=1, column=col_idx, value=header)
 
-	# Write data rows (only Tea Lot, Mark, Invoice Number filled)
+	# Write data rows (Tea Lot reference columns filled; evaluation input columns left blank)
 	for row_idx, lot in enumerate(lots, 2):
-		ws.cell(row=row_idx, column=1, value=lot.name)
-		ws.cell(row=row_idx, column=2, value=lot.mark)
-		ws.cell(row=row_idx, column=3, value=lot.invoice_number)
-		ws.cell(row=row_idx, column=4, value=lot.lot_no)
-		# Columns 5-15 remain blank (already None by default)
+		ws.cell(row=row_idx, column=col["Tea Lot"], value=lot.name)
+		ws.cell(row=row_idx, column=col["Mark"], value=lot.mark)
+		ws.cell(row=row_idx, column=col["Invoice Number"], value=lot.invoice_number)
+		ws.cell(row=row_idx, column=col["Lot No"], value=lot.lot_no)
+		ws.cell(row=row_idx, column=col["Purchase Status"], value=lot.purchase_status)
+		ws.cell(row=row_idx, column=col["Grade"], value=lot.grade)
+		ws.cell(row=row_idx, column=col["Density"], value=lot.density)
+		ws.cell(row=row_idx, column=col["Liquor Mark (Tea Lot)"], value=lot.liquor_mark)
+		ws.cell(
+			row=row_idx,
+			column=col["Purchase Date (DD-MM-YYYY)"],
+			value=lot.purchase_date.strftime("%d-%m-%Y") if lot.purchase_date else None,
+		)
+		ws.cell(row=row_idx, column=col["Evaluation Status"], value=lot.evaluation_status)
+		ws.cell(row=row_idx, column=col["Sale No"], value=lot.sale_no)
+		ws.cell(row=row_idx, column=col["Auction Centre"], value=lot.auction_centre)
+		# Remaining evaluation-input columns remain blank (already None by default)
 
 	# ============================================================
-	# Write dropdown options in hidden columns (P=16, Q=17, R=18)
-	# Same-sheet references are most reliable for Excel data validation
+	# Write dropdown options in hidden columns, placed well after
+	# the last real header column so they never collide with data
 	# ============================================================
+	options_start_col = len(headers) + 2
+	stage_col = get_column_letter(options_start_col)
+	liquor_col = get_column_letter(options_start_col + 1)
+	grade_col = get_column_letter(options_start_col + 2)
+	taster_col = get_column_letter(options_start_col + 3)
 
-	# Column P (16): Stage options starting from row 2
+	# Stage options starting from row 2
 	for idx, opt in enumerate(stage_options, 2):
-		ws.cell(row=idx, column=16, value=opt)
-	stage_last_row = len(stage_options) + 1
-	if stage_last_row < 2:
-		stage_last_row = 2
+		ws.cell(row=idx, column=options_start_col, value=opt)
+	stage_last_row = max(len(stage_options) + 1, 2)
 
-	# Column Q (17): Liquor Mark options starting from row 2
+	# Liquor Mark options starting from row 2
 	for idx, opt in enumerate(liquor_mark_options, 2):
-		ws.cell(row=idx, column=17, value=opt)
-	liquor_last_row = len(liquor_mark_options) + 1
-	if liquor_last_row < 2:
-		liquor_last_row = 2
+		ws.cell(row=idx, column=options_start_col + 1, value=opt)
+	liquor_last_row = max(len(liquor_mark_options) + 1, 2)
 
-	# Column R (18): Quality Grade options starting from row 2
+	# Quality Grade options starting from row 2
 	for idx, opt in enumerate(quality_grade_options, 2):
-		ws.cell(row=idx, column=18, value=opt)
-	grade_last_row = len(quality_grade_options) + 1
-	if grade_last_row < 2:
-		grade_last_row = 2
+		ws.cell(row=idx, column=options_start_col + 2, value=opt)
+	grade_last_row = max(len(quality_grade_options) + 1, 2)
 
-	# Hide columns P, Q, R so users don't see the options data
-	ws.column_dimensions["P"].hidden = True
-	ws.column_dimensions["Q"].hidden = True
-	ws.column_dimensions["R"].hidden = True
+	# Taster options starting from row 2
+	for idx, opt in enumerate(taster_options, 2):
+		ws.cell(row=idx, column=options_start_col + 3, value=opt)
+	taster_last_row = max(len(taster_options) + 1, 2)
+
+	# Hide the options columns so users don't see the raw dropdown data
+	ws.column_dimensions[stage_col].hidden = True
+	ws.column_dimensions[liquor_col].hidden = True
+	ws.column_dimensions[grade_col].hidden = True
+	ws.column_dimensions[taster_col].hidden = True
 
 	# ============================================================
 	# Add Data Validation (Dropdown) using same-sheet references
@@ -438,9 +469,9 @@ def download_evaluation_import_xlsx() -> dict:
 	if last_data_row < 2:
 		last_data_row = 2  # at least cover row 2 even if no data
 
-	# Column 5 (E): Stage - reference $P$2:$P${stage_last_row}
+	# Stage input column
 	if stage_options:
-		stage_range = f"$P$2:$P${stage_last_row}"
+		stage_range = f"${stage_col}$2:${stage_col}${stage_last_row}"
 		stage_dv = openpyxl.worksheet.datavalidation.DataValidation(
 			type="list",
 			formula1=stage_range,
@@ -451,11 +482,12 @@ def download_evaluation_import_xlsx() -> dict:
 		stage_dv.prompt = "Select Stage from the list"
 		stage_dv.promptTitle = "Stage"
 		ws.add_data_validation(stage_dv)
-		stage_dv.add(f"E2:E{last_data_row}")
+		stage_input_col = get_column_letter(col["Stage"])
+		stage_dv.add(f"{stage_input_col}2:{stage_input_col}{last_data_row}")
 
-	# Column 6 (F): Liquor Mark - reference $Q$2:$Q${liquor_last_row}
+	# Liquor Mark input column
 	if liquor_mark_options:
-		liquor_range = f"$Q$2:$Q${liquor_last_row}"
+		liquor_range = f"${liquor_col}$2:${liquor_col}${liquor_last_row}"
 		liquor_dv = openpyxl.worksheet.datavalidation.DataValidation(
 			type="list",
 			formula1=liquor_range,
@@ -466,11 +498,12 @@ def download_evaluation_import_xlsx() -> dict:
 		liquor_dv.prompt = "Select Liquor Mark from the list"
 		liquor_dv.promptTitle = "Liquor Mark"
 		ws.add_data_validation(liquor_dv)
-		liquor_dv.add(f"F2:F{last_data_row}")
+		liquor_input_col = get_column_letter(col["Liquor Mark"])
+		liquor_dv.add(f"{liquor_input_col}2:{liquor_input_col}{last_data_row}")
 
-	# Column 11 (K): Quality Grade - reference $R$2:$R${grade_last_row}
+	# Quality Grade input column
 	if quality_grade_options:
-		grade_range = f"$R$2:$R${grade_last_row}"
+		grade_range = f"${grade_col}$2:${grade_col}${grade_last_row}"
 		grade_dv = openpyxl.worksheet.datavalidation.DataValidation(
 			type="list",
 			formula1=grade_range,
@@ -481,7 +514,24 @@ def download_evaluation_import_xlsx() -> dict:
 		grade_dv.prompt = "Select Quality Grade from the list"
 		grade_dv.promptTitle = "Quality Grade"
 		ws.add_data_validation(grade_dv)
-		grade_dv.add(f"K2:K{last_data_row}")
+		grade_input_col = get_column_letter(col["Quality Grade"])
+		grade_dv.add(f"{grade_input_col}2:{grade_input_col}{last_data_row}")
+
+	# Taster input column
+	if taster_options:
+		taster_range = f"${taster_col}$2:${taster_col}${taster_last_row}"
+		taster_dv = openpyxl.worksheet.datavalidation.DataValidation(
+			type="list",
+			formula1=taster_range,
+			allow_blank=True,
+		)
+		taster_dv.error = "Please select a valid Taster value from the dropdown."
+		taster_dv.errorTitle = "Invalid Taster"
+		taster_dv.prompt = "Select Taster from the list"
+		taster_dv.promptTitle = "Taster"
+		ws.add_data_validation(taster_dv)
+		taster_input_col = get_column_letter(col["Taster"])
+		taster_dv.add(f"{taster_input_col}2:{taster_input_col}{last_data_row}")
 
 	# Save to BytesIO
 	output = io.BytesIO()
