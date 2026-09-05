@@ -8,7 +8,7 @@
  "field_order": [
   "tea_lot",
   "taster",
-  "stage",
+  "evaluation_stage",
   "liquor_mark",
   "evaluation_date",
   "colour",
@@ -23,7 +23,16 @@
   "message",
   "invoice_number",
   "mark",
-  "lot_no"
+  "lot_no",
+  "section_break_lot_details",
+  "purchase_status",
+  "grade",
+  "density",
+  "lot_liquor_mark",
+  "purchase_date",
+  "evaluation_status",
+  "sale_no",
+  "auction_centre"
  ],
  "fields": [
   {
@@ -42,17 +51,17 @@
    "options": "Taster"
   },
   {
-   "fieldname": "stage",
-   "fieldtype": "Select",
+   "fieldname": "evaluation_stage",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Stage",
-   "options": "\nPre-purchase\nArrival\nBlend QC\nStorage\nPurchase Sample\nBag Sample"
+   "options": "Evaluation Stage"
   },
   {
    "fieldname": "liquor_mark",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Liquor Mark",
-   "options": "\nA+\nA\nB+\nB\nC+\nC"
+   "options": "Liquor Mark"
   },
   {
    "fieldname": "evaluation_date",
@@ -82,9 +91,9 @@
   },
   {
    "fieldname": "quality_grade",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Quality Grade",
-   "options": "\nA\nA++\nA+++\nB\nB+\nB++\nB-\nC\nC+\nD\nD+\nE\nE+"
+   "options": "Quality Grade"
   },
   {
    "fieldname": "suggested_valuation",
@@ -122,6 +131,7 @@
   {
    "fieldname": "mark",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Mark",
    "options": "Mark"
   },
@@ -129,6 +139,64 @@
    "fieldname": "lot_no",
    "fieldtype": "Data",
    "label": "Lot No"
+  },
+  {
+   "fieldname": "section_break_lot_details",
+   "fieldtype": "Section Break",
+   "label": "Tea Lot Details"
+  },
+  {
+   "fieldname": "purchase_status",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Purchase Status",
+   "options": "Purchase Status"
+  },
+  {
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Grade",
+   "options": "Grade"
+  },
+  {
+   "fieldname": "density",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Density"
+  },
+  {
+   "fieldname": "lot_liquor_mark",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Liquor Mark (Tea Lot)",
+   "options": "Liquor Mark"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Purchase Date"
+  },
+  {
+   "fieldname": "evaluation_status",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Evaluation Status",
+   "options": "Evaluation Status"
+  },
+  {
+   "fieldname": "sale_no",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Sale No"
+  },
+  {
+   "fieldname": "auction_centre",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Auction Centre",
+   "options": "Auction Centre"
   }
  ],
  "index_web_pages_for_search": 1,

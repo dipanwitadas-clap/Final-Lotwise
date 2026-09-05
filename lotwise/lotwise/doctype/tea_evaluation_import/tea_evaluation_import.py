@@ -18,7 +18,7 @@ from frappe.utils import flt, getdate
 HEADER_TO_FIELD = {
 	"tea lot": {"field": "tea_lot", "type": "str"},
 	"taster": {"field": "taster", "type": "str"},
-	"stage": {"field": "stage", "type": "str"},
+	"stage": {"field": "evaluation_stage", "type": "str"},
 	"liquor mark": {"field": "liquor_mark", "type": "str"},
 	"evaluation date dd mm yyyy": {"field": "evaluation_date", "type": "date"},
 	"colour": {"field": "colour", "type": "int"},
@@ -31,6 +31,14 @@ HEADER_TO_FIELD = {
 	"invoice number": {"field": "invoice_number", "type": "str"},
 	"mark": {"field": "mark", "type": "str"},
 	"lot no": {"field": "lot_no", "type": "str"},
+	"purchase status": {"field": "purchase_status", "type": "str"},
+	"grade": {"field": "grade", "type": "str"},
+	"density": {"field": "density", "type": "float"},
+	"liquor mark tea lot": {"field": "lot_liquor_mark", "type": "str"},
+	"purchase date dd mm yyyy": {"field": "purchase_date", "type": "date"},
+	"evaluation status": {"field": "evaluation_status", "type": "str"},
+	"sale no": {"field": "sale_no", "type": "int"},
+	"auction centre": {"field": "auction_centre", "type": "str"},
 }
 
 # ==========================================================
@@ -38,14 +46,21 @@ HEADER_TO_FIELD = {
 # ==========================================================
 
 
-def get_tea_evaluation_select_options(fieldname):
-	"""Fetch select options dynamically from Tea Evaluation doctype meta."""
+def get_tea_evaluation_link_doctype(fieldname):
+	"""Return the Link target doctype for a Tea Evaluation field, if it is a Link field."""
 	meta = frappe.get_meta("Tea Evaluation")
 	field = meta.get_field(fieldname)
-	if not field or not field.options:
-		return set()
-	# Options string format: "\nOption1\nOption2\n..."
-	return {opt for opt in field.options.split("\n") if opt}
+	if not field or field.fieldtype != "Link" or not field.options:
+		return None
+	return field.options
+
+
+def is_valid_tea_evaluation_link_value(fieldname, value):
+	"""Check whether value exists in the doctype linked by a Tea Evaluation Link field."""
+	link_doctype = get_tea_evaluation_link_doctype(fieldname)
+	if not link_doctype:
+		return False
+	return bool(frappe.db.exists(link_doctype, value))
 
 
 def get_tea_evaluation_mandatory_fields():
@@ -182,14 +197,14 @@ def validate_import_row(row):
 				row["message"] = f"Invalid {link_field}: '{value}' not found in {link_doctype}"
 				return False
 
-	# Validate Select fields: check if value is in allowed options (fetched dynamically from Tea Evaluation doctype)
-	for select_field, label in [
-		("stage", "Stage"),
+	# Validate Link fields on Tea Evaluation: check if value exists in the linked doctype
+	for link_field, label in [
+		("evaluation_stage", "Stage"),
 		("liquor_mark", "Liquor Mark"),
 		("quality_grade", "Quality Grade"),
 	]:
-		value = row.get(select_field)
-		if value and value not in get_tea_evaluation_select_options(select_field):
+		value = row.get(link_field)
+		if value and not is_valid_tea_evaluation_link_value(link_field, value):
 			row["row_status"] = "Error"
 			row["message"] = f"Invalid {label}: '{value}' is not a valid option"
 			return False
@@ -358,22 +373,22 @@ class TeaEvaluationImport(Document):
 
 					continue
 
-				if row.stage not in get_tea_evaluation_select_options("stage"):
+				if row.evaluation_stage and not is_valid_tea_evaluation_link_value(
+					"evaluation_stage", row.evaluation_stage
+				):
 					row.row_status = "Error"
-					row.message = f"Invalid Stage: '{row.stage}' is not a valid option"
+					row.message = f"Invalid Stage: '{row.evaluation_stage}' is not a valid option"
 					errors += 1
 					continue
 
-				if row.liquor_mark and row.liquor_mark not in get_tea_evaluation_select_options(
-					"liquor_mark"
-				):
+				if row.liquor_mark and not is_valid_tea_evaluation_link_value("liquor_mark", row.liquor_mark):
 					row.row_status = "Error"
 					row.message = f"Invalid Liquor Mark: '{row.liquor_mark}' is not a valid option"
 					errors += 1
 					continue
 
-				if row.quality_grade and row.quality_grade not in get_tea_evaluation_select_options(
-					"quality_grade"
+				if row.quality_grade and not is_valid_tea_evaluation_link_value(
+					"quality_grade", row.quality_grade
 				):
 					row.row_status = "Error"
 					row.message = f"Invalid Quality Grade: '{row.quality_grade}' is not a valid option"
@@ -386,7 +401,7 @@ class TeaEvaluationImport(Document):
 					errors += 1
 					continue
 
-				if self.is_duplicate(row.tea_lot, row.taster, row.stage, row.evaluation_date):
+				if self.is_duplicate(row.tea_lot, row.taster, row.evaluation_stage, row.evaluation_date):
 					row.row_status = "Duplicate"
 
 					row.message = "Duplicate Evaluation"
@@ -400,7 +415,7 @@ class TeaEvaluationImport(Document):
 						"doctype": "Tea Evaluation",
 						"tea_lot": row.tea_lot,
 						"taster": row.taster,
-						"stage": row.stage,
+						"evaluation_stage": row.evaluation_stage,
 						"evaluation_date": row.evaluation_date or self.evaluation_import_date,
 						"liquor_mark": row.liquor_mark,
 						"colour": row.colour,
@@ -413,6 +428,7 @@ class TeaEvaluationImport(Document):
 						"invoice_number": row.invoice_number,
 						"mark": row.mark,
 						"lot_no": row.lot_no,
+						"density": row.density,
 					}
 				)
 
@@ -447,7 +463,7 @@ class TeaEvaluationImport(Document):
 	# DUPLICATE CHECK
 	# ======================================================
 
-	def is_duplicate(self, tea_lot, taster, stage, evaluation_date):
+	def is_duplicate(self, tea_lot, taster, evaluation_stage, evaluation_date):
 		if not evaluation_date:
 			return False
 
@@ -456,7 +472,7 @@ class TeaEvaluationImport(Document):
 			filters={
 				"tea_lot": tea_lot,
 				"taster": taster,
-				"stage": stage,
+				"evaluation_stage": evaluation_stage,
 				"evaluation_date": getdate(evaluation_date),
 			},
 		)
