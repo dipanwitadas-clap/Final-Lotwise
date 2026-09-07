@@ -9,8 +9,8 @@
  "engine": "InnoDB",
  "field_order": [
   "broker_name",
-  "auction_centre",
   "broker_short_name",
+  "auction_centre",
   "auction_centre_code"
  ],
  "fields": [
@@ -46,7 +46,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-05 12:45:57.753497",
+ "modified": "2026-09-07 10:09:21.202153",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Broker",
