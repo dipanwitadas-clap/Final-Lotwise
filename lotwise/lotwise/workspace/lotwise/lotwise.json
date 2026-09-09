@@ -215,7 +215,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Tea Lot & Evaluation",
-   "link_count": 8,
+   "link_count": 9,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -227,16 +227,6 @@
    "link_count": 0,
    "link_to": "Tea Lot Import",
    "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Evaluation Entry",
-   "link_count": 0,
-   "link_to": "tea-evaluation-entry",
-   "link_type": "Page",
    "onboard": 0,
    "type": "Link"
   },
@@ -283,6 +273,26 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Tea Lot Image Import",
+   "link_count": 0,
+   "link_to": "Tea Lot Image Import",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Evaluation Entry",
+   "link_count": 0,
+   "link_to": "tea-evaluation-entry",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Tea Evaluation",
    "link_count": 0,
    "link_to": "Tea Evaluation",
@@ -293,15 +303,15 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Tea Lot Image Import",
+   "label": "Tea Evaluation Import",
    "link_count": 0,
-   "link_to": "Tea Lot Image Import",
+   "link_to": "Tea Evaluation Import",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2026-09-02 09:41:33.807307",
+ "modified": "2026-09-07 14:22:57.473294",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",
