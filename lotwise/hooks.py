@@ -149,23 +149,9 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"lotwise.tasks.all"
-# 	],
-# 	"daily": [
-# 		"lotwise.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"lotwise.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"lotwise.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"lotwise.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"hourly": ["lotwise.lotwise.doctype.tea_lot_image_import.tea_lot_image_import.unlock_stale_scans"],
+}
 
 # Testing
 # -------
