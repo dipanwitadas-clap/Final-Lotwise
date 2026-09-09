@@ -40,6 +40,7 @@ class TeaLot(Document):
 		gross_wtpkg: DF.Float
 		intended_segment: DF.Link | None
 		invoice_number: DF.Data | None
+		item: DF.Link | None
 		liquor_mark: DF.Link | None
 		lot_no: DF.Data | None
 		manufacturer_ref: DF.Data | None
@@ -67,6 +68,47 @@ class TeaLot(Document):
 		warehouselocation: DF.Data | None
 	# end: auto-generated types
 
+	def validate(self):
+		self.create_purchase_item()
+
+	def create_purchase_item(self):
+		if self.purchase_status != "Purchase" or not self.purchase_date:
+			return
+
+		if self.item:
+			return
+
+		if frappe.db.exists("Item", self.name):
+			self.item = self.name
+			return
+
+		if not frappe.db.exists("Item Group", "Products"):
+			frappe.get_doc(
+				{
+					"doctype": "Item Group",
+					"item_group_name": "Products",
+					"parent_item_group": _("All Item Groups"),
+					"is_group": 0,
+				}
+			).insert(ignore_permissions=True)
+
+		if not frappe.db.exists("UOM", "Nos"):
+			frappe.throw(_("UOM 'Nos' does not exist. Please create it before purchasing Tea Lots."))
+
+		item = frappe.get_doc(
+			{
+				"doctype": "Item",
+				"item_code": self.name,
+				"item_name": self.name,
+				"item_group": "Products",
+				"stock_uom": "Nos",
+				"is_stock_item": 1,
+				"gst_hsn_code": "090240",
+			}
+		)
+		item.insert(ignore_permissions=True)
+		self.item = item.name
+
 	def autoname(self):
 		if self.acquisition_channel in ["Auction", "Outsourced"]:
 			centre_code = frappe.db.get_value(
@@ -78,8 +120,14 @@ class TeaLot(Document):
 			if not centre_code:
 				frappe.throw(_("Auction Centre Code not found."))
 
-			if not self.purchase_date:
-				frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
+			if self.purchase_status == "Offer":
+				if not self.offer_date:
+					frappe.throw(_("Offer Date is required to generate the Tea Lot name."))
+				year = getdate(self.offer_date).strftime("%y")
+			else:
+				if not self.purchase_date:
+					frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
+				year = getdate(self.purchase_date).strftime("%y")
 
 			if not self.lot_no:
 				frappe.throw(_("Lot No is required to generate the Tea Lot name."))
@@ -87,7 +135,6 @@ class TeaLot(Document):
 			if not self.sale_no:
 				frappe.throw(_("Sale No is required to generate the Tea Lot name."))
 
-			year = getdate(self.purchase_date).strftime("%y")
 			self.name = f"{centre_code}-{self.lot_no}-{self.sale_no}-{year}"
 
 		elif self.acquisition_channel == "Private":

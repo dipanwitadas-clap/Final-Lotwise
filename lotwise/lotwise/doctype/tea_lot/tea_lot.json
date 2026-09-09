@@ -21,6 +21,7 @@
   "evaluation_status",
   "column_break_uyqw",
   "purchase_status",
+  "item",
   "mark",
   "grade",
   "net_weight_total",
@@ -274,6 +275,13 @@
    "in_standard_filter": 1,
    "label": "Purchase Status",
    "options": "Purchase Status"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item",
+   "read_only": 1
   },
   {
    "fieldname": "do_reference",
