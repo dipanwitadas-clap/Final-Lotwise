@@ -6,6 +6,11 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "progress_section",
+  "progress_bar_html",
+  "scan_error",
+  "total_pages",
+  "processed_pages",
   "source_section",
   "source_images",
   "auction_centre",
@@ -13,7 +18,9 @@
   "sale_no",
   "purchase_status",
   "broker",
+  "broker_short_name",
   "acquisition_channel",
+  "offer_date",
   "totals_section",
   "total_packages",
   "total_net",
@@ -46,9 +53,10 @@
   },
   {
    "fieldname": "broker",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Broker / Auctioneer"
+   "label": "Broker",
+   "options": "Broker"
   },
   {
    "fieldname": "sale_no",
@@ -83,7 +91,39 @@
    "fieldname": "scan_status",
    "fieldtype": "Select",
    "label": "Scan Status",
-   "options": "Not Scanned\nScanned\nPartial\nError",
+   "options": "Not Scanned\nProcessing\nScanned\nPartial\nError",
+   "read_only": 1
+  },
+  {
+   "fieldname": "progress_section",
+   "fieldtype": "Section Break",
+   "label": "Scan Progress"
+  },
+  {
+   "fieldname": "progress_bar_html",
+   "fieldtype": "HTML",
+   "label": "Scan Progress",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.scan_error",
+   "fieldname": "scan_error",
+   "fieldtype": "Small Text",
+   "label": "Scan Error",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_pages",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Total Pages",
+   "read_only": 1
+  },
+  {
+   "fieldname": "processed_pages",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Processed Pages",
    "read_only": 1
   },
   {
@@ -114,12 +154,24 @@
    "fieldtype": "Link",
    "label": "Purchase Status",
    "options": "Purchase Status"
+  },
+  {
+   "fetch_from": "broker.broker_short_name",
+   "fieldname": "broker_short_name",
+   "fieldtype": "Data",
+   "label": "Broker Short Name"
+  },
+  {
+   "default": "Today",
+   "fieldname": "offer_date",
+   "fieldtype": "Date",
+   "label": "Offer Date"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-02 23:47:51.825852",
+ "modified": "2026-09-08 15:32:16.887913",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Image Import",
