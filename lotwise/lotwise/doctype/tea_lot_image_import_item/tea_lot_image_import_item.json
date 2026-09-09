@@ -22,7 +22,11 @@
   "warehouse",
   "ctc_no",
   "remarks",
-  "purchase_date"
+  "purchase_date",
+  "column_break_status",
+  "row_status",
+  "message",
+  "tea_lot"
  ],
  "fields": [
   {
@@ -148,6 +152,38 @@
    "fieldname": "purchase_date",
    "fieldtype": "Date",
    "label": "Purchase Date"
+  },
+  {
+   "fieldname": "column_break_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nCreated\nError\nDuplicate",
+   "read_only": 1
+  },
+  {
+   "description": "Status message or error details",
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Lot doctype",
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tea Lot",
+   "options": "Tea Lot",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
