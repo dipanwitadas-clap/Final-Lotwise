@@ -19,6 +19,7 @@
   "liquor_mark",
   "purchase_date",
   "evaluation_status",
+  "suggested_valuation",
   "column_break_uyqw",
   "purchase_status",
   "item",
@@ -355,6 +356,11 @@
    "fieldtype": "Date",
    "label": "Offer Date",
    "mandatory_depends_on": "eval:doc.purchase_status==\"Offer\""
+  },
+  {
+   "fieldname": "suggested_valuation",
+   "fieldtype": "Currency",
+   "label": "Suggested Valuation"
   }
  ],
  "grid_page_length": 50,
@@ -365,7 +371,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-08-26 00:06:54.791519",
+ "modified": "2026-09-11 16:31:08.318880",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
