@@ -48,6 +48,7 @@ class TeaLot(Document):
 		mfg_monthyear: DF.Data | None
 		net_weight_total: DF.Float
 		net_wtpkg: DF.Float
+		offer_check: DF.Check
 		offer_date: DF.Date | None
 		offer_sample_list: DF.Link | None
 		packages: DF.Int

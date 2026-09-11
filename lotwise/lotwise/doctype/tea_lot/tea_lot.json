@@ -33,6 +33,7 @@
   "do_date",
   "warehouse",
   "offer_date",
+  "offer_check",
   "section_break_7zcb",
   "broker",
   "sale_no",
@@ -361,6 +362,13 @@
    "fieldname": "suggested_valuation",
    "fieldtype": "Currency",
    "label": "Suggested Valuation"
+  },
+  {
+   "default": "0",
+   "fieldname": "offer_check",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Offer check"
   }
  ],
  "grid_page_length": 50,
@@ -371,7 +379,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-09-11 16:31:08.318880",
+ "modified": "2026-09-11 17:19:14.985963",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
