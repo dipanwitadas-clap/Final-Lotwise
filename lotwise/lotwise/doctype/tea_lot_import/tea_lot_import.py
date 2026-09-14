@@ -135,6 +135,7 @@ class TeaLotImport(Document):
 		computed_total_packages: DF.Int
 		import_file: DF.Attach
 		items: DF.Table[TeaLotImportItem]
+		purchase_status: DF.Link | None
 		purchase_type: DF.Literal["", "Purchase", "Offer"]
 		rows_created: DF.Int
 		rows_duplicate: DF.Int

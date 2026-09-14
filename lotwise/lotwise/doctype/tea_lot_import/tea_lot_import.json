@@ -12,6 +12,7 @@
   "col_break_1",
   "company",
   "purchase_type",
+  "purchase_status",
   "col_break_1b",
   "sale_no",
   "blend",
@@ -142,6 +143,12 @@
    "fieldtype": "Select",
    "label": "Purchase Type",
    "options": "\nPurchase\nOffer"
+  },
+  {
+   "fieldname": "purchase_status",
+   "fieldtype": "Link",
+   "label": "Purchase Status",
+   "options": "Purchase Status"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -152,7 +159,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-07-30 17:16:06.508156",
+ "modified": "2026-09-14 15:26:53.481213",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",

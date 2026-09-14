@@ -71,8 +71,8 @@ class TeaLot(Document):
 		warehouselocation: DF.Data | None
 	# end: auto-generated types
 
-	# def validate(self):
-	# 	self.create_purchase_item()
+	def validate(self):
+		self.create_purchase_item()
 
 	def create_purchase_item(self):
 		if self.purchase_status != "Purchase" or not self.purchase_date:
