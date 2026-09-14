@@ -39,3 +39,4 @@ class TeaEvaluation(Document):
 		"""Update linked Tea Lot evaluation_status to 'Evaluated' when a Tea Evaluation is created or updated."""
 		if self.tea_lot:
 			frappe.db.set_value("Tea Lot", self.tea_lot, "evaluation_status", "Evaluated")
+			frappe.db.set_value("Tea Lot", self.tea_lot, "suggested_valuation", self.suggested_valuation)

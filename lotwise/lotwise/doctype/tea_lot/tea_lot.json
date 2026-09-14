@@ -34,6 +34,7 @@
   "warehouse",
   "offer_date",
   "offer_check",
+  "purchase_check",
   "section_break_7zcb",
   "broker",
   "sale_no",
@@ -369,6 +370,13 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Offer check"
+  },
+  {
+   "default": "0",
+   "fieldname": "purchase_check",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Purchase Check"
   }
  ],
  "grid_page_length": 50,
@@ -379,7 +387,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-09-11 17:19:14.985963",
+ "modified": "2026-09-14 11:06:20.555661",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

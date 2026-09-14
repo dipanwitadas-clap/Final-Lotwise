@@ -53,6 +53,7 @@ class TeaLot(Document):
 		offer_sample_list: DF.Link | None
 		packages: DF.Int
 		packing: DF.Link | None
+		purchase_check: DF.Check
 		purchase_date: DF.Date | None
 		purchase_from: DF.Data | None
 		purchase_invoice_date: DF.Date | None
