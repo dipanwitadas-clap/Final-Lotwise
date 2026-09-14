@@ -252,6 +252,7 @@ class TeaLotImageImport(Document):
 		auction_centre_code: DF.Data | None
 		broker: DF.Link | None
 		broker_short_name: DF.Data | None
+		fiscal_year: DF.Link | None
 		items: DF.Table[TeaLotImageImportItem]
 		offer_date: DF.Date | None
 		processed_pages: DF.Int

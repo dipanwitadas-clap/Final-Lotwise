@@ -12,11 +12,12 @@
   "total_pages",
   "processed_pages",
   "source_section",
+  "fiscal_year",
+  "purchase_status",
   "source_images",
   "auction_centre",
   "auction_centre_code",
   "sale_no",
-  "purchase_status",
   "broker",
   "broker_short_name",
   "acquisition_channel",
@@ -166,12 +167,18 @@
    "fieldname": "offer_date",
    "fieldtype": "Date",
    "label": "Offer Date"
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "options": "Fiscal Year"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-08 15:32:16.887913",
+ "modified": "2026-09-14 16:56:47.817541",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Image Import",

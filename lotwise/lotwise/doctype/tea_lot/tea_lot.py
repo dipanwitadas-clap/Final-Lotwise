@@ -34,6 +34,7 @@ class TeaLot(Document):
 		do_date: DF.Data | None
 		do_reference: DF.Data | None
 		evaluation_status: DF.Link | None
+		fiscal_year: DF.Link | None
 		gp_date: DF.Date | None
 		gp_no: DF.Data | None
 		grade: DF.Link | None

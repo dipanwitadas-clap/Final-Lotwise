@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_mgxs",
+  "fiscal_year",
   "acquisition_channel",
   "offer_sample_list",
   "seller",
@@ -377,6 +378,12 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Purchase Check"
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "options": "Fiscal Year"
   }
  ],
  "grid_page_length": 50,
@@ -387,7 +394,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-09-14 11:06:20.555661",
+ "modified": "2026-09-14 16:23:12.934745",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
