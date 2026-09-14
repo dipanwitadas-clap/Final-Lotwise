@@ -133,6 +133,7 @@ class TeaLotImport(Document):
 		company: DF.Data | None
 		computed_total_net_weight: DF.Float
 		computed_total_packages: DF.Int
+		fiscal_year: DF.Link | None
 		import_file: DF.Attach
 		items: DF.Table[TeaLotImportItem]
 		purchase_status: DF.Link | None

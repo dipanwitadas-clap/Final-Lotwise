@@ -16,6 +16,7 @@
   "col_break_1b",
   "sale_no",
   "blend",
+  "fiscal_year",
   "recon_section",
   "computed_total_packages",
   "col_break_2",
@@ -149,6 +150,12 @@
    "fieldtype": "Link",
    "label": "Purchase Status",
    "options": "Purchase Status"
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "options": "Fiscal Year"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -159,7 +166,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-09-14 15:26:53.481213",
+ "modified": "2026-09-14 15:59:32.356976",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",
