@@ -11,12 +11,12 @@
   "acquisition_channel",
   "col_break_1",
   "company",
-  "purchase_type",
   "purchase_status",
+  "purchase_type",
   "col_break_1b",
+  "fiscal_year",
   "sale_no",
   "blend",
-  "fiscal_year",
   "recon_section",
   "computed_total_packages",
   "col_break_2",
@@ -166,7 +166,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-09-14 16:28:37.727689",
+ "modified": "2026-09-14 17:25:18.049220",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",
