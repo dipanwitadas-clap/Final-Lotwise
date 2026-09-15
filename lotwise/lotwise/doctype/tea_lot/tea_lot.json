@@ -86,8 +86,8 @@
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Mark",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\"",
-   "options": "Mark"
+   "options": "Mark",
+   "reqd": 1
   },
   {
    "fieldname": "grade",
@@ -394,7 +394,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-09-14 16:23:12.934745",
+ "modified": "2026-09-15 15:11:38.935042",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

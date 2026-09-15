@@ -45,7 +45,7 @@ class TeaLot(Document):
 		liquor_mark: DF.Link | None
 		lot_no: DF.Data | None
 		manufacturer_ref: DF.Data | None
-		mark: DF.Link | None
+		mark: DF.Link
 		mfg_monthyear: DF.Data | None
 		net_weight_total: DF.Float
 		net_wtpkg: DF.Float
@@ -167,13 +167,16 @@ class TeaLot(Document):
 					frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
 				year = getdate(self.purchase_date).strftime("%y")
 
+			if not self.mark:
+				frappe.throw(_("Garden Name (Mark) is required to generate the Tea Lot name."))
+
 			if not self.lot_no:
 				frappe.throw(_("Lot No is required to generate the Tea Lot name."))
 
 			if not self.sale_no:
 				frappe.throw(_("Sale No is required to generate the Tea Lot name."))
 
-			self.name = f"{centre_code}-{self.lot_no}-{self.sale_no}-{year}"
+			self.name = f"{centre_code}-{self.mark}-{self.lot_no}-{self.sale_no}-{year}"
 
 		elif self.acquisition_channel == "Private":
 			if not self.invoice_number:

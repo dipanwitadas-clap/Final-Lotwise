@@ -204,7 +204,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 		self.assertEqual(result["created"], 0)
 		self.assertEqual(result["errors"], 1)
 		self.assertIn("must fall within Fiscal Year", doc.items[0].message)
-		self.assertFalse(frappe.db.exists("Tea Lot", "SLG-TEST003-5-25"))
+		self.assertFalse(frappe.db.exists("Tea Lot", "SLG-TESTMARK-TEST003-5-25"))
 
 	def test_create_tea_lots_accepts_date_inside_fiscal_year(self):
 		"""Rows whose purchase_date falls inside the selected Fiscal Year should create the lot normally."""

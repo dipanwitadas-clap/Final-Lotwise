@@ -295,7 +295,7 @@ class TeaLotImport(Document):
 					else:
 						year = getdate(row.purchase_date).strftime("%y")
 
-					tea_lot_name = f"{auction_centre_code}-{lot_no}-{self.sale_no}-{year}"
+					tea_lot_name = f"{auction_centre_code}-{mark_name}-{lot_no}-{self.sale_no}-{year}"
 					if frappe.db.exists("Tea Lot", tea_lot_name):
 						row.row_status = "Duplicate"
 						row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
