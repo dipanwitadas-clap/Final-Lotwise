@@ -73,7 +73,41 @@ class TeaLot(Document):
 	# end: auto-generated types
 
 	def validate(self):
+		self.validate_fiscal_year()
 		self.create_purchase_item()
+
+	def validate_fiscal_year(self):
+		if not self.fiscal_year:
+			return
+
+		if self.purchase_status == "Offer":
+			relevant_date = self.offer_date
+			date_label = _("Offer Date")
+		else:
+			relevant_date = self.purchase_date
+			date_label = _("Purchase Date")
+
+		if not relevant_date:
+			return
+
+		year_start_date, year_end_date = frappe.db.get_value(
+			"Fiscal Year", self.fiscal_year, ["year_start_date", "year_end_date"]
+		)
+		relevant_date = getdate(relevant_date)
+
+		if relevant_date < year_start_date or relevant_date > year_end_date:
+			frappe.throw(
+				_(
+					"{0} <b>{1}</b> must fall within Fiscal Year <b>{2}</b> (<b>{3}</b> to <b>{4}</b>)."
+				).format(
+					date_label,
+					frappe.utils.formatdate(relevant_date, "dd-MMM-yyyy"),
+					self.fiscal_year,
+					frappe.utils.formatdate(year_start_date, "dd-MMM-yyyy"),
+					frappe.utils.formatdate(year_end_date, "dd-MMM-yyyy"),
+				),
+				title=_("Invalid {0}").format(date_label),
+			)
 
 	def create_purchase_item(self):
 		if self.purchase_status != "Purchase" or not self.purchase_date:

@@ -13,6 +13,7 @@
   "grade_raw",
   "auction_centre",
   "purchase_date",
+  "offer_date",
   "packages",
   "gross_wtpkg",
   "net_weight_total",
@@ -73,6 +74,11 @@
    "fieldname": "purchase_date",
    "fieldtype": "Date",
    "label": "Purchase Date"
+  },
+  {
+   "fieldname": "offer_date",
+   "fieldtype": "Date",
+   "label": "Offer Date"
   },
   {
    "columns": 1,

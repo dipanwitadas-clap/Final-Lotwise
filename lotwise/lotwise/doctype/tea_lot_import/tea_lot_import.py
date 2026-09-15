@@ -17,6 +17,7 @@ HEADER_TO_FIELD = {
 	"grade": {"field": "grade_raw", "type": "str", "required": True},
 	"auction centre": {"field": "auction_centre", "type": "str"},
 	"purchase date": {"field": "purchase_date", "type": "date"},
+	"offer date": {"field": "offer_date", "type": "date"},
 	"no of pkgs": {"field": "packages", "type": "int", "required": True},
 	"wt kgs": {"field": "gross_wtpkg", "type": "float"},
 	"nett wt kg": {"field": "net_weight_total", "type": "float", "required": True},
@@ -230,9 +231,17 @@ class TeaLotImport(Document):
 					error += 1
 					continue
 
-				if not frappe.db.exists("Purchase Status", "Purchase"):
+				if not self.purchase_status:
 					row.row_status = "Error"
-					row.message = _("Purchase Status 'Purchase' not found. Please create it first.")
+					row.message = _("Purchase Status is required on the import document.")
+					error += 1
+					continue
+
+				if not frappe.db.exists("Purchase Status", self.purchase_status):
+					row.row_status = "Error"
+					row.message = _("Purchase Status '{0}' not found. Please create it first.").format(
+						self.purchase_status
+					)
 					error += 1
 					continue
 
@@ -276,7 +285,16 @@ class TeaLotImport(Document):
 						error += 1
 						continue
 
-					year = getdate(row.purchase_date).strftime("%y")
+					if self.purchase_status == "Offer":
+						if not row.offer_date:
+							row.row_status = "Error"
+							row.message = _("Offer Date is required for Auction/Outsourced lots.")
+							error += 1
+							continue
+						year = getdate(row.offer_date).strftime("%y")
+					else:
+						year = getdate(row.purchase_date).strftime("%y")
+
 					tea_lot_name = f"{auction_centre_code}-{lot_no}-{self.sale_no}-{year}"
 					if frappe.db.exists("Tea Lot", tea_lot_name):
 						row.row_status = "Duplicate"
@@ -297,13 +315,21 @@ class TeaLotImport(Document):
 						error += 1
 						continue
 
-					if not row.purchase_date:
-						row.row_status = "Error"
-						row.message = _("Purchase Date is required for Private lots.")
-						error += 1
-						continue
+					if self.purchase_status == "Offer":
+						if not row.offer_date:
+							row.row_status = "Error"
+							row.message = _("Offer Date is required for Private lots.")
+							error += 1
+							continue
+						year = getdate(row.offer_date).strftime("%y")
+					else:
+						if not row.purchase_date:
+							row.row_status = "Error"
+							row.message = _("Purchase Date is required for Private lots.")
+							error += 1
+							continue
+						year = getdate(row.purchase_date).strftime("%y")
 
-					year = getdate(row.purchase_date).strftime("%y")
 					purchase_invoice_no = str(row.purchase_invoice_no)
 					if "-" in purchase_invoice_no:
 						first, second = purchase_invoice_no.rsplit("-", 1)
@@ -326,7 +352,7 @@ class TeaLotImport(Document):
 				values = {
 					"doctype": "Tea Lot",
 					"acquisition_channel": channel,
-					"purchase_status": "Purchase",
+					"purchase_status": self.purchase_status,
 					"lot_no": lot_no or None,
 					"invoice_number": invoice,
 					"mark": mark_name,
@@ -339,8 +365,10 @@ class TeaLotImport(Document):
 					"liquor_mark": liquor or None,
 					"blend": row.blend or None,
 					"sale_no": self.sale_no or None,
+					"fiscal_year": self.fiscal_year or None,
 					"auction_centre": auction_centre or None,
 					"purchase_date": row.purchase_date or None,
+					"offer_date": row.offer_date or None,
 					"source_doctype": self.doctype or None,
 					"source_doctype_id": self.name or None,
 					"purchase_from": row.purchase_from,
@@ -363,6 +391,7 @@ class TeaLotImport(Document):
 				row.row_status = "Error"
 				row.message = str(e)[:140]
 				error += 1
+				frappe.clear_last_message()
 				frappe.log_error(frappe.get_traceback(), "Tea Lot Import: row failed")
 
 		self.rows_created = sum(1 for item in self.items if item.row_status == "Created")
