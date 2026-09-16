@@ -74,6 +74,20 @@ class TestTeaLotImageImport(FrappeTestCase):
 		self.assertEqual(packages, 35)
 		self.assertAlmostEqual(net, 150.75, places=2)
 
+	# ── _split_garden_region ─────────────────────────────────────────────
+
+	def test_split_garden_region_splits_name_and_code(self):
+		self.assertEqual(mod._split_garden_region("NOWERA NUDDY (DO)"), ("NOWERA NUDDY", "DO"))
+		self.assertEqual(mod._split_garden_region("CHALOUNI (DO)"), ("CHALOUNI", "DO"))
+
+	def test_split_garden_region_no_parens_leaves_region_empty(self):
+		self.assertEqual(mod._split_garden_region("BARADIGHI"), ("BARADIGHI", ""))
+
+	def test_split_garden_region_handles_blank_and_whitespace(self):
+		self.assertEqual(mod._split_garden_region(""), ("", ""))
+		self.assertEqual(mod._split_garden_region(None), ("", ""))
+		self.assertEqual(mod._split_garden_region("  CHALOUNI   (  DO  )  "), ("CHALOUNI", "DO"))
+
 	# ── _merge_pages ─────────────────────────────────────────────────────
 
 	def test_merge_pages_carries_forward_and_dedupes(self):
@@ -161,6 +175,15 @@ class TestTeaLotImageImport(FrappeTestCase):
 		self.assertEqual(doc.broker, "PARCON")
 		self.assertEqual(doc.auction_centre, "Siliguri")
 		self.assertEqual(doc.scan_error, "")
+		self.assertEqual(doc.items[0].garden, "BARADIGHI")
+		self.assertEqual(doc.items[0].region, "DO")
+
+	def test_apply_extraction_garden_without_region_leaves_region_blank(self):
+		doc = self._make_doc()
+		merged = {**_FAKE_PAGE, "items": [{**_FAKE_ITEM, "garden": "BARADIGHI"}]}
+		doc._apply_extraction(merged)
+		self.assertEqual(doc.items[0].garden, "BARADIGHI")
+		self.assertEqual(doc.items[0].region, "")
 
 	def test_apply_extraction_no_rows_is_error(self):
 		doc = self._make_doc()

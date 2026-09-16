@@ -31,6 +31,7 @@ class TeaLotImageImportItem(Document):
 		parenttype: DF.Data
 		pkgs: DF.Data | None
 		purchase_date: DF.Date | None
+		region: DF.Data | None
 		remarks: DF.SmallText | None
 		total_net: DF.Float
 		warehouse: DF.Data | None

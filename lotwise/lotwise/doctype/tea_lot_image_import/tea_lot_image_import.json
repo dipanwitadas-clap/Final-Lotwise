@@ -172,7 +172,8 @@
    "fieldname": "fiscal_year",
    "fieldtype": "Link",
    "label": "Fiscal Year",
-   "options": "Fiscal Year"
+   "options": "Fiscal Year",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,

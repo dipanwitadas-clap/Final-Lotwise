@@ -231,6 +231,22 @@ def _parse_lot_inv_no(value: str) -> tuple[str | None, str | None]:
 	return value, None
 
 
+_GARDEN_REGION_RE = re.compile(r"^\s*(.*?)\s*\(\s*([^()]*)\s*\)\s*$")
+
+
+def _split_garden_region(value: str) -> tuple[str, str]:
+	"""'NOWERA NUDDY (DO)' -> ('NOWERA NUDDY', 'DO'). Falls back to treating the
+	whole (trimmed) string as the garden/mark name, with an empty region, when
+	it doesn't match the expected 'NAME (CODE)' shape."""
+	value = (value or "").strip()
+	if not value:
+		return "", ""
+	match = _GARDEN_REGION_RE.match(value)
+	if not match:
+		return value, ""
+	return match.group(1).strip(), match.group(2).strip()
+
+
 class TeaLotImageImport(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
@@ -252,7 +268,7 @@ class TeaLotImageImport(Document):
 		auction_centre_code: DF.Data | None
 		broker: DF.Link | None
 		broker_short_name: DF.Data | None
-		fiscal_year: DF.Link | None
+		fiscal_year: DF.Link
 		items: DF.Table[TeaLotImageImportItem]
 		offer_date: DF.Date | None
 		processed_pages: DF.Int
@@ -314,6 +330,7 @@ class TeaLotImageImport(Document):
 				raw = row.get(field)
 				values[field] = flt(raw) if raw not in (None, "") else 0
 			values["awr_dt"] = _parse_date(row.get("awr_dt"))
+			values["garden"], values["region"] = _split_garden_region(values["garden"])
 			self.append("items", values)
 
 		self.total_packages, self.total_net = _compute_totals(rows)
@@ -338,6 +355,8 @@ class TeaLotImageImport(Document):
 			frappe.throw(_("Auction Centre is required."))
 		if not self.sale_no:
 			frappe.throw(_("Sale No is required."))
+		if not self.fiscal_year:
+			frappe.throw(_("Fiscal Year is required."))
 
 		auction_centre_code = frappe.db.get_value(
 			"Auction Centre", self.auction_centre, "auction_centre_code"
@@ -365,6 +384,13 @@ class TeaLotImageImport(Document):
 
 				lot_no = f"{self.broker_short_name or ''}{lot_num}"
 
+				resolved_mark, err = _resolve_master("Mark", row.garden, _("Mark"))
+				if err:
+					row.row_status = "Error"
+					row.message = err
+					error += 1
+					continue
+
 				if is_offer:
 					year = getdate(self.offer_date).strftime("%y")
 				else:
@@ -375,7 +401,7 @@ class TeaLotImageImport(Document):
 						continue
 					year = getdate(row.purchase_date).strftime("%y")
 
-				tea_lot_name = f"{auction_centre_code}-{lot_no}-{self.sale_no}-{year}"
+				tea_lot_name = f"{auction_centre_code}-{resolved_mark}-{lot_no}-{self.sale_no}-{year}"
 				if frappe.db.exists("Tea Lot", tea_lot_name):
 					row.row_status = "Duplicate"
 					row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
@@ -387,10 +413,13 @@ class TeaLotImageImport(Document):
 					"acquisition_channel": self.acquisition_channel,
 					"purchase_status": self.purchase_status,
 					"auction_centre": self.auction_centre,
+					"grade": row.grade if row.grade else None,
 					"broker": self.broker,
 					"sale_no": self.sale_no,
 					"lot_no": lot_no,
 					"invoice_number": invoice_part,
+					"mark": resolved_mark,
+					"fiscal_year": self.fiscal_year,
 					"offer_date": self.offer_date if is_offer else None,
 					"purchase_date": row.purchase_date if not is_offer else None,
 					"source_doctype": self.doctype,

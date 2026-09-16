@@ -18,6 +18,7 @@
   "location",
   "pkgs",
   "garden",
+  "region",
   "company",
   "warehouse",
   "ctc_no",
@@ -113,11 +114,19 @@
   },
   {
    "columns": 1,
-   "description": "Garden / Estate name for this lot",
+   "description": "Garden / Mark name only, without the region code",
    "fieldname": "garden",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Garden"
+   "label": "Garden/Mark"
+  },
+  {
+   "columns": 1,
+   "description": "Region code parsed from the parenthesized suffix, e.g. 'DO' from 'NOWERA NUDDY (DO)'",
+   "fieldname": "region",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Region"
   },
   {
    "columns": 1,
