@@ -32,7 +32,12 @@ class TestTeaLotImportCreate(FrappeTestCase):
 		"""Clean up test data"""
 		for lot in frappe.get_all(
 			"Tea Lot",
-			filters={"lot_no": ["in", ["TEST001", "TEST002", "TEST003", "TEST004", "TEST005", "TEST006"]]},
+			filters={
+				"lot_no": [
+					"in",
+					["TEST001", "TEST002", "TEST003", "TEST004", "TEST005", "TEST006", "TEST007"],
+				]
+			},
 		):
 			try:
 				frappe.delete_doc("Tea Lot", lot.name, ignore_permissions=True, force=True)
@@ -478,3 +483,39 @@ class TestTeaLotImportCreate(FrappeTestCase):
 		self.assertEqual(lot.purchase_invoice_no, "PINV-006")
 
 		self.assertEqual(frappe.db.count("Tea Lot", filters={"lot_no": "TEST006"}), 1)
+
+	def test_bag_sample_without_matching_lot_errors(self):
+		"""A Bag Sample row with no prior Offer/Purchase Tea Lot should error, not create one."""
+		doc = frappe.get_doc(
+			{
+				"doctype": "Tea Lot Import",
+				"acquisition_channel": "Auction",
+				"sale_no": "10",
+				"purchase_status": "Bag Sample",
+				"fiscal_year": "2026-2027",
+				"items": [
+					{
+						"lot_no": "TEST007",
+						"invoice_number": "INV007",
+						"mark_raw": "TESTMARK",
+						"grade_raw": "BP",
+						"packages": 15,
+						"net_weight_total": 519.2,
+						"liquor_mark": "C+",
+						"auction_centre": "Siliguri",
+						"purchase_date": "2026-07-15",
+						"row_status": "Pending",
+					}
+				],
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		result = doc.create_tea_lots()
+
+		self.assertEqual(result["created"], 0)
+		self.assertEqual(result["updated"], 0)
+		self.assertEqual(result["errors"], 1)
+		self.assertEqual(doc.items[0].row_status, "Error")
+		self.assertIn("No existing Tea Lot found", doc.items[0].message)
+		self.assertFalse(frappe.db.exists("Tea Lot", {"lot_no": "TEST007"}))

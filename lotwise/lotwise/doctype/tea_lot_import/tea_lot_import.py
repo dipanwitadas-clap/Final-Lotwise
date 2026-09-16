@@ -342,6 +342,16 @@ class TeaLotImport(Document):
 						duplicate += 1
 						continue
 
+					if self.purchase_status == "Bag Sample":
+						row.row_status = "Error"
+						row.message = _(
+							"No existing Tea Lot found to move to Bag Sample. "
+							"Auction Centre, Mark, Lot No, Sale No, Fiscal Year and Grade must match "
+							"a previously purchased lot."
+						)
+						error += 1
+						continue
+
 					tea_lot_name = f"{auction_centre_code}-{mark_name}-{lot_no}-{self.sale_no}-{year}"
 					if frappe.db.exists("Tea Lot", tea_lot_name):
 						row.row_status = "Duplicate"
