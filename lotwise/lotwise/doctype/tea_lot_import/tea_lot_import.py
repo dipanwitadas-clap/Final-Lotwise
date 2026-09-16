@@ -134,15 +134,16 @@ class TeaLotImport(Document):
 		company: DF.Data | None
 		computed_total_net_weight: DF.Float
 		computed_total_packages: DF.Int
-		fiscal_year: DF.Link | None
+		fiscal_year: DF.Link
 		import_file: DF.Attach
 		items: DF.Table[TeaLotImportItem]
-		purchase_status: DF.Link | None
+		purchase_status: DF.Link
 		purchase_type: DF.Literal["", "Purchase", "Offer"]
 		rows_created: DF.Int
 		rows_duplicate: DF.Int
 		rows_error: DF.Int
 		rows_parsed: DF.Int
+		rows_updated: DF.Int
 		sale_no: DF.Int
 	# end: auto-generated types
 
@@ -184,7 +185,7 @@ class TeaLotImport(Document):
 	def create_tea_lots(self):
 		"""Create Tea Lot for each Pending row. Validates, dedupes, creates masters."""
 		meta = frappe.get_meta("Tea Lot")
-		created = duplicate = error = 0
+		created = duplicate = error = updated = 0
 		channel = self.acquisition_channel
 
 		for row in self.items:
@@ -295,6 +296,52 @@ class TeaLotImport(Document):
 					else:
 						year = getdate(row.purchase_date).strftime("%y")
 
+					# A lot is often uploaded once as "Offer" and later re-uploaded as
+					# "Purchase" for the same physical lot. The two uploads can use
+					# different dates (offer_date vs purchase_date), so the composed
+					# name's year segment can differ even though it's the same lot -
+					# match on the identifying fields instead of the name in that case.
+					existing_lot = frappe.db.get_value(
+						"Tea Lot",
+						{
+							"auction_centre": auction_centre,
+							"mark": mark_name,
+							"lot_no": lot_no,
+							"sale_no": self.sale_no,
+							"fiscal_year": self.fiscal_year,
+							"grade": grade_code or None,
+						},
+						"name",
+					)
+
+					if existing_lot and self.purchase_status != "Offer":
+						existing_doc = frappe.get_doc("Tea Lot", existing_lot)
+						existing_doc.purchase_status = self.purchase_status
+						# Bag Sample only advances the status on an already-purchased
+						# lot - it doesn't carry its own purchase data to overwrite with.
+						if self.purchase_status != "Bag Sample":
+							existing_doc.purchase_date = row.purchase_date or None
+							existing_doc.purchase_invoice_no = row.purchase_invoice_no
+							existing_doc.purchase_invoice_date = row.purchase_invoice_date
+							existing_doc.purchase_from = row.purchase_from
+							existing_doc.warehouse = row.warehouse or None
+							existing_doc.rate = flt(row.rate)
+						existing_doc.save(ignore_permissions=True)
+
+						row.tea_lot = existing_doc.name
+						row.row_status = "Updated"
+						row.message = _("Updated existing Tea Lot {0} to {1}.").format(
+							existing_doc.name, self.purchase_status
+						)
+						updated += 1
+						continue
+
+					if existing_lot:
+						row.row_status = "Duplicate"
+						row.message = _("Tea Lot '{0}' already exists.").format(existing_lot)
+						duplicate += 1
+						continue
+
 					tea_lot_name = f"{auction_centre_code}-{mark_name}-{lot_no}-{self.sale_no}-{year}"
 					if frappe.db.exists("Tea Lot", tea_lot_name):
 						row.row_status = "Duplicate"
@@ -397,8 +444,9 @@ class TeaLotImport(Document):
 		self.rows_created = sum(1 for item in self.items if item.row_status == "Created")
 		self.rows_error = sum(1 for item in self.items if item.row_status == "Error")
 		self.rows_duplicate = sum(1 for item in self.items if item.row_status == "Duplicate")
+		self.rows_updated = sum(1 for item in self.items if item.row_status == "Updated")
 		self.save()
-		return {"created": created, "errors": error, "duplicates": duplicate}
+		return {"created": created, "errors": error, "duplicates": duplicate, "updated": updated}
 
 	@frappe.whitelist()
 	def export_error_rows(self):

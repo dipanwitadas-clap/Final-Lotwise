@@ -34,7 +34,7 @@ class TeaLot(Document):
 		do_date: DF.Data | None
 		do_reference: DF.Data | None
 		evaluation_status: DF.Link | None
-		fiscal_year: DF.Link | None
+		fiscal_year: DF.Link
 		gp_date: DF.Date | None
 		gp_no: DF.Data | None
 		grade: DF.Link | None
@@ -74,7 +74,14 @@ class TeaLot(Document):
 
 	def validate(self):
 		self.validate_fiscal_year()
+		self.set_status_checks()
 		self.create_purchase_item()
+
+	def set_status_checks(self):
+		if self.purchase_status == "Offer":
+			self.offer_check = 1
+		if self.purchase_status == "Purchase":
+			self.purchase_check = 1
 
 	def validate_fiscal_year(self):
 		if not self.fiscal_year:

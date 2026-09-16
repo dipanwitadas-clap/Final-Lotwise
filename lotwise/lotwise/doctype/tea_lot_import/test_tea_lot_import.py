@@ -30,7 +30,10 @@ class TestTeaLotImportCreate(FrappeTestCase):
 
 	def setUp(self):
 		"""Clean up test data"""
-		for lot in frappe.get_all("Tea Lot", filters={"lot_no": ["in", ["TEST001", "TEST002", "TEST003"]]}):
+		for lot in frappe.get_all(
+			"Tea Lot",
+			filters={"lot_no": ["in", ["TEST001", "TEST002", "TEST003", "TEST004", "TEST005", "TEST006"]]},
+		):
 			try:
 				frappe.delete_doc("Tea Lot", lot.name, ignore_permissions=True, force=True)
 			except Exception:
@@ -45,6 +48,12 @@ class TestTeaLotImportCreate(FrappeTestCase):
 			frappe.get_doc({"doctype": "Purchase Status", "purchase_status": "Test Purchased"}).insert(
 				ignore_permissions=True
 			)
+
+		for status in ["Offer", "Purchase", "Bag Sample"]:
+			if not frappe.db.exists("Purchase Status", status):
+				frappe.get_doc({"doctype": "Purchase Status", "purchase_status": status}).insert(
+					ignore_permissions=True
+				)
 
 		if not frappe.db.exists("Mark", "TESTMARK"):
 			frappe.get_doc({"doctype": "Mark", "mark_name": "TESTMARK"}).insert(ignore_permissions=True)
@@ -76,6 +85,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"centre": "SILIGURI",
 				"purchase_date": "2026-04-01",
 				"purchase_status": "Test Purchased",
+				"fiscal_year": "2026-2027",
 				"items": [
 					{
 						"lot_no": "TEST001",
@@ -114,6 +124,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"acquisition_channel": "Auction",
 				"sale_no": "3",
 				"purchase_status": "Offer",
+				"fiscal_year": "2026-2027",
 				"items": [
 					{
 						"lot_no": "TEST002",
@@ -145,6 +156,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"acquisition_channel": "Auction",
 				"sale_no": "4",
 				"purchase_status": "Offer",
+				"fiscal_year": "2026-2027",
 				"items": [
 					{
 						"lot_no": "TEST002",
@@ -239,3 +251,230 @@ class TestTeaLotImportCreate(FrappeTestCase):
 		self.assertEqual(result["errors"], 0)
 		lot_name = doc.items[0].tea_lot
 		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "fiscal_year"), "2026-2027")
+
+	def test_purchase_import_updates_existing_offer_lot_in_place(self):
+		"""A Purchase-phase row matching an existing Offer lot (by centre+mark+lot_no+sale_no+
+		fiscal_year) should update that same Tea Lot instead of creating a duplicate."""
+		offer_doc = frappe.get_doc(
+			{
+				"doctype": "Tea Lot Import",
+				"acquisition_channel": "Auction",
+				"sale_no": "7",
+				"purchase_status": "Offer",
+				"fiscal_year": "2026-2027",
+				"items": [
+					{
+						"lot_no": "TEST004",
+						"invoice_number": "INV004",
+						"mark_raw": "TESTMARK",
+						"grade_raw": "BP",
+						"packages": 15,
+						"net_weight_total": 519.2,
+						"liquor_mark": "C+",
+						"auction_centre": "Siliguri",
+						"offer_date": "2026-05-01",
+						"row_status": "Pending",
+					}
+				],
+			}
+		)
+		offer_doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		offer_result = offer_doc.create_tea_lots()
+		self.assertEqual(offer_result["created"], 1)
+		offer_lot_name = offer_doc.items[0].tea_lot
+
+		purchase_doc = frappe.get_doc(
+			{
+				"doctype": "Tea Lot Import",
+				"acquisition_channel": "Auction",
+				"sale_no": "7",
+				"purchase_status": "Test Purchased",
+				"fiscal_year": "2026-2027",
+				"items": [
+					{
+						"lot_no": "TEST004",
+						"invoice_number": "INV004",
+						"mark_raw": "TESTMARK",
+						"grade_raw": "BP",
+						"packages": 15,
+						"net_weight_total": 519.2,
+						"liquor_mark": "C+",
+						"auction_centre": "Siliguri",
+						"purchase_date": "2026-07-15",
+						"purchase_invoice_no": "PINV-004",
+						"rate": 250,
+						"row_status": "Pending",
+					}
+				],
+			}
+		)
+		purchase_doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		purchase_result = purchase_doc.create_tea_lots()
+
+		self.assertEqual(purchase_result["created"], 0)
+		self.assertEqual(purchase_result["updated"], 1)
+		self.assertEqual(purchase_result["duplicates"], 0)
+		self.assertEqual(purchase_doc.items[0].row_status, "Updated")
+		self.assertEqual(purchase_doc.items[0].tea_lot, offer_lot_name)
+
+		self.assertEqual(frappe.db.count("Tea Lot", filters={"lot_no": "TEST004"}), 1)
+
+		lot = frappe.db.get_value(
+			"Tea Lot",
+			offer_lot_name,
+			["purchase_status", "purchase_date", "purchase_invoice_no", "offer_date"],
+			as_dict=True,
+		)
+		self.assertEqual(lot.purchase_status, "Test Purchased")
+		self.assertEqual(str(lot.purchase_date), "2026-07-15")
+		self.assertEqual(lot.purchase_invoice_no, "PINV-004")
+		self.assertEqual(str(lot.offer_date), "2026-05-01")
+
+	def test_offer_import_re_upload_is_plain_duplicate(self):
+		"""Re-uploading the same Offer row (matching an existing Offer lot) should just be
+		marked Duplicate and skipped, not update the existing lot."""
+		item = {
+			"lot_no": "TEST005",
+			"invoice_number": "INV005",
+			"mark_raw": "TESTMARK",
+			"grade_raw": "BP",
+			"packages": 15,
+			"net_weight_total": 519.2,
+			"liquor_mark": "C+",
+			"auction_centre": "Siliguri",
+			"offer_date": "2026-05-01",
+			"row_status": "Pending",
+		}
+
+		doc1 = frappe.get_doc(
+			{
+				"doctype": "Tea Lot Import",
+				"acquisition_channel": "Auction",
+				"sale_no": "8",
+				"purchase_status": "Offer",
+				"fiscal_year": "2026-2027",
+				"items": [dict(item)],
+			}
+		)
+		doc1.insert(ignore_permissions=True, ignore_mandatory=True)
+		self.assertEqual(doc1.create_tea_lots()["created"], 1)
+
+		doc2 = frappe.get_doc(
+			{
+				"doctype": "Tea Lot Import",
+				"acquisition_channel": "Auction",
+				"sale_no": "8",
+				"purchase_status": "Offer",
+				"fiscal_year": "2026-2027",
+				"items": [dict(item)],
+			}
+		)
+		doc2.insert(ignore_permissions=True, ignore_mandatory=True)
+		result2 = doc2.create_tea_lots()
+
+		self.assertEqual(result2["created"], 0)
+		self.assertEqual(result2["updated"], 0)
+		self.assertEqual(result2["duplicates"], 1)
+		self.assertEqual(doc2.items[0].row_status, "Duplicate")
+		self.assertEqual(frappe.db.count("Tea Lot", filters={"lot_no": "TEST005"}), 1)
+
+	def test_offer_purchase_bag_sample_lifecycle(self):
+		"""offer_check/purchase_check should track the lot's lifecycle across imports,
+		and a Bag Sample import should only advance purchase_status, not overwrite
+		the purchase data set during the Purchase stage."""
+		base_item = {
+			"lot_no": "TEST006",
+			"invoice_number": "INV006",
+			"mark_raw": "TESTMARK",
+			"grade_raw": "BP",
+			"packages": 15,
+			"net_weight_total": 519.2,
+			"liquor_mark": "C+",
+			"auction_centre": "Siliguri",
+			"row_status": "Pending",
+		}
+
+		offer_doc = frappe.get_doc(
+			{
+				"doctype": "Tea Lot Import",
+				"acquisition_channel": "Auction",
+				"sale_no": "9",
+				"purchase_status": "Offer",
+				"fiscal_year": "2026-2027",
+				"items": [dict(base_item, offer_date="2026-05-01")],
+			}
+		)
+		offer_doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		self.assertEqual(offer_doc.create_tea_lots()["created"], 1)
+		lot_name = offer_doc.items[0].tea_lot
+
+		lot = frappe.db.get_value(
+			"Tea Lot", lot_name, ["purchase_status", "offer_check", "purchase_check"], as_dict=True
+		)
+		self.assertEqual(lot.purchase_status, "Offer")
+		self.assertEqual(lot.offer_check, 1)
+		self.assertEqual(lot.purchase_check, 0)
+
+		purchase_doc = frappe.get_doc(
+			{
+				"doctype": "Tea Lot Import",
+				"acquisition_channel": "Auction",
+				"sale_no": "9",
+				"purchase_status": "Purchase",
+				"fiscal_year": "2026-2027",
+				"items": [
+					dict(
+						base_item,
+						purchase_date="2026-07-15",
+						purchase_invoice_no="PINV-006",
+						rate=250,
+					)
+				],
+			}
+		)
+		purchase_doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		purchase_result = purchase_doc.create_tea_lots()
+		self.assertEqual(purchase_result["updated"], 1)
+		self.assertEqual(purchase_doc.items[0].tea_lot, lot_name)
+
+		lot = frappe.db.get_value(
+			"Tea Lot",
+			lot_name,
+			["purchase_status", "offer_check", "purchase_check", "purchase_date", "purchase_invoice_no"],
+			as_dict=True,
+		)
+		self.assertEqual(lot.purchase_status, "Purchase")
+		self.assertEqual(lot.offer_check, 1)
+		self.assertEqual(lot.purchase_check, 1)
+		self.assertEqual(str(lot.purchase_date), "2026-07-15")
+		self.assertEqual(lot.purchase_invoice_no, "PINV-006")
+
+		bag_sample_doc = frappe.get_doc(
+			{
+				"doctype": "Tea Lot Import",
+				"acquisition_channel": "Auction",
+				"sale_no": "9",
+				"purchase_status": "Bag Sample",
+				"fiscal_year": "2026-2027",
+				"items": [dict(base_item)],
+			}
+		)
+		bag_sample_doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		bag_sample_result = bag_sample_doc.create_tea_lots()
+		self.assertEqual(bag_sample_result["updated"], 1)
+		self.assertEqual(bag_sample_doc.items[0].tea_lot, lot_name)
+
+		lot = frappe.db.get_value(
+			"Tea Lot",
+			lot_name,
+			["purchase_status", "offer_check", "purchase_check", "purchase_date", "purchase_invoice_no"],
+			as_dict=True,
+		)
+		self.assertEqual(lot.purchase_status, "Bag Sample")
+		self.assertEqual(lot.offer_check, 1)
+		self.assertEqual(lot.purchase_check, 1)
+		# Purchase-stage data must be preserved, not overwritten by the Bag Sample import
+		self.assertEqual(str(lot.purchase_date), "2026-07-15")
+		self.assertEqual(lot.purchase_invoice_no, "PINV-006")
+
+		self.assertEqual(frappe.db.count("Tea Lot", filters={"lot_no": "TEST006"}), 1)

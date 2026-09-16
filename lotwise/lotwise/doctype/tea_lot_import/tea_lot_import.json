@@ -10,8 +10,8 @@
   "import_file",
   "acquisition_channel",
   "col_break_1",
-  "company",
   "purchase_status",
+  "company",
   "purchase_type",
   "col_break_1b",
   "fiscal_year",
@@ -27,6 +27,7 @@
   "col_break_3",
   "rows_error",
   "rows_duplicate",
+  "rows_updated",
   "items_section",
   "items"
  ],
@@ -50,7 +51,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Acquisition Channel",
-   "options": "\nAuction\nPrivate\nOutsourced"
+   "options": "\nAuction\nPrivate\nOutsourced",
+   "reqd": 1
   },
   {
    "fieldname": "col_break_1",
@@ -75,6 +77,7 @@
   {
    "fieldname": "blend",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Blend / Brand",
    "options": "Blend"
   },
@@ -129,6 +132,11 @@
    "label": "Rows Duplicate"
   },
   {
+   "fieldname": "rows_updated",
+   "fieldtype": "Int",
+   "label": "Rows Updated"
+  },
+  {
    "fieldname": "items_section",
    "fieldtype": "Section Break",
    "label": "Import Items"
@@ -142,6 +150,7 @@
   {
    "fieldname": "purchase_type",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Purchase Type",
    "options": "\nPurchase\nOffer"
   },
@@ -149,13 +158,15 @@
    "fieldname": "purchase_status",
    "fieldtype": "Link",
    "label": "Purchase Status",
-   "options": "Purchase Status"
+   "options": "Purchase Status",
+   "reqd": 1
   },
   {
    "fieldname": "fiscal_year",
    "fieldtype": "Link",
    "label": "Fiscal Year",
-   "options": "Fiscal Year"
+   "options": "Fiscal Year",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -166,7 +177,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-09-14 17:25:18.049220",
+ "modified": "2026-09-15 22:47:42.963397",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",

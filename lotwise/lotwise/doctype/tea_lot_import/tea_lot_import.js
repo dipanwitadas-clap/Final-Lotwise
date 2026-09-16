@@ -49,11 +49,10 @@ frappe.ui.form.on("Tea Lot Import", {
 						frm.reload_doc();
 						const m = r.message || {};
 						frappe.msgprint(
-							__("Created: {0}  ·  Errors: {1}  ·  Duplicates: {2}", [
-								m.created || 0,
-								m.errors || 0,
-								m.duplicates || 0,
-							])
+							__(
+								"Created: {0}  ·  Updated: {1}  ·  Errors: {2}  ·  Duplicates: {3}",
+								[m.created || 0, m.updated || 0, m.errors || 0, m.duplicates || 0]
+							)
 						);
 					});
 				});
