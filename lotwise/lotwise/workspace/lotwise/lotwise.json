@@ -215,7 +215,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Tea Lot & Evaluation",
-   "link_count": 9,
+   "link_count": 6,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -233,39 +233,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Offer Sample List",
-   "link_count": 0,
-   "link_to": "Offer Sample List",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Tea Lot",
    "link_count": 0,
    "link_to": "Tea Lot",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Bag Sample",
-   "link_count": 0,
-   "link_to": "Bag Sample",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Sample",
-   "link_count": 0,
-   "link_to": "Purchase Sample",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -283,20 +253,20 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Tea Evaluation Entry",
+   "label": "Private Offer Sample List",
    "link_count": 0,
-   "link_to": "tea-evaluation-entry",
-   "link_type": "Page",
+   "link_to": "Offer Sample List",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Tea Evaluation",
+   "label": "Tea Evaluation Entry",
    "link_count": 0,
-   "link_to": "Tea Evaluation",
-   "link_type": "DocType",
+   "link_to": "tea-evaluation-entry",
+   "link_type": "Page",
    "onboard": 0,
    "type": "Link"
   },
@@ -311,7 +281,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-09-07 14:22:57.473294",
+ "modified": "2026-09-17 10:32:53.616491",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",
