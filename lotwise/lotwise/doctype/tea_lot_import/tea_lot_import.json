@@ -17,6 +17,7 @@
   "fiscal_year",
   "sale_no",
   "blend",
+  "season",
   "recon_section",
   "computed_total_packages",
   "col_break_2",
@@ -167,6 +168,11 @@
    "label": "Fiscal Year",
    "options": "Fiscal Year",
    "reqd": 1
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Int",
+   "label": "Season"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -177,7 +183,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-09-15 22:47:42.963397",
+ "modified": "2026-09-26 20:48:54.091965",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot Import",

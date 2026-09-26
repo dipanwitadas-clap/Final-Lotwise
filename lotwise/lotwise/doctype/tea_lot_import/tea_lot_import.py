@@ -145,6 +145,7 @@ class TeaLotImport(Document):
 		rows_parsed: DF.Int
 		rows_updated: DF.Int
 		sale_no: DF.Int
+		season: DF.Int
 	# end: auto-generated types
 
 	"""Parse Dalmia XLSX -> items table -> create Tea Lots."""

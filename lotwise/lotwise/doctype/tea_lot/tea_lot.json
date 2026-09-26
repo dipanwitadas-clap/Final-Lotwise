@@ -9,6 +9,7 @@
  "field_order": [
   "section_break_mgxs",
   "fiscal_year",
+  "season",
   "acquisition_channel",
   "offer_sample_list",
   "seller",
@@ -384,7 +385,12 @@
    "fieldname": "fiscal_year",
    "fieldtype": "Link",
    "label": "Fiscal Year",
-   "options": "Fiscal Year",
+   "options": "Fiscal Year"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Int",
+   "label": "Season",
    "reqd": 1
   }
  ],
@@ -396,7 +402,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-09-15 15:49:03.345335",
+ "modified": "2026-09-26 20:49:40.771155",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
