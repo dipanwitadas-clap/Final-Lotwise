@@ -56,6 +56,7 @@ class BuyingWeekTea(Document):
 		source_row_type: DF.Literal["", "Auction Catalog", "Deal Book"]
 		sub_tea_type: DF.Data | None
 		tea_lot: DF.Link | None
+		tea_purchase: DF.Link | None
 		tea_type: DF.Data | None
 		total_net_weight: DF.Float
 		warehouse_name: DF.Data | None

@@ -31,6 +31,7 @@
   "intended_segment",
   "source_doctype",
   "source_doctype_id",
+  "tea_purchase",
   "do_reference",
   "do_date",
   "warehouse",
@@ -266,6 +267,13 @@
    "fieldtype": "Dynamic Link",
    "label": "Source DocType ID",
    "options": "source_doctype"
+  },
+  {
+   "description": "Tea Purchase created for the same lot from a Deal Book, if any",
+   "fieldname": "tea_purchase",
+   "fieldtype": "Link",
+   "label": "Tea Purchase",
+   "options": "Tea Purchase"
   },
   {
    "fieldname": "purchase_date",

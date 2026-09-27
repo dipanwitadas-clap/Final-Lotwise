@@ -58,7 +58,8 @@
   "col_break_status",
   "row_status",
   "message",
-  "tea_lot"
+  "tea_lot",
+  "tea_purchase"
  ],
  "fields": [
   {
@@ -355,6 +356,16 @@
    "in_list_view": 1,
    "label": "Tea Lot",
    "options": "Tea Lot",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Purchase",
+   "fieldname": "tea_purchase",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Purchase",
+   "options": "Tea Purchase",
    "read_only": 1
   }
  ],

@@ -67,6 +67,7 @@ class TeaLot(Document):
 		source_doctype: DF.Link | None
 		source_doctype_id: DF.DynamicLink | None
 		suggested_valuation: DF.Currency
+		tea_purchase: DF.Link | None
 		total_amount_as_per_to_tax_invoice: DF.Float
 		warehouse: DF.Link | None
 		warehouse_name: DF.Data | None

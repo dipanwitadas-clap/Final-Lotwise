@@ -215,7 +215,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Tea Lot & Evaluation",
-   "link_count": 7,
+   "link_count": 8,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -289,9 +289,19 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Purchase",
+   "link_count": 0,
+   "link_to": "Tea Purchase",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-09-26 23:16:01.835397",
+ "modified": "2026-09-27 18:41:04.901136",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",

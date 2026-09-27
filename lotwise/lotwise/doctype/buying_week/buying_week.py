@@ -435,3 +435,136 @@ class BuyingWeek(Document):
 		self.save()
 
 		return {"created": created, "errors": error, "duplicates": duplicate}
+
+	@frappe.whitelist()
+	def create_tea_purchases(self):
+		"""Create one Tea Purchase per Deal Book row (Auction channel only, once
+		the Deal Book is loaded). Mirrors create_tea_lots(): per-row try/except,
+		row_status/message/tea_purchase tracking on the child row, and a
+		{created, errors, duplicates} summary. A row's own `season`/`sale_no` win
+		when set; a blank/zero row value falls back to this document's own
+		`season`/`sale_no` - same rule as create_tea_lots().
+
+		Tea Purchase uses the exact same name as the Tea Lot for the same
+		physical lot (`{auction_centre_code}-{season}-{sale_no}-{lot_no}`) - if
+		a Tea Lot with that name already exists (created earlier from the
+		Auction Catalog), the two are linked both ways: the new Tea Purchase's
+		`tea_lot` is set, and that Tea Lot's `tea_purchase` is set back to it.
+		No matching Tea Lot is not an error - the purchase is recorded either
+		way, just without the link."""
+		if self.acquisition_channel != "Auction":
+			frappe.throw(_("Tea Purchase creation is only available for the Auction channel."))
+		if self.status != "Deal Book Loaded":
+			frappe.throw(_("Load the Deal Book file before creating Tea Purchases."))
+		if not self.auction_centre:
+			frappe.throw(_("Auction Centre is required."))
+		if not self.items:
+			frappe.throw(_("There are no rows to create Tea Purchases from."))
+
+		auction_centre_code = frappe.db.get_value(
+			"Auction Centre", self.auction_centre, "auction_centre_code"
+		)
+		if not auction_centre_code:
+			frappe.throw(_("Auction Centre Code not found."))
+
+		meta = frappe.get_meta("Tea Purchase")
+		created = duplicate = error = 0
+
+		for row in self.items:
+			if row.row_status == "Created":
+				continue
+			try:
+				season = row.season or self.season
+				sale_no = row.sale_no or self.sale_no
+
+				if not season:
+					row.row_status = "Error"
+					row.message = _("Season is missing on this row and on the Buying Week document.")
+					error += 1
+					continue
+
+				if not sale_no:
+					row.row_status = "Error"
+					row.message = _("Sale No is missing on this row and on the Buying Week document.")
+					error += 1
+					continue
+
+				if not row.lot_no:
+					row.row_status = "Error"
+					row.message = _("Lot No is missing on this row.")
+					error += 1
+					continue
+
+				mark_name = (row.mark_raw or "").strip()
+				if not mark_name:
+					row.row_status = "Error"
+					row.message = _("Mark is missing on this row.")
+					error += 1
+					continue
+
+				if not frappe.db.exists("Mark", mark_name):
+					row.row_status = "Error"
+					row.message = _("Mark '{0}' not found. Please create it first.").format(mark_name)
+					error += 1
+					continue
+
+				grade_code = (row.grade_raw or "").strip()
+				if grade_code and not frappe.db.exists("Grade", grade_code):
+					row.row_status = "Error"
+					row.message = _("Grade '{0}' not found. Please create it first.").format(grade_code)
+					error += 1
+					continue
+
+				computed_name = f"{auction_centre_code}-{season}-{sale_no}-{row.lot_no}"
+				if frappe.db.exists("Tea Purchase", computed_name):
+					row.row_status = "Duplicate"
+					row.message = _("Tea Purchase '{0}' already exists.").format(computed_name)
+					duplicate += 1
+					continue
+
+				matched_tea_lot = computed_name if frappe.db.exists("Tea Lot", computed_name) else None
+
+				values = {
+					"doctype": "Tea Purchase",
+					"acquisition_channel": "Auction",
+					"purchase_status": self.purchase_status,
+					"auction_centre": self.auction_centre,
+					"mark": mark_name,
+					"grade": grade_code or None,
+					"lot_no": row.lot_no,
+					"invoice_number": row.invoice_number,
+					"deal_no": row.deal_no,
+					"packages": cint(row.packages),
+					"net_weight_total": flt(row.total_net_weight or row.net_weight),
+					"rate": flt(row.price_per_kg),
+					"season": season,
+					"sale_no": sale_no,
+					"tea_lot": matched_tea_lot,
+					"source_doctype": self.doctype,
+					"source_doctype_id": self.name,
+				}
+				values = {k: v for k, v in values.items() if k == "doctype" or meta.has_field(k)}
+
+				purchase = frappe.get_doc(values)
+				purchase.insert(ignore_permissions=True)
+
+				if matched_tea_lot:
+					frappe.db.set_value("Tea Lot", matched_tea_lot, "tea_purchase", purchase.name)
+
+				row.tea_purchase = purchase.name
+				row.row_status = "Created"
+				row.message = _("Created {0}").format(purchase.name)
+				created += 1
+
+			except Exception as e:
+				row.row_status = "Error"
+				row.message = str(e)[:140]
+				error += 1
+				frappe.log_error(frappe.get_traceback(), "Buying Week: create_tea_purchases row failed")
+
+		self.rows_created = sum(1 for item in self.items if item.row_status == "Created")
+		self.rows_error = sum(1 for item in self.items if item.row_status == "Error")
+		self.rows_duplicate = sum(1 for item in self.items if item.row_status == "Duplicate")
+		self.save()
+
+		return {"created": created, "errors": error, "duplicates": duplicate}

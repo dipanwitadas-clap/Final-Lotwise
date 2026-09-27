@@ -348,3 +348,112 @@ class TestBuyingWeekCreateTeaLots(FrappeTestCase):
 		self.assertEqual(result, {"created": 0, "errors": 1, "duplicates": 0})
 		self.assertEqual(doc.items[0].row_status, "Error")
 		self.assertIn("not found", doc.items[0].message)
+
+
+class TestBuyingWeekCreateTeaPurchases(FrappeTestCase):
+	"""create_tea_purchases(): Deal Book rows -> Tea Purchase, linked back to a
+	Tea Lot created earlier from the same (single, reused) Buying Week doc."""
+
+	def setUp(self):
+		if not frappe.db.exists("Auction Centre", "Test Siliguri TPU"):
+			frappe.get_doc(
+				{
+					"doctype": "Auction Centre",
+					"auction_centre": "Test Siliguri TPU",
+					"auction_centre_code": "TSLGTPU",
+				}
+			).insert(ignore_permissions=True)
+		if not frappe.db.exists("Purchase Status", "Test Purchased TPU"):
+			frappe.get_doc({"doctype": "Purchase Status", "purchase_status": "Test Purchased TPU"}).insert(
+				ignore_permissions=True
+			)
+		if not frappe.db.exists("Mark", "TESTMARK TPU"):
+			frappe.get_doc({"doctype": "Mark", "mark_name": "TESTMARK TPU"}).insert(ignore_permissions=True)
+
+	def test_create_tea_purchase_links_to_existing_tea_lot_and_falls_back(self):
+		# Naming (auction_centre + season + sale_no) means this is ONE document
+		# reused across the pipeline - catalogue loaded and lots created first,
+		# then the same doc switches to Deal Book Loaded for the purchase step.
+		doc = frappe.get_doc(
+			{
+				"doctype": "Buying Week",
+				"acquisition_channel": "Auction",
+				"auction_centre": "Test Siliguri TPU",
+				"sale_no": 950,
+				"season": 2025,
+				"status": "Catalogue Loaded",
+				"purchase_status": "Test Purchased TPU",
+				"items": [
+					{
+						"lot_no": "TPU001",
+						"mark_raw": "TESTMARK TPU",
+						"packages": 20,
+						"gross_weight": 40,
+						"net_weight": 39,
+						"base_price": 250,
+						"season": 2025,
+						"sale_no": 950,
+						"row_status": "Pending",
+						"source_row_type": "Auction Catalog",
+					}
+				],
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		doc.create_tea_lots()
+		lot_name = doc.items[0].tea_lot
+		self.assertEqual(lot_name, "TSLGTPU-2025-950-TPU001")
+
+		doc.status = "Deal Book Loaded"
+		doc.set(
+			"items",
+			[
+				{
+					# matches the Tea Lot above
+					"lot_no": "TPU001",
+					"mark_raw": "TESTMARK TPU",
+					"packages": 20,
+					"total_net_weight": 780,
+					"price_per_kg": 260,
+					"deal_no": "DEAL001",
+					"season": 2025,
+					"sale_no": 950,
+					"row_status": "Pending",
+					"source_row_type": "Deal Book",
+				},
+				{
+					# no matching Tea Lot, and blank row season/sale_no -> falls back to doc's
+					"lot_no": "TPU002",
+					"mark_raw": "TESTMARK TPU",
+					"packages": 5,
+					"total_net_weight": 190,
+					"price_per_kg": 200,
+					"deal_no": "DEAL002",
+					"season": 0,
+					"sale_no": 0,
+					"row_status": "Pending",
+					"source_row_type": "Deal Book",
+				},
+			],
+		)
+		doc.save(ignore_permissions=True)
+
+		result = doc.create_tea_purchases()
+
+		self.assertEqual(result, {"created": 2, "errors": 0, "duplicates": 0})
+		row1, row2 = doc.items[0], doc.items[1]
+		self.assertEqual(row1.tea_purchase, lot_name)  # same computed name as the Tea Lot
+		self.assertEqual(row2.tea_purchase, "TSLGTPU-2025-950-TPU002")
+
+		purchase1 = frappe.db.get_value(
+			"Tea Purchase", row1.tea_purchase, ["tea_lot", "rate", "net_weight_total"], as_dict=True
+		)
+		self.assertEqual(purchase1.tea_lot, lot_name)
+		self.assertEqual(purchase1.rate, 260)
+		self.assertEqual(purchase1.net_weight_total, 780)
+
+		purchase2_tea_lot = frappe.db.get_value("Tea Purchase", row2.tea_purchase, "tea_lot")
+		self.assertFalse(purchase2_tea_lot)
+
+		# Bidirectional: the Tea Lot's own tea_purchase field points back
+		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "tea_purchase"), row1.tea_purchase)
