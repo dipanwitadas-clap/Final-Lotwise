@@ -46,7 +46,7 @@ class BuyingWeekTea(Document):
 		period_of_manufacture: DF.Data | None
 		preference: DF.Data | None
 		price_per_kg: DF.Currency
-		row_status: DF.Literal["Pending", "Error"]
+		row_status: DF.Literal["Pending", "Created", "Error", "Duplicate"]
 		sale_no: DF.Int
 		sample_qty: DF.Float
 		season: DF.Int
@@ -55,6 +55,7 @@ class BuyingWeekTea(Document):
 		short_excess_weight: DF.Float
 		source_row_type: DF.Literal["", "Auction Catalog", "Deal Book"]
 		sub_tea_type: DF.Data | None
+		tea_lot: DF.Link | None
 		tea_type: DF.Data | None
 		total_net_weight: DF.Float
 		warehouse_name: DF.Data | None

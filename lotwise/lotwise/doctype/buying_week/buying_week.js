@@ -45,5 +45,36 @@ frappe.ui.form.on("Buying Week", {
 				});
 			});
 		});
+
+		if (
+			frm.doc.acquisition_channel === "Auction" &&
+			frm.doc.status === "Catalogue Loaded" &&
+			(frm.doc.items || []).length > 0
+		) {
+			frm.add_custom_button(__("Create Tea Lot"), () => {
+				if (frm.is_dirty()) {
+					frappe.msgprint(__("Please save the document before creating Tea Lots."));
+					return;
+				}
+				frappe.confirm(__("Create Tea Lots for all rows in the table?"), () => {
+					frm.call({
+						doc: frm.doc,
+						method: "create_tea_lots",
+						freeze: true,
+						freeze_message: __("Creating Tea Lots…"),
+					}).then((r) => {
+						frm.reload_doc();
+						const m = r.message || {};
+						frappe.msgprint(
+							__("Created: {0}  ·  Errors: {1}  ·  Duplicates: {2}", [
+								m.created || 0,
+								m.errors || 0,
+								m.duplicates || 0,
+							])
+						);
+					});
+				});
+			}).addClass("btn-primary");
+		}
 	},
 });

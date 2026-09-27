@@ -57,7 +57,8 @@
   "mark_packaging_comments",
   "col_break_status",
   "row_status",
-  "message"
+  "message",
+  "tea_lot"
  ],
  "fields": [
   {
@@ -336,7 +337,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Pending\nError",
+   "options": "Pending\nCreated\nError\nDuplicate",
    "read_only": 1
   },
   {
@@ -344,6 +345,16 @@
    "fieldname": "message",
    "fieldtype": "Small Text",
    "label": "Message",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Lot",
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Lot",
+   "options": "Tea Lot",
    "read_only": 1
   }
  ],

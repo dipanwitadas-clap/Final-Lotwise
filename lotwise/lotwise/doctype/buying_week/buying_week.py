@@ -193,7 +193,7 @@ class BuyingWeek(Document):
 		computed_total_packages: DF.Int
 		import_file: DF.Attach
 		items: DF.Table[BuyingWeekTea]
-		purchase_status: DF.Link
+		purchase_status: DF.Link | None
 		rows_created: DF.Int
 		rows_duplicate: DF.Int
 		rows_error: DF.Int
@@ -211,13 +211,13 @@ class BuyingWeek(Document):
 			"Paid",
 			"Closed",
 		]
+		week_end: DF.Date | None
+		week_no: DF.Int
+		week_start: DF.Date | None
 	# end: auto-generated types
 
-	"""Parse a Deal Book / Auction All Catalog XML export -> items table.
-
-	Tea Lot creation from these rows is a later phase and is deliberately not
-	implemented here.
-	"""
+	"""Parse a Deal Book / Auction All Catalog XML export -> items table, and
+	create Tea Lots from the Auction Catalog rows once loaded."""
 
 	def autoname(self):
 		if self.acquisition_channel == "Auction":
@@ -315,3 +315,123 @@ class BuyingWeek(Document):
 			frappe.throw(_("Attach a file first."))
 		file_doc = frappe.get_doc("File", {"file_url": self.import_file})
 		return _read_spreadsheetml_rows(file_doc.get_full_path())
+
+	@frappe.whitelist()
+	def create_tea_lots(self):
+		"""Create one Tea Lot per Auction Catalog row (Auction channel only, once
+		the catalogue is loaded). Mirrors TeaLotImport.create_tea_lots /
+		TeaLotImageImport.create_tea_lots: per-row try/except, row_status/message/
+		tea_lot tracking on the child row, and a {created, errors, duplicates}
+		summary. A row's own `season`/`sale_no` win when set; a blank/zero row
+		value falls back to this document's own `season`/`sale_no`."""
+		if self.acquisition_channel != "Auction":
+			frappe.throw(_("Tea Lot creation is only available for the Auction channel."))
+		if self.status != "Catalogue Loaded":
+			frappe.throw(_("Load the Auction Catalog file before creating Tea Lots."))
+		if not self.auction_centre:
+			frappe.throw(_("Auction Centre is required."))
+		if not self.items:
+			frappe.throw(_("There are no rows to create Tea Lots from."))
+
+		auction_centre_code = frappe.db.get_value(
+			"Auction Centre", self.auction_centre, "auction_centre_code"
+		)
+		if not auction_centre_code:
+			frappe.throw(_("Auction Centre Code not found."))
+
+		meta = frappe.get_meta("Tea Lot")
+		created = duplicate = error = 0
+
+		for row in self.items:
+			if row.row_status == "Created":
+				continue
+			try:
+				season = row.season or self.season
+				sale_no = row.sale_no or self.sale_no
+
+				if not season:
+					row.row_status = "Error"
+					row.message = _("Season is missing on this row and on the Buying Week document.")
+					error += 1
+					continue
+
+				if not sale_no:
+					row.row_status = "Error"
+					row.message = _("Sale No is missing on this row and on the Buying Week document.")
+					error += 1
+					continue
+
+				if not row.lot_no:
+					row.row_status = "Error"
+					row.message = _("Lot No is missing on this row.")
+					error += 1
+					continue
+
+				mark_name = (row.mark_raw or "").strip()
+				if not mark_name:
+					row.row_status = "Error"
+					row.message = _("Mark is missing on this row.")
+					error += 1
+					continue
+
+				if not frappe.db.exists("Mark", mark_name):
+					row.row_status = "Error"
+					row.message = _("Mark '{0}' not found. Please create it first.").format(mark_name)
+					error += 1
+					continue
+
+				grade_code = (row.grade_raw or "").strip()
+				if grade_code and not frappe.db.exists("Grade", grade_code):
+					row.row_status = "Error"
+					row.message = _("Grade '{0}' not found. Please create it first.").format(grade_code)
+					error += 1
+					continue
+
+				tea_lot_name = f"{auction_centre_code}-{season}-{sale_no}-{row.lot_no}"
+				if frappe.db.exists("Tea Lot", tea_lot_name):
+					row.row_status = "Duplicate"
+					row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
+					duplicate += 1
+					continue
+
+				values = {
+					"doctype": "Tea Lot",
+					"acquisition_channel": "Auction",
+					"purchase_status": self.purchase_status,
+					"auction_centre": self.auction_centre,
+					"mark": mark_name,
+					"grade": grade_code or None,
+					"lot_no": row.lot_no,
+					"invoice_number": row.invoice_number,
+					"packages": cint(row.packages),
+					"gross_wtpkg": flt(row.gross_weight),
+					"net_wtpkg": flt(row.net_weight),
+					"net_weight_total": flt(row.net_weight) * cint(row.packages),
+					"rate": flt(row.base_price),
+					"season": season,
+					"sale_no": sale_no,
+					"source_doctype": self.doctype,
+					"source_doctype_id": self.name,
+				}
+				values = {k: v for k, v in values.items() if k == "doctype" or meta.has_field(k)}
+
+				lot = frappe.get_doc(values)
+				lot.insert(ignore_permissions=True)
+
+				row.tea_lot = lot.name
+				row.row_status = "Created"
+				row.message = _("Created {0}").format(lot.name)
+				created += 1
+
+			except Exception as e:
+				row.row_status = "Error"
+				row.message = str(e)[:140]
+				error += 1
+				frappe.log_error(frappe.get_traceback(), "Buying Week: create_tea_lots row failed")
+
+		self.rows_created = sum(1 for item in self.items if item.row_status == "Created")
+		self.rows_error = sum(1 for item in self.items if item.row_status == "Error")
+		self.rows_duplicate = sum(1 for item in self.items if item.row_status == "Duplicate")
+		self.save()
+
+		return {"created": created, "errors": error, "duplicates": duplicate}

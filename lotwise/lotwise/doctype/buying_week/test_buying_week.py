@@ -219,3 +219,132 @@ class TestBuyingWeekParseFile(FrappeTestCase):
 		# No total_net_weight column in this format - falls back to net_weight
 		self.assertEqual(doc.computed_total_net_weight, 40.00)
 		self.assertEqual(doc.status, "Catalogue Loaded")
+
+
+class TestBuyingWeekCreateTeaLots(FrappeTestCase):
+	"""create_tea_lots(): Auction Catalog rows -> Tea Lot."""
+
+	def setUp(self):
+		if not frappe.db.exists("Auction Centre", "Test Siliguri BW"):
+			frappe.get_doc(
+				{
+					"doctype": "Auction Centre",
+					"auction_centre": "Test Siliguri BW",
+					"auction_centre_code": "TSLGBW",
+				}
+			).insert(ignore_permissions=True)
+		if not frappe.db.exists("Purchase Status", "Test Purchased BW"):
+			frappe.get_doc({"doctype": "Purchase Status", "purchase_status": "Test Purchased BW"}).insert(
+				ignore_permissions=True
+			)
+		if not frappe.db.exists("Mark", "TESTMARK BW"):
+			frappe.get_doc({"doctype": "Mark", "mark_name": "TESTMARK BW"}).insert(ignore_permissions=True)
+
+	def _make_doc(self, items, sale_no=777):
+		doc = frappe.get_doc(
+			{
+				"doctype": "Buying Week",
+				"acquisition_channel": "Auction",
+				"auction_centre": "Test Siliguri BW",
+				"sale_no": sale_no,
+				"season": 2025,
+				"status": "Catalogue Loaded",
+				"purchase_status": "Test Purchased BW",
+				"items": items,
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		return doc
+
+	def test_create_tea_lot_computes_weight_and_name(self):
+		doc = self._make_doc(
+			sale_no=778,
+			items=[
+				{
+					"lot_no": "BWCT001",
+					"mark_raw": "TESTMARK BW",
+					"packages": 30,
+					"gross_weight": 40.47,
+					"net_weight": 40.0,
+					"base_price": 1,
+					"season": 2026,
+					"sale_no": 36,
+					"row_status": "Pending",
+					"source_row_type": "Auction Catalog",
+				}
+			],
+		)
+
+		result = doc.create_tea_lots()
+
+		self.assertEqual(result, {"created": 1, "errors": 0, "duplicates": 0})
+		row = doc.items[0]
+		self.assertEqual(row.row_status, "Created")
+		# Row's own season/sale_no (2026/36) win over the doc's (2025/777)
+		self.assertEqual(row.tea_lot, "TSLGBW-2026-36-BWCT001")
+
+		lot = frappe.db.get_value(
+			"Tea Lot",
+			row.tea_lot,
+			["gross_wtpkg", "net_wtpkg", "net_weight_total", "packages", "rate", "purchase_status"],
+			as_dict=True,
+		)
+		self.assertEqual(lot.gross_wtpkg, 40.47)
+		self.assertEqual(lot.net_wtpkg, 40.0)
+		self.assertEqual(lot.net_weight_total, 40.0 * 30)  # computed: per-pkg net x packages
+		self.assertEqual(lot.purchase_status, "Test Purchased BW")
+
+		# Re-running is idempotent - the already-created row is skipped
+		result2 = doc.create_tea_lots()
+		self.assertEqual(result2, {"created": 0, "errors": 0, "duplicates": 0})
+
+	def test_create_tea_lot_falls_back_to_doc_season_and_sale_no(self):
+		doc = self._make_doc(
+			sale_no=779,
+			items=[
+				{
+					"lot_no": "BWCT002",
+					"mark_raw": "TESTMARK BW",
+					"packages": 10,
+					"gross_weight": 40,
+					"net_weight": 38,
+					"base_price": 200,
+					"season": 0,
+					"sale_no": 0,
+					"row_status": "Pending",
+					"source_row_type": "Auction Catalog",
+				}
+			],
+		)
+
+		doc.create_tea_lots()
+
+		row = doc.items[0]
+		self.assertEqual(row.row_status, "Created")
+		# Row's season/sale_no are blank - falls back to the doc's own 2025/779
+		self.assertEqual(row.tea_lot, "TSLGBW-2025-779-BWCT002")
+
+	def test_create_tea_lot_errors_on_unknown_mark(self):
+		doc = self._make_doc(
+			sale_no=780,
+			items=[
+				{
+					"lot_no": "BWCT003",
+					"mark_raw": "NO SUCH MARK BW",
+					"packages": 10,
+					"gross_weight": 40,
+					"net_weight": 38,
+					"base_price": 200,
+					"season": 2026,
+					"sale_no": 40,
+					"row_status": "Pending",
+					"source_row_type": "Auction Catalog",
+				}
+			],
+		)
+
+		result = doc.create_tea_lots()
+
+		self.assertEqual(result, {"created": 0, "errors": 1, "duplicates": 0})
+		self.assertEqual(doc.items[0].row_status, "Error")
+		self.assertIn("not found", doc.items[0].message)
