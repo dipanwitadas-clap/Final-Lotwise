@@ -18,6 +18,7 @@
   "auction_centre",
   "auction_centre_code",
   "sale_no",
+  "season",
   "broker",
   "broker_short_name",
   "acquisition_channel",
@@ -65,6 +66,11 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Sale No"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Int",
+   "label": "Season"
   },
   {
    "collapsible": 1,

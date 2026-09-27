@@ -268,11 +268,9 @@
    "options": "source_doctype"
   },
   {
-   "depends_on": "eval:doc.purchase_status!=\"Offer\"",
    "fieldname": "purchase_date",
    "fieldtype": "Date",
-   "label": "Purchase Date",
-   "mandatory_depends_on": "eval:doc.purchase_status!=\"Offer\""
+   "label": "Purchase Date"
   },
   {
    "fieldname": "purchase_status",
@@ -355,12 +353,10 @@
    "options": "Offer Sample List"
   },
   {
-   "depends_on": "eval:doc.purchase_status==\"Offer\"",
    "fetch_from": "offer_sample_list.date",
    "fieldname": "offer_date",
    "fieldtype": "Date",
-   "label": "Offer Date",
-   "mandatory_depends_on": "eval:doc.purchase_status==\"Offer\""
+   "label": "Offer Date"
   },
   {
    "fieldname": "suggested_valuation",

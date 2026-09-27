@@ -166,32 +166,20 @@ class TeaLot(Document):
 			if not centre_code:
 				frappe.throw(_("Auction Centre Code not found."))
 
-			if self.purchase_status == "Offer":
-				if not self.offer_date:
-					frappe.throw(_("Offer Date is required to generate the Tea Lot name."))
-				year = getdate(self.offer_date).strftime("%y")
-			else:
-				if not self.purchase_date:
-					frappe.throw(_("Purchase Date is required to generate the Tea Lot name."))
-				year = getdate(self.purchase_date).strftime("%y")
-
-			if not self.mark:
-				frappe.throw(_("Garden Name (Mark) is required to generate the Tea Lot name."))
-
-			if not self.lot_no:
-				frappe.throw(_("Lot No is required to generate the Tea Lot name."))
+			if not self.season:
+				frappe.throw(_("Season is required to generate the Tea Lot name."))
 
 			if not self.sale_no:
 				frappe.throw(_("Sale No is required to generate the Tea Lot name."))
 
-			self.name = f"{centre_code}-{self.mark}-{self.lot_no}-{self.sale_no}-{year}"
+			if not self.lot_no:
+				frappe.throw(_("Lot No is required to generate the Tea Lot name."))
+
+			self.name = f"{centre_code}-{self.season}-{self.sale_no}-{self.lot_no}"
 
 		elif self.acquisition_channel == "Private":
 			if not self.invoice_number:
 				frappe.throw(_("Garden Invoice No. is required."))
-
-			if self.purchase_status != "Offer" and not self.purchase_date:
-				frappe.throw(_("Purchase Date is required."))
 
 			if not self.mark:
 				frappe.throw(_("Garden Name (Mark) is required."))
@@ -207,9 +195,6 @@ class TeaLot(Document):
 				frappe.throw(_("purchase_invoice_no is required."))
 
 			if self.purchase_status == "Offer":
-				if not self.offer_date:
-					frappe.throw(_("Offer Date is required."))
-
 				year = getdate(self.offer_date).strftime("%y")
 			else:
 				year = getdate(self.purchase_date).strftime("%y")

@@ -293,9 +293,12 @@ class TeaLotImport(Document):
 							row.message = _("Offer Date is required for Auction/Outsourced lots.")
 							error += 1
 							continue
-						year = getdate(row.offer_date).strftime("%y")
-					else:
-						year = getdate(row.purchase_date).strftime("%y")
+
+					if not self.season:
+						row.row_status = "Error"
+						row.message = _("Season is required for Auction/Outsourced lots.")
+						error += 1
+						continue
 
 					# A lot is often uploaded once as "Offer" and later re-uploaded as
 					# "Purchase" for the same physical lot. The two uploads can use
@@ -353,7 +356,7 @@ class TeaLotImport(Document):
 						error += 1
 						continue
 
-					tea_lot_name = f"{auction_centre_code}-{mark_name}-{lot_no}-{self.sale_no}-{year}"
+					tea_lot_name = f"{auction_centre_code}-{self.season}-{self.sale_no}-{lot_no}"
 					if frappe.db.exists("Tea Lot", tea_lot_name):
 						row.row_status = "Duplicate"
 						row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
@@ -423,6 +426,7 @@ class TeaLotImport(Document):
 					"liquor_mark": liquor or None,
 					"blend": row.blend or None,
 					"sale_no": self.sale_no or None,
+					"season": self.season or None,
 					"fiscal_year": self.fiscal_year or None,
 					"auction_centre": auction_centre or None,
 					"purchase_date": row.purchase_date or None,

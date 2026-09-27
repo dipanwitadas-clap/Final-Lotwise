@@ -11,7 +11,7 @@ from datetime import date, datetime
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_to_date, cint, flt, getdate, now_datetime
+from frappe.utils import add_to_date, cint, flt, now_datetime
 
 DEFAULT_MODEL = "claude-sonnet-5"
 MAX_IMAGE_EDGE = 1568
@@ -276,6 +276,7 @@ class TeaLotImageImport(Document):
 		sale_no: DF.Int
 		scan_error: DF.SmallText | None
 		scan_status: DF.Literal["Not Scanned", "Processing", "Scanned", "Partial", "Error"]
+		season: DF.Int
 		source_images: DF.Table[TeaLotImageImportSource]
 		total_net: DF.Float
 		total_packages: DF.Int
@@ -355,6 +356,8 @@ class TeaLotImageImport(Document):
 			frappe.throw(_("Auction Centre is required."))
 		if not self.sale_no:
 			frappe.throw(_("Sale No is required."))
+		if not self.season:
+			frappe.throw(_("Season is required."))
 		if not self.fiscal_year:
 			frappe.throw(_("Fiscal Year is required."))
 
@@ -391,17 +394,13 @@ class TeaLotImageImport(Document):
 					error += 1
 					continue
 
-				if is_offer:
-					year = getdate(self.offer_date).strftime("%y")
-				else:
-					if not row.purchase_date:
-						row.row_status = "Error"
-						row.message = _("Purchase Date is required for this row.")
-						error += 1
-						continue
-					year = getdate(row.purchase_date).strftime("%y")
+				if not is_offer and not row.purchase_date:
+					row.row_status = "Error"
+					row.message = _("Purchase Date is required for this row.")
+					error += 1
+					continue
 
-				tea_lot_name = f"{auction_centre_code}-{resolved_mark}-{lot_no}-{self.sale_no}-{year}"
+				tea_lot_name = f"{auction_centre_code}-{self.season}-{self.sale_no}-{lot_no}"
 				if frappe.db.exists("Tea Lot", tea_lot_name):
 					row.row_status = "Duplicate"
 					row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
@@ -416,6 +415,7 @@ class TeaLotImageImport(Document):
 					"grade": row.grade if row.grade else None,
 					"broker": self.broker,
 					"sale_no": self.sale_no,
+					"season": self.season,
 					"lot_no": lot_no,
 					"invoice_number": invoice_part,
 					"mark": resolved_mark,

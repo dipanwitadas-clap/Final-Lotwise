@@ -87,6 +87,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "2",
+				"season": "2026",
 				"centre": "SILIGURI",
 				"purchase_date": "2026-04-01",
 				"purchase_status": "Test Purchased",
@@ -128,6 +129,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "3",
+				"season": "2026",
 				"purchase_status": "Offer",
 				"fiscal_year": "2026-2027",
 				"items": [
@@ -160,6 +162,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "4",
+				"season": "2026",
 				"purchase_status": "Offer",
 				"fiscal_year": "2026-2027",
 				"items": [
@@ -196,6 +199,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "5",
+				"season": "2026",
 				"purchase_status": "Test Purchased",
 				"fiscal_year": "2026-2027",
 				"items": [
@@ -221,7 +225,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 		self.assertEqual(result["created"], 0)
 		self.assertEqual(result["errors"], 1)
 		self.assertIn("must fall within Fiscal Year", doc.items[0].message)
-		self.assertFalse(frappe.db.exists("Tea Lot", "SLG-TESTMARK-TEST003-5-25"))
+		self.assertFalse(frappe.db.exists("Tea Lot", "SLG-2026-5-TEST003"))
 
 	def test_create_tea_lots_accepts_date_inside_fiscal_year(self):
 		"""Rows whose purchase_date falls inside the selected Fiscal Year should create the lot normally."""
@@ -230,6 +234,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "6",
+				"season": "2026",
 				"purchase_status": "Test Purchased",
 				"fiscal_year": "2026-2027",
 				"items": [
@@ -265,6 +270,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "7",
+				"season": "2026",
 				"purchase_status": "Offer",
 				"fiscal_year": "2026-2027",
 				"items": [
@@ -293,6 +299,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "7",
+				"season": "2026",
 				"purchase_status": "Test Purchased",
 				"fiscal_year": "2026-2027",
 				"items": [
@@ -356,6 +363,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "8",
+				"season": "2026",
 				"purchase_status": "Offer",
 				"fiscal_year": "2026-2027",
 				"items": [dict(item)],
@@ -369,6 +377,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "8",
+				"season": "2026",
 				"purchase_status": "Offer",
 				"fiscal_year": "2026-2027",
 				"items": [dict(item)],
@@ -404,6 +413,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "9",
+				"season": "2026",
 				"purchase_status": "Offer",
 				"fiscal_year": "2026-2027",
 				"items": [dict(base_item, offer_date="2026-05-01")],
@@ -425,6 +435,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "9",
+				"season": "2026",
 				"purchase_status": "Purchase",
 				"fiscal_year": "2026-2027",
 				"items": [
@@ -459,6 +470,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "9",
+				"season": "2026",
 				"purchase_status": "Bag Sample",
 				"fiscal_year": "2026-2027",
 				"items": [dict(base_item)],
@@ -491,6 +503,7 @@ class TestTeaLotImportCreate(FrappeTestCase):
 				"doctype": "Tea Lot Import",
 				"acquisition_channel": "Auction",
 				"sale_no": "10",
+				"season": "2026",
 				"purchase_status": "Bag Sample",
 				"fiscal_year": "2026-2027",
 				"items": [
