@@ -170,6 +170,7 @@
    "read_only": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "items_section",
    "fieldtype": "Section Break",
    "label": "Buying Week Items"
@@ -198,7 +199,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-27 14:37:31.610049",
+ "modified": "2026-09-29 15:31:48.055209",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",
