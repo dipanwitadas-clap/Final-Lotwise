@@ -88,7 +88,7 @@ frappe.ui.form.on("Buying Week", {
 		if (
 			frm.doc.acquisition_channel === "Auction" &&
 			frm.doc.status === "Deal Book Loaded" &&
-			(frm.doc.items || []).length > 0
+			(frm.doc.deal_book_items || []).length > 0
 		) {
 			frm.add_custom_button(__("Create Tea Purchase"), () =>
 				run_create(

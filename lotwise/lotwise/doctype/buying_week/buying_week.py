@@ -184,6 +184,9 @@ class BuyingWeek(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		from lotwise.lotwise.doctype.buying_week_deal_book_tea.buying_week_deal_book_tea import (
+			BuyingWeekDealBookTea,
+		)
 		from lotwise.lotwise.doctype.buying_week_tea.buying_week_tea import BuyingWeekTea
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
@@ -191,6 +194,7 @@ class BuyingWeek(Document):
 		company: DF.Data | None
 		computed_total_net_weight: DF.Float
 		computed_total_packages: DF.Int
+		deal_book_items: DF.Table[BuyingWeekDealBookTea]
 		import_file: DF.Attach
 		items: DF.Table[BuyingWeekTea]
 		purchase_status: DF.Link | None
@@ -245,17 +249,22 @@ class BuyingWeek(Document):
 	@frappe.whitelist()
 	def parse_auction_catalog(self):
 		"""Read the attached file as an Auction All Catalog export."""
-		return self._parse("Auction Catalog", HEADER_TO_FIELD_AUCTION_CATALOG, "Catalogue Loaded")
+		return self._parse("Auction Catalog", HEADER_TO_FIELD_AUCTION_CATALOG, "Catalogue Loaded", "items")
 
 	@frappe.whitelist()
 	def parse_deal_book(self):
 		"""Read the attached file as a Deal Book export."""
-		return self._parse("Deal Book", HEADER_TO_FIELD_DEAL_BOOK, "Deal Book Loaded")
+		return self._parse("Deal Book", HEADER_TO_FIELD_DEAL_BOOK, "Deal Book Loaded", "deal_book_items")
 
-	def _parse(self, source_label: str, header_map: dict, status_after: str) -> dict:
+	def _parse(
+		self, source_label: str, header_map: dict, status_after: str, target_field: str = "items"
+	) -> dict:
 		"""Shared body for parse_auction_catalog/parse_deal_book: read the attached
-		file with `header_map`, replace the items table, compute the reconciliation
-		totals, and move `status` to `status_after` once parsing succeeds."""
+		file with `header_map`, replace the `target_field` child table (`items` for
+		the Auction Catalog, `deal_book_items` for the Deal Book - they're kept
+		separate so loading one doesn't wipe out the other), compute the
+		reconciliation totals, and move `status` to `status_after` once parsing
+		succeeds."""
 		rows = self._read_rows()
 		if not rows:
 			frappe.throw(_("The uploaded file has no rows."))
@@ -274,7 +283,7 @@ class BuyingWeek(Document):
 				).format(source_label)
 			)
 
-		self.set("items", [])
+		self.set(target_field, [])
 		total_packages = 0
 		total_net_weight = 0.0
 
@@ -294,13 +303,14 @@ class BuyingWeek(Document):
 			if not has_data:
 				continue
 
-			self.append("items", values)
+			self.append(target_field, values)
 			total_packages += cint(values.get("packages") or 0)
 			total_net_weight += flt(values.get("total_net_weight") or values.get("net_weight") or 0)
 
+		rows_list = self.get(target_field)
 		self.computed_total_packages = total_packages
 		self.computed_total_net_weight = total_net_weight
-		self.rows_parsed = len(self.items)
+		self.rows_parsed = len(rows_list)
 		self.rows_created = 0
 		self.rows_error = 0
 		self.rows_duplicate = 0
@@ -308,7 +318,7 @@ class BuyingWeek(Document):
 		self.status = status_after
 		self.save()
 
-		return {"rows": len(self.items), "status": self.status, "source_type": source_label}
+		return {"rows": len(rows_list), "status": self.status, "source_type": source_label}
 
 	def _read_rows(self) -> list:
 		if not self.import_file:
@@ -458,7 +468,7 @@ class BuyingWeek(Document):
 			frappe.throw(_("Load the Deal Book file before creating Tea Purchases."))
 		if not self.auction_centre:
 			frappe.throw(_("Auction Centre is required."))
-		if not self.items:
+		if not self.deal_book_items:
 			frappe.throw(_("There are no rows to create Tea Purchases from."))
 
 		auction_centre_code = frappe.db.get_value(
@@ -470,7 +480,7 @@ class BuyingWeek(Document):
 		meta = frappe.get_meta("Tea Purchase")
 		created = duplicate = error = 0
 
-		for row in self.items:
+		for row in self.deal_book_items:
 			if row.row_status == "Created":
 				continue
 			try:
@@ -552,6 +562,7 @@ class BuyingWeek(Document):
 					frappe.db.set_value("Tea Lot", matched_tea_lot, "tea_purchase", purchase.name)
 
 				row.tea_purchase = purchase.name
+				row.tea_lot = matched_tea_lot
 				row.row_status = "Created"
 				row.message = _("Created {0}").format(purchase.name)
 				created += 1
@@ -562,9 +573,9 @@ class BuyingWeek(Document):
 				error += 1
 				frappe.log_error(frappe.get_traceback(), "Buying Week: create_tea_purchases row failed")
 
-		self.rows_created = sum(1 for item in self.items if item.row_status == "Created")
-		self.rows_error = sum(1 for item in self.items if item.row_status == "Error")
-		self.rows_duplicate = sum(1 for item in self.items if item.row_status == "Duplicate")
+		self.rows_created = sum(1 for item in self.deal_book_items if item.row_status == "Created")
+		self.rows_error = sum(1 for item in self.deal_book_items if item.row_status == "Error")
+		self.rows_duplicate = sum(1 for item in self.deal_book_items if item.row_status == "Duplicate")
 		self.save()
 
 		return {"created": created, "errors": error, "duplicates": duplicate}

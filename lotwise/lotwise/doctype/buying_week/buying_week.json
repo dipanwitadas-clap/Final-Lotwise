@@ -31,7 +31,9 @@
   "rows_duplicate",
   "rows_updated",
   "items_section",
-  "items"
+  "items",
+  "deal_book_items_section",
+  "deal_book_items"
  ],
  "fields": [
   {
@@ -182,6 +184,18 @@
    "options": "Buying Week Tea"
   },
   {
+   "collapsible": 1,
+   "fieldname": "deal_book_items_section",
+   "fieldtype": "Section Break",
+   "label": "Deal Book Items"
+  },
+  {
+   "fieldname": "deal_book_items",
+   "fieldtype": "Table",
+   "label": "Deal Book Items",
+   "options": "Buying Week Deal Book Tea"
+  },
+  {
    "fieldname": "week_no",
    "fieldtype": "Int",
    "label": "Week No"
@@ -198,8 +212,14 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-09-29 15:31:48.055209",
+ "links": [
+  {
+   "group": "Tea Lot",
+   "link_doctype": "Tea Lot",
+   "link_fieldname": "source_doctype"
+  }
+ ],
+ "modified": "2026-09-30 10:05:53.923153",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",

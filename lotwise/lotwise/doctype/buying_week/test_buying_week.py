@@ -150,7 +150,7 @@ class TestBuyingWeekParseFile(FrappeTestCase):
 
 		self.assertEqual(result["rows"], 1)
 		self.assertEqual(doc.rows_parsed, 1)
-		row = doc.items[0]
+		row = doc.deal_book_items[0]
 		self.assertEqual(row.lot_no, "JT0059")
 		self.assertEqual(row.mark_raw, "BINAGURI")
 		self.assertEqual(row.packages, 25)
@@ -406,7 +406,7 @@ class TestBuyingWeekCreateTeaPurchases(FrappeTestCase):
 
 		doc.status = "Deal Book Loaded"
 		doc.set(
-			"items",
+			"deal_book_items",
 			[
 				{
 					# matches the Tea Lot above
@@ -441,7 +441,7 @@ class TestBuyingWeekCreateTeaPurchases(FrappeTestCase):
 		result = doc.create_tea_purchases()
 
 		self.assertEqual(result, {"created": 2, "errors": 0, "duplicates": 0})
-		row1, row2 = doc.items[0], doc.items[1]
+		row1, row2 = doc.deal_book_items[0], doc.deal_book_items[1]
 		self.assertEqual(row1.tea_purchase, lot_name)  # same computed name as the Tea Lot
 		self.assertEqual(row2.tea_purchase, "TSLGTPU-2025-950-TPU002")
 
