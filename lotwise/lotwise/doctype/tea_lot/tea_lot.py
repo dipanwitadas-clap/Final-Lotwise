@@ -77,7 +77,6 @@ class TeaLot(Document):
 	def validate(self):
 		self.validate_fiscal_year()
 		self.set_status_checks()
-		self.create_purchase_item()
 
 	def set_status_checks(self):
 		if self.purchase_status == "Offer":
@@ -117,44 +116,6 @@ class TeaLot(Document):
 				),
 				title=_("Invalid {0}").format(date_label),
 			)
-
-	def create_purchase_item(self):
-		if self.purchase_status != "Purchase" or not self.purchase_date:
-			return
-
-		if self.item:
-			return
-
-		if frappe.db.exists("Item", self.name):
-			self.item = self.name
-			return
-
-		if not frappe.db.exists("Item Group", "Products"):
-			frappe.get_doc(
-				{
-					"doctype": "Item Group",
-					"item_group_name": "Products",
-					"parent_item_group": _("All Item Groups"),
-					"is_group": 0,
-				}
-			).insert(ignore_permissions=True)
-
-		if not frappe.db.exists("UOM", "Nos"):
-			frappe.throw(_("UOM 'Nos' does not exist. Please create it before purchasing Tea Lots."))
-
-		item = frappe.get_doc(
-			{
-				"doctype": "Item",
-				"item_code": self.name,
-				"item_name": self.name,
-				"item_group": "Products",
-				"stock_uom": "Nos",
-				"is_stock_item": 1,
-				"gst_hsn_code": "090240",
-			}
-		)
-		item.insert(ignore_permissions=True)
-		self.item = item.name
 
 	def autoname(self):
 		if self.acquisition_channel in ["Auction", "Outsourced"]:

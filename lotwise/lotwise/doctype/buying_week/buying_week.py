@@ -194,6 +194,7 @@ class BuyingWeek(Document):
 		company: DF.Data | None
 		computed_total_net_weight: DF.Float
 		computed_total_packages: DF.Int
+		day: DF.Int
 		deal_book_items: DF.Table[BuyingWeekDealBookTea]
 		import_file: DF.Attach
 		items: DF.Table[BuyingWeekTea]
@@ -240,7 +241,10 @@ class BuyingWeek(Document):
 			if not self.sale_no:
 				frappe.throw(_("Sale No is required to generate the Buying Week name."))
 
-			self.name = f"BW-{auction_centre_code}-{self.season}-{self.sale_no}"
+			if not self.day:
+				frappe.throw(_("Day is required to generate the Buying Week name."))
+
+			self.name = f"BW-{auction_centre_code}-{self.season}-{self.sale_no}-{self.day}"
 		else:
 			# Private/Outsourced naming hasn't been specified yet - fall back to a
 			# safe generic series rather than guessing.

@@ -1,210 +1,234 @@
 {
- "actions": [],
- "allow_rename": 1,
- "creation": "2026-09-27 00:00:00",
- "doctype": "DocType",
- "engine": "InnoDB",
- "field_order": [
-  "source_section",
-  "tea_lot",
-  "source_doctype",
-  "source_doctype_id",
-  "col_break_source",
-  "acquisition_channel",
-  "purchase_status",
-  "auction_centre",
-  "details_section",
-  "mark",
-  "grade",
-  "lot_no",
-  "invoice_number",
-  "deal_no",
-  "col_break_details",
-  "packages",
-  "net_weight_total",
-  "rate",
-  "season",
-  "sale_no"
- ],
- "fields": [
-  {
-   "fieldname": "source_section",
-   "fieldtype": "Section Break",
-   "label": "Source"
-  },
-  {
-   "description": "Tea Lot for the same lot, if one was already created from the Auction Catalog",
-   "fieldname": "tea_lot",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Tea Lot",
-   "options": "Tea Lot"
-  },
-  {
-   "fieldname": "source_doctype",
-   "fieldtype": "Link",
-   "label": "Source Doctype",
-   "options": "DocType"
-  },
-  {
-   "fieldname": "source_doctype_id",
-   "fieldtype": "Dynamic Link",
-   "label": "Source Doctype ID",
-   "options": "source_doctype"
-  },
-  {
-   "fieldname": "col_break_source",
-   "fieldtype": "Column Break"
-  },
-  {
-   "description": "Auction, Private purchase, or Outsourced",
-   "fieldname": "acquisition_channel",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Acquisition Channel",
-   "options": "\nAuction\nPrivate\nOutsourced"
-  },
-  {
-   "fieldname": "purchase_status",
-   "fieldtype": "Link",
-   "label": "Purchase Status",
-   "options": "Purchase Status"
-  },
-  {
-   "fieldname": "auction_centre",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Auction Centre",
-   "options": "Auction Centre"
-  },
-  {
-   "fieldname": "details_section",
-   "fieldtype": "Section Break",
-   "label": "Purchase Details"
-  },
-  {
-   "fieldname": "mark",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Mark",
-   "options": "Mark"
-  },
-  {
-   "fieldname": "grade",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Grade",
-   "options": "Grade"
-  },
-  {
-   "fieldname": "lot_no",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Lot No"
-  },
-  {
-   "fieldname": "invoice_number",
-   "fieldtype": "Data",
-   "label": "Invoice Number"
-  },
-  {
-   "description": "Deal No from the Deal Book export",
-   "fieldname": "deal_no",
-   "fieldtype": "Data",
-   "label": "Deal No"
-  },
-  {
-   "fieldname": "col_break_details",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "packages",
-   "fieldtype": "Int",
-   "label": "No of Pkgs"
-  },
-  {
-   "fieldname": "net_weight_total",
-   "fieldtype": "Float",
-   "label": "Nett. Wt. (Kgs.)"
-  },
-  {
-   "description": "Price / Kg from the Deal Book export",
-   "fieldname": "rate",
-   "fieldtype": "Currency",
-   "label": "Rate / Kg",
-   "options": "INR"
-  },
-  {
-   "fieldname": "season",
-   "fieldtype": "Int",
-   "label": "Season"
-  },
-  {
-   "fieldname": "sale_no",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Sale No"
-  }
- ],
- "index_web_pages_for_search": 1,
- "links": [
-  {
-   "group": "Tea Lot",
-   "link_doctype": "Tea Lot",
-   "link_fieldname": "tea_purchase"
-  }
- ],
- "modified": "2026-09-30 12:09:06.994009",
- "modified_by": "Administrator",
- "module": "Lotwise",
- "name": "Tea Purchase",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Tea Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Data Entry",
-   "share": 1,
-   "write": 1
-  }
- ],
- "row_format": "Dynamic",
- "sort_field": "creation",
- "sort_order": "DESC",
- "states": [],
- "track_changes": 1,
- "track_seen": 1,
- "track_views": 1
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2026-09-27 00:00:00",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "source_section",
+    "tea_lot",
+    "source_doctype",
+    "source_doctype_id",
+    "col_break_source",
+    "acquisition_channel",
+    "purchase_status",
+    "auction_centre",
+    "details_section",
+    "mark",
+    "grade",
+    "lot_no",
+    "invoice_number",
+    "deal_no",
+    "col_break_details",
+    "packages",
+    "net_weight_total",
+    "rate",
+    "season",
+    "sale_no",
+    "linked_section",
+    "item",
+    "batch_no"
+  ],
+  "fields": [
+    {
+      "fieldname": "source_section",
+      "fieldtype": "Section Break",
+      "label": "Source"
+    },
+    {
+      "description": "Tea Lot for the same lot, if one was already created from the Auction Catalog",
+      "fieldname": "tea_lot",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Tea Lot",
+      "options": "Tea Lot"
+    },
+    {
+      "fieldname": "source_doctype",
+      "fieldtype": "Link",
+      "label": "Source Doctype",
+      "options": "DocType"
+    },
+    {
+      "fieldname": "source_doctype_id",
+      "fieldtype": "Dynamic Link",
+      "label": "Source Doctype ID",
+      "options": "source_doctype"
+    },
+    {
+      "fieldname": "col_break_source",
+      "fieldtype": "Column Break"
+    },
+    {
+      "description": "Auction, Private purchase, or Outsourced",
+      "fieldname": "acquisition_channel",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Acquisition Channel",
+      "options": "\nAuction\nPrivate\nOutsourced"
+    },
+    {
+      "fieldname": "purchase_status",
+      "fieldtype": "Link",
+      "label": "Purchase Status",
+      "options": "Purchase Status"
+    },
+    {
+      "fieldname": "auction_centre",
+      "fieldtype": "Link",
+      "in_standard_filter": 1,
+      "label": "Auction Centre",
+      "options": "Auction Centre"
+    },
+    {
+      "fieldname": "details_section",
+      "fieldtype": "Section Break",
+      "label": "Purchase Details"
+    },
+    {
+      "fieldname": "mark",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Mark",
+      "options": "Mark"
+    },
+    {
+      "fieldname": "grade",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Grade",
+      "options": "Grade"
+    },
+    {
+      "fieldname": "lot_no",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Lot No"
+    },
+    {
+      "fieldname": "invoice_number",
+      "fieldtype": "Data",
+      "label": "Invoice Number"
+    },
+    {
+      "description": "Deal No from the Deal Book export",
+      "fieldname": "deal_no",
+      "fieldtype": "Data",
+      "label": "Deal No"
+    },
+    {
+      "fieldname": "col_break_details",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "packages",
+      "fieldtype": "Int",
+      "label": "No of Pkgs"
+    },
+    {
+      "fieldname": "net_weight_total",
+      "fieldtype": "Float",
+      "label": "Nett. Wt. (Kgs.)"
+    },
+    {
+      "description": "Price / Kg from the Deal Book export",
+      "fieldname": "rate",
+      "fieldtype": "Currency",
+      "label": "Rate / Kg",
+      "options": "INR"
+    },
+    {
+      "fieldname": "season",
+      "fieldtype": "Int",
+      "label": "Season"
+    },
+    {
+      "fieldname": "sale_no",
+      "fieldtype": "Int",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Sale No"
+    },
+    {
+      "fieldname": "linked_section",
+      "fieldtype": "Section Break",
+      "label": "Stock"
+    },
+    {
+      "fieldname": "item",
+      "fieldtype": "Link",
+      "label": "Item",
+      "options": "Item",
+      "read_only": 1,
+      "no_copy": 1
+    },
+    {
+      "fieldname": "batch_no",
+      "fieldtype": "Link",
+      "label": "Batch",
+      "options": "Batch",
+      "read_only": 1,
+      "no_copy": 1
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [
+    {
+      "group": "Tea Lot",
+      "link_doctype": "Tea Lot",
+      "link_fieldname": "tea_purchase"
+    }
+  ],
+  "modified": "2026-09-30 12:09:06.994009",
+  "modified_by": "Administrator",
+  "module": "Lotwise",
+  "name": "Tea Purchase",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Tea Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Data Entry",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "row_format": "Dynamic",
+  "sort_field": "creation",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1,
+  "track_seen": 1,
+  "track_views": 1
 }

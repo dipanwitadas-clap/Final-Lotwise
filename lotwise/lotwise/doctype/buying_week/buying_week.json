@@ -16,6 +16,7 @@
   "auction_centre",
   "sale_no",
   "season",
+  "day",
   "week_no",
   "week_start",
   "week_end",
@@ -209,6 +210,12 @@
    "fieldname": "week_end",
    "fieldtype": "Date",
    "label": "Week End"
+  },
+  {
+   "fieldname": "day",
+   "fieldtype": "Int",
+   "label": "Day",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -224,7 +231,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-09-30 10:40:26.493163",
+ "modified": "2026-10-01 10:51:23.901242",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",

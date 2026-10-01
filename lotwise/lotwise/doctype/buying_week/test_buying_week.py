@@ -248,6 +248,7 @@ class TestBuyingWeekCreateTeaLots(FrappeTestCase):
 				"auction_centre": "Test Siliguri BW",
 				"sale_no": sale_no,
 				"season": 2025,
+				"day": 1,
 				"status": "Catalogue Loaded",
 				"purchase_status": "Test Purchased BW",
 				"items": items,
@@ -381,6 +382,7 @@ class TestBuyingWeekCreateTeaPurchases(FrappeTestCase):
 				"auction_centre": "Test Siliguri TPU",
 				"sale_no": 950,
 				"season": 2025,
+				"day": 1,
 				"status": "Catalogue Loaded",
 				"purchase_status": "Test Purchased TPU",
 				"items": [

@@ -18,9 +18,11 @@ class TeaPurchase(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
+		batch_no: DF.Link | None
 		deal_no: DF.Data | None
 		grade: DF.Link | None
 		invoice_number: DF.Data | None
+		item: DF.Link | None
 		lot_no: DF.Data | None
 		mark: DF.Link | None
 		net_weight_total: DF.Float
@@ -33,6 +35,74 @@ class TeaPurchase(Document):
 		source_doctype_id: DF.DynamicLink | None
 		tea_lot: DF.Link | None
 	# end: auto-generated types
+
+	def validate(self):
+		if self.is_new():
+			self.validate_batch_inputs()
+
+	def after_insert(self):
+		self.create_batch()
+
+	def get_batch_id(self):
+		return f"{self.invoice_number}-{self.grade}-{self.mark}"
+
+	def validate_batch_inputs(self):
+		for fieldname in ("invoice_number", "grade", "mark"):
+			if not self.get(fieldname):
+				frappe.throw(
+					_("{0} is required to create the Batch.").format(_(self.meta.get_label(fieldname)))
+				)
+
+		batch_id = self.get_batch_id()
+		if frappe.db.exists("Batch", batch_id):
+			frappe.throw(_("Batch {0} already exists.").format(frappe.bold(batch_id)))
+
+	def create_batch(self):
+		item_code = self.get_or_create_item(f"CTC-{self.grade}")
+		batch_id = self.get_batch_id()
+
+		frappe.get_doc({"doctype": "Batch", "batch_id": batch_id, "item": item_code}).insert(
+			ignore_permissions=True
+		)
+
+		self.db_set({"item": item_code, "batch_no": batch_id})
+
+	def get_or_create_item(self, item_code):
+		if frappe.db.exists("Item", item_code):
+			if not frappe.db.get_value("Item", item_code, "has_batch_no"):
+				frappe.throw(
+					_("Item {0} exists but is not batch enabled (Has Batch No).").format(
+						frappe.bold(item_code)
+					)
+				)
+			return item_code
+
+		if not frappe.db.exists("Item Group", "Products"):
+			frappe.get_doc(
+				{
+					"doctype": "Item Group",
+					"item_group_name": "Products",
+					"parent_item_group": _("All Item Groups"),
+					"is_group": 0,
+				}
+			).insert(ignore_permissions=True)
+
+		if not frappe.db.exists("UOM", "Nos"):
+			frappe.throw(_("UOM 'Nos' does not exist. Please create it first."))
+
+		item = {
+			"doctype": "Item",
+			"item_code": item_code,
+			"item_name": item_code,
+			"item_group": "Products",
+			"stock_uom": "Nos",
+			"is_stock_item": 1,
+			"has_batch_no": 1,
+		}
+		if frappe.get_meta("Item").has_field("gst_hsn_code"):
+			item["gst_hsn_code"] = "090240"
+
+		return frappe.get_doc(item).insert(ignore_permissions=True).name
 
 	def autoname(self):
 		"""Same naming scheme as Tea Lot's Auction/Outsourced branch
