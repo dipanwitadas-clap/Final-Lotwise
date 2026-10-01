@@ -216,10 +216,15 @@
   {
    "group": "Tea Lot",
    "link_doctype": "Tea Lot",
-   "link_fieldname": "source_doctype"
+   "link_fieldname": "source_doctype_id"
+  },
+  {
+   "group": "Tea Purchase",
+   "link_doctype": "Tea Purchase",
+   "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-09-30 10:05:53.923153",
+ "modified": "2026-09-30 10:40:26.493163",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",

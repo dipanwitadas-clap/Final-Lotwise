@@ -215,70 +215,10 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Tea Lot & Evaluation",
-   "link_count": 8,
+   "link_count": 4,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Lot Import",
-   "link_count": 0,
-   "link_to": "Tea Lot Import",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Lot",
-   "link_count": 0,
-   "link_to": "Tea Lot",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Lot Image Import",
-   "link_count": 0,
-   "link_to": "Tea Lot Image Import",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Private Offer Sample List",
-   "link_count": 0,
-   "link_to": "Offer Sample List",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Evaluation Entry",
-   "link_count": 0,
-   "link_to": "tea-evaluation-entry",
-   "link_type": "Page",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Tea Evaluation Import",
-   "link_count": 0,
-   "link_to": "Tea Evaluation Import",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
   },
   {
    "hidden": 0,
@@ -299,9 +239,29 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Lot",
+   "link_count": 0,
+   "link_to": "Tea Lot",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Tea Evaluation Entry",
+   "link_count": 0,
+   "link_to": "tea-evaluation-entry",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-09-27 18:41:04.901136",
+ "modified": "2026-09-30 11:07:32.315181",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",

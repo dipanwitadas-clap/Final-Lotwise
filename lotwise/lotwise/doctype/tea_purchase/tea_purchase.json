@@ -44,14 +44,12 @@
   {
    "fieldname": "source_doctype",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Source Doctype",
    "options": "DocType"
   },
   {
    "fieldname": "source_doctype_id",
    "fieldtype": "Dynamic Link",
-   "hidden": 1,
    "label": "Source Doctype ID",
    "options": "source_doctype"
   },
@@ -153,8 +151,14 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-09-27 00:00:00",
+ "links": [
+  {
+   "group": "Tea Lot",
+   "link_doctype": "Tea Lot",
+   "link_fieldname": "tea_purchase"
+  }
+ ],
+ "modified": "2026-09-30 12:09:06.994009",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Purchase",

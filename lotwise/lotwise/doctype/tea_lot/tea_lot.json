@@ -402,11 +402,17 @@
  "index_web_pages_for_search": 1,
  "links": [
   {
+   "group": "Tea Lot Import",
    "link_doctype": "Tea Lot Import",
+   "link_fieldname": "tea_lot"
+  },
+  {
+   "group": "Tea Purchase",
+   "link_doctype": "Tea Purchase",
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-09-27 14:39:36.881062",
+ "modified": "2026-09-30 12:16:58.376047",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
