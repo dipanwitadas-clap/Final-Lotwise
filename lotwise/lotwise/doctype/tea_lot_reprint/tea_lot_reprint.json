@@ -1,0 +1,48 @@
+{
+ "actions": [],
+ "creation": "2026-10-05 12:10:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "buying_week",
+  "reprint_date",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "buying_week",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Buying Week",
+   "options": "Buying Week",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "reprint_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Reprint Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-05 12:10:00",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Tea Lot Reprint",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
