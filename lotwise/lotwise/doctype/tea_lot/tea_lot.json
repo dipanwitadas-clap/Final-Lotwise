@@ -403,8 +403,7 @@
    "fieldname": "reprints",
    "fieldtype": "Table",
    "label": "Reprints",
-   "options": "Tea Lot Reprint",
-   "read_only": 1
+   "options": "Tea Lot Reprint"
   },
   {
    "fieldname": "reprints_tab",
@@ -426,7 +425,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-10-05 12:13:02.053570",
+ "modified": "2026-10-05 13:48:09.201424",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

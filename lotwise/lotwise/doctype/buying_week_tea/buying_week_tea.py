@@ -17,19 +17,11 @@ class BuyingWeekTea(Document):
 		auction_valuation: DF.Currency
 		base_price: DF.Currency
 		broker_code: DF.Data | None
-		buyer_export_address_code: DF.Data | None
-		buyer_interstate_address_code: DF.Data | None
-		buyer_within_address_code: DF.Data | None
 		category_id: DF.Data | None
-		deal_no: DF.Data | None
-		deal_time: DF.Data | None
-		export: DF.Data | None
 		grade_raw: DF.Data | None
 		gp_date: DF.Date | None
 		gp_no: DF.Data | None
 		gross_weight: DF.Float
-		gross_wtpkg: DF.Float
-		interstate: DF.Data | None
 		invoice_number: DF.Data | None
 		invoice_weight: DF.Float
 		last_sold_price: DF.Currency
@@ -44,21 +36,15 @@ class BuyingWeekTea(Document):
 		package_type: DF.Data | None
 		packages: DF.Int
 		period_of_manufacture: DF.Data | None
-		preference: DF.Data | None
-		price_per_kg: DF.Currency
 		row_status: DF.Literal["Pending", "Created", "Error", "Duplicate"]
 		sale_no: DF.Int
 		sample_qty: DF.Float
 		season: DF.Int
 		session_time: DF.Data | None
-		session_type: DF.Data | None
-		short_excess_weight: DF.Float
 		source_row_type: DF.Literal["", "Auction Catalog", "Deal Book"]
 		sub_tea_type: DF.Data | None
 		tea_lot: DF.Link | None
 		tea_purchase: DF.Link | None
 		tea_type: DF.Data | None
-		total_net_weight: DF.Float
 		warehouse_name: DF.Data | None
-		within: DF.Data | None
 	# end: auto-generated types

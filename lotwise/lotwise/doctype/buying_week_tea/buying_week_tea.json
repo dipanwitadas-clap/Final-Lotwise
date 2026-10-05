@@ -22,22 +22,6 @@
   "sale_no",
   "col_break_source",
   "source_row_type",
-  "deal_book_section",
-  "price_per_kg",
-  "gross_wtpkg",
-  "short_excess_weight",
-  "total_net_weight",
-  "deal_no",
-  "deal_time",
-  "session_type",
-  "col_break_deal",
-  "within",
-  "export",
-  "interstate",
-  "preference",
-  "buyer_export_address_code",
-  "buyer_interstate_address_code",
-  "buyer_within_address_code",
   "auction_catalog_section",
   "auction_date",
   "session_time",
@@ -158,87 +142,6 @@
    "label": "Source Format",
    "options": "\nAuction Catalog\nDeal Book",
    "read_only": 1
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "deal_book_section",
-   "fieldtype": "Section Break",
-   "label": "Deal Book Details"
-  },
-  {
-   "fieldname": "price_per_kg",
-   "fieldtype": "Currency",
-   "label": "Price / Kg",
-   "options": "INR"
-  },
-  {
-   "fieldname": "gross_wtpkg",
-   "fieldtype": "Float",
-   "label": "Wt / Pkg"
-  },
-  {
-   "fieldname": "short_excess_weight",
-   "fieldtype": "Float",
-   "label": "Short/Excess Wt (Kgs)"
-  },
-  {
-   "fieldname": "total_net_weight",
-   "fieldtype": "Float",
-   "label": "Total Net Wt (Kgs)"
-  },
-  {
-   "fieldname": "deal_no",
-   "fieldtype": "Data",
-   "label": "Deal No"
-  },
-  {
-   "fieldname": "deal_time",
-   "fieldtype": "Data",
-   "label": "Deal Time"
-  },
-  {
-   "fieldname": "session_type",
-   "fieldtype": "Data",
-   "label": "Session Type"
-  },
-  {
-   "fieldname": "col_break_deal",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "within",
-   "fieldtype": "Data",
-   "label": "Within"
-  },
-  {
-   "fieldname": "export",
-   "fieldtype": "Data",
-   "label": "Export"
-  },
-  {
-   "fieldname": "interstate",
-   "fieldtype": "Data",
-   "label": "Interstate"
-  },
-  {
-   "fieldname": "preference",
-   "fieldtype": "Data",
-   "label": "Preference"
-  },
-  {
-   "fieldname": "buyer_export_address_code",
-   "fieldtype": "Data",
-   "label": "Buyer's Export Address Code"
-  },
-  {
-   "fieldname": "buyer_interstate_address_code",
-   "fieldtype": "Data",
-   "label": "Buyer's Interstate Address Code"
-  },
-  {
-   "fieldname": "buyer_within_address_code",
-   "fieldtype": "Data",
-   "label": "Buyer's Within Address Code"
   },
   {
    "collapsible": 1,
@@ -372,7 +275,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-09-26 22:00:00",
+ "modified": "2026-10-05 12:30:00.000000",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week Tea",
