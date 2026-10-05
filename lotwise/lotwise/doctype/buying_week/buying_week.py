@@ -406,6 +406,12 @@ class BuyingWeek(Document):
 					row.row_status = "Duplicate"
 					row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
 					duplicate += 1
+
+					# Record this Buying Week as a reprint on the existing Tea Lot
+					existing_lot = frappe.get_doc("Tea Lot", tea_lot_name)
+					if not any(r.buying_week == self.name for r in existing_lot.reprints):
+						existing_lot.append("reprints", {"buying_week": self.name})
+						existing_lot.save(ignore_permissions=True)
 					continue
 
 				values = {
