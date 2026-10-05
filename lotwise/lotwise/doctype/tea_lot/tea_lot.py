@@ -22,6 +22,8 @@ class TeaLot(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		from lotwise.lotwise.doctype.tea_lot_reprint.tea_lot_reprint import TeaLotReprint
+
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
 		awr_date: DF.Date | None
@@ -61,6 +63,7 @@ class TeaLot(Document):
 		purchase_invoice_no: DF.Data | None
 		purchase_status: DF.Link | None
 		rate: DF.Currency
+		reprints: DF.Table[TeaLotReprint]
 		sale_no: DF.Int
 		season: DF.Int
 		seller: DF.Link | None

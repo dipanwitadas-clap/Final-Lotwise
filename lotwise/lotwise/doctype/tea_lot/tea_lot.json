@@ -62,7 +62,9 @@
   "purchase_invoice_date",
   "column_break_gapy",
   "warehouse_name",
-  "total_amount_as_per_to_tax_invoice"
+  "total_amount_as_per_to_tax_invoice",
+  "reprints_tab",
+  "reprints"
  ],
  "fields": [
   {
@@ -396,6 +398,18 @@
    "fieldtype": "Int",
    "label": "Season",
    "reqd": 1
+  },
+  {
+   "fieldname": "reprints",
+   "fieldtype": "Table",
+   "label": "Reprints",
+   "options": "Tea Lot Reprint",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reprints_tab",
+   "fieldtype": "Tab Break",
+   "label": "Reprints"
   }
  ],
  "grid_page_length": 50,
@@ -412,7 +426,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-09-30 12:16:58.376047",
+ "modified": "2026-10-05 12:13:02.053570",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
