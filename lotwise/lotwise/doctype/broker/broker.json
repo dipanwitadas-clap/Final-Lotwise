@@ -11,7 +11,8 @@
   "broker_name",
   "broker_short_name",
   "auction_centre",
-  "auction_centre_code"
+  "auction_centre_code",
+  "supplier"
  ],
  "fields": [
   {
@@ -41,12 +42,18 @@
    "fieldname": "auction_centre_code",
    "fieldtype": "Data",
    "label": "Auction Centre Code"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-07 10:09:21.202153",
+ "modified": "2026-10-05 12:05:00.000000",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Broker",

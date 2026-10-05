@@ -8,7 +8,12 @@
  "engine": "InnoDB",
  "field_order": [
   "auction_centre",
-  "auction_centre_code"
+  "auction_centre_code",
+  "company",
+  "buyer_code",
+  "warehouse_group",
+  "prompt_days",
+  "risk_days"
  ],
  "fields": [
   {
@@ -25,12 +30,41 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Auction Centre Code"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "buyer_code",
+   "fieldtype": "Data",
+   "label": "Buyer Code"
+  },
+  {
+   "fieldname": "warehouse_group",
+   "fieldtype": "Link",
+   "label": "Warehouse Group",
+   "options": "Warehouse"
+  },
+  {
+   "default": "13",
+   "fieldname": "prompt_days",
+   "fieldtype": "Int",
+   "label": "Prompt Days"
+  },
+  {
+   "default": "7",
+   "fieldname": "risk_days",
+   "fieldtype": "Int",
+   "label": "Risk Days"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-21 14:05:11.534157",
+ "modified": "2026-10-05 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Auction Centre",
