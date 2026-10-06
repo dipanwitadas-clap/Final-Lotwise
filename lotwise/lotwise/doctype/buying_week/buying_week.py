@@ -330,6 +330,12 @@ class BuyingWeek(Document):
 		file_doc = frappe.get_doc("File", {"file_url": self.import_file})
 		return _read_spreadsheetml_rows(file_doc.get_full_path())
 
+	def _get_broker_by_short_name(self, broker_code):
+		"""Return the Broker name whose broker_short_name matches `broker_code`, else None."""
+		if not broker_code:
+			return None
+		return frappe.db.get_value("Broker", {"broker_short_name": broker_code}, "name")
+
 	@frappe.whitelist()
 	def create_tea_lots(self):
 		"""Create one Tea Lot per Auction Catalog row (Auction channel only, once
@@ -401,6 +407,16 @@ class BuyingWeek(Document):
 					error += 1
 					continue
 
+				broker_code = (row.broker_code or "").strip()
+				broker_name = self._get_broker_by_short_name(broker_code)
+				if not broker_name:
+					row.row_status = "Error"
+					row.message = _("Broker code '{0}' not found in Broker (Broker Short Name).").format(
+						broker_code
+					)
+					error += 1
+					continue
+
 				tea_lot_name = f"{auction_centre_code}-{season}-{sale_no}-{row.lot_no}"
 				if frappe.db.exists("Tea Lot", tea_lot_name):
 					row.row_status = "Duplicate"
@@ -422,6 +438,8 @@ class BuyingWeek(Document):
 					"mark": mark_name,
 					"grade": grade_code or None,
 					"lot_no": row.lot_no,
+					"broker": broker_name,
+					"broker_code": broker_code,
 					"invoice_number": row.invoice_number,
 					"packages": cint(row.packages),
 					"gross_wtpkg": flt(row.gross_weight),
@@ -535,6 +553,16 @@ class BuyingWeek(Document):
 					error += 1
 					continue
 
+				broker_code = (row.broker_code or "").strip()
+				broker_name = self._get_broker_by_short_name(broker_code)
+				if not broker_name:
+					row.row_status = "Error"
+					row.message = _("Broker code '{0}' not found in Broker (Broker Short Name).").format(
+						broker_code
+					)
+					error += 1
+					continue
+
 				computed_name = f"{auction_centre_code}-{season}-{sale_no}-{row.lot_no}"
 				if frappe.db.exists("Tea Purchase", computed_name):
 					row.row_status = "Duplicate"
@@ -560,6 +588,8 @@ class BuyingWeek(Document):
 					"season": season,
 					"sale_no": sale_no,
 					"tea_lot": matched_tea_lot,
+					"broker": broker_name,
+					"broker_code": broker_code,
 					"source_doctype": self.doctype,
 					"source_doctype_id": self.name,
 				}

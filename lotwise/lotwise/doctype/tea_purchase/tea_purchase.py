@@ -18,7 +18,10 @@ class TeaPurchase(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
+		batch_error: DF.SmallText | None
 		batch_no: DF.Link | None
+		broker: DF.Link | None
+		broker_code: DF.Data | None
 		deal_no: DF.Data | None
 		grade: DF.Link | None
 		invoice_number: DF.Data | None
@@ -37,14 +40,47 @@ class TeaPurchase(Document):
 	# end: auto-generated types
 
 	def validate(self):
-		if self.is_new():
+		if self.is_new() and self.acquisition_channel != "Auction":
 			self.validate_batch_inputs()
 
 	def after_insert(self):
-		self.create_batch()
+		if self.acquisition_channel == "Auction":
+			self.try_create_batch()
+		else:
+			self.create_batch()
+
+	def on_update(self):
+		# Retry once the missing Auction data has been filled in
+		if self.acquisition_channel == "Auction" and not self.batch_no and not self.flags.in_insert:
+			self.try_create_batch()
+
+	def try_create_batch(self):
+		"""Auction: create the Batch only when every part of its ID is present;
+		otherwise record why in `batch_error` and leave the Tea Purchase saved."""
+		error = self.get_batch_blockers()
+		if not error:
+			try:
+				self.create_batch()
+			except Exception as e:
+				error = str(e)[:140]
+		self.db_set("batch_error", error or None)
+
+	def get_batch_blockers(self):
+		missing = [
+			_(self.meta.get_label(fieldname))
+			for fieldname in ("invoice_number", "grade", "mark", "season", "sale_no")
+			if not self.get(fieldname)
+		]
+		if missing:
+			return _("Missing: {0}").format(", ".join(missing))
+
+		batch_id = self.get_batch_id()
+		if frappe.db.exists("Batch", batch_id):
+			return _("Batch {0} already exists.").format(batch_id)
 
 	def get_batch_id(self):
-		return f"{self.invoice_number}-{self.grade}-{self.mark}"
+		parts = [self.invoice_number, self.grade, self.mark, self.season, self.sale_no]
+		return "-".join(str(p) for p in parts if p)
 
 	def validate_batch_inputs(self):
 		for fieldname in ("invoice_number", "grade", "mark"):
@@ -77,11 +113,11 @@ class TeaPurchase(Document):
 				)
 			return item_code
 
-		if not frappe.db.exists("Item Group", "Products"):
+		if not frappe.db.exists("Item Group", "Raw Tea - CTC"):
 			frappe.get_doc(
 				{
 					"doctype": "Item Group",
-					"item_group_name": "Products",
+					"item_group_name": "Raw Tea - CTC",
 					"parent_item_group": _("All Item Groups"),
 					"is_group": 0,
 				}
@@ -94,7 +130,7 @@ class TeaPurchase(Document):
 			"doctype": "Item",
 			"item_code": item_code,
 			"item_name": item_code,
-			"item_group": "Products",
+			"item_group": "Raw Tea - CTC",
 			"stock_uom": "Nos",
 			"is_stock_item": 1,
 			"has_batch_no": 1,

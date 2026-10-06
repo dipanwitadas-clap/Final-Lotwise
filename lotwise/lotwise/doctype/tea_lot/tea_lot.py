@@ -29,6 +29,7 @@ class TeaLot(Document):
 		awr_date: DF.Date | None
 		blend: DF.Link | None
 		broker: DF.Link | None
+		broker_code: DF.Data | None
 		certification: DF.Data | None
 		chest_serial_range: DF.Data | None
 		density: DF.Float
