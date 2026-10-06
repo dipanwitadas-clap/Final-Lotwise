@@ -15,6 +15,7 @@ class BuyingWeekDealBookTea(Document):
 
 		auction_valuation: DF.Currency
 		base_price: DF.Currency
+		batch_no: DF.Link | None
 		broker_code: DF.Data | None
 		buyer_export_address_code: DF.Data | None
 		buyer_interstate_address_code: DF.Data | None
@@ -27,6 +28,7 @@ class BuyingWeekDealBookTea(Document):
 		gross_wtpkg: DF.Float
 		interstate: DF.Data | None
 		invoice_number: DF.Data | None
+		item_code: DF.Link | None
 		lot_no: DF.Data | None
 		mark_raw: DF.Data | None
 		message: DF.SmallText | None
@@ -48,5 +50,6 @@ class BuyingWeekDealBookTea(Document):
 		tea_purchase: DF.Link | None
 		tea_type: DF.Data | None
 		total_net_weight: DF.Float
+		warehouse: DF.Link | None
 		within: DF.Data | None
 	# end: auto-generated types

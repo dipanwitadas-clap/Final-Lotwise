@@ -37,6 +37,7 @@ class TeaPurchase(Document):
 		source_doctype: DF.Link | None
 		source_doctype_id: DF.DynamicLink | None
 		tea_lot: DF.Link | None
+		warehouse: DF.Link | None
 	# end: auto-generated types
 
 	def validate(self):

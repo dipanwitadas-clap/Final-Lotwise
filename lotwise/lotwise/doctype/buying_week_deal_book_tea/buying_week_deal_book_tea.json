@@ -22,6 +22,7 @@
   "sale_no",
   "col_break_source",
   "source_row_type",
+  "warehouse",
   "deal_book_section",
   "price_per_kg",
   "gross_wtpkg",
@@ -282,12 +283,18 @@
    "label": "Batch No",
    "options": "Batch",
    "read_only": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-09-29 17:05:38.825472",
+ "modified": "2026-10-06 15:44:46.201529",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week Deal Book Tea",

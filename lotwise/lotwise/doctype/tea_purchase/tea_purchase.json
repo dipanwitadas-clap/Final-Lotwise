@@ -20,6 +20,7 @@
   "invoice_number",
   "deal_no",
   "broker",
+  "warehouse",
   "col_break_details",
   "packages",
   "net_weight_total",
@@ -190,6 +191,12 @@
    "fieldname": "broker_code",
    "fieldtype": "Data",
    "label": "Broker Code"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -200,7 +207,7 @@
    "link_fieldname": "tea_purchase"
   }
  ],
- "modified": "2026-10-05 16:19:58.653040",
+ "modified": "2026-10-06 15:43:35.587928",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Purchase",

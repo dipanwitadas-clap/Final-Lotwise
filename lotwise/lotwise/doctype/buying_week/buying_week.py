@@ -417,6 +417,24 @@ class BuyingWeek(Document):
 					error += 1
 					continue
 
+				warehouse_raw = (row.warehouse_name or "").strip()
+				if not warehouse_raw:
+					row.row_status = "Error"
+					row.message = _("Warehouse Name is missing on this row.")
+					error += 1
+					continue
+
+				warehouse = frappe.db.exists("Warehouse", warehouse_raw) or frappe.db.get_value(
+					"Warehouse", {"warehouse_name": warehouse_raw}, "name"
+				)
+				if not warehouse:
+					row.row_status = "Error"
+					row.message = _("Warehouse '{0}' not found. Please create it first.").format(
+						warehouse_raw
+					)
+					error += 1
+					continue
+
 				tea_lot_name = f"{auction_centre_code}-{season}-{sale_no}-{row.lot_no}"
 				if frappe.db.exists("Tea Lot", tea_lot_name):
 					row.row_status = "Duplicate"
@@ -440,6 +458,7 @@ class BuyingWeek(Document):
 					"lot_no": row.lot_no,
 					"broker": broker_name,
 					"broker_code": broker_code,
+					"warehouse": warehouse,
 					"invoice_number": row.invoice_number,
 					"packages": cint(row.packages),
 					"gross_wtpkg": flt(row.gross_weight),
