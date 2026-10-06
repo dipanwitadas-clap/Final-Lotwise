@@ -42,7 +42,9 @@
   "row_status",
   "message",
   "tea_lot",
-  "tea_purchase"
+  "tea_purchase",
+  "item_code",
+  "batch_no"
  ],
  "fields": [
   {
@@ -260,6 +262,26 @@
    "in_list_view": 1,
    "label": "Tea Purchase",
    "options": "Tea Purchase"
+  },
+  {
+   "columns": 1,
+   "description": "Item created by Tea Purchase",
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "description": "Batch created by Tea Purchase",
+   "fieldname": "batch_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Batch No",
+   "options": "Batch",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,

@@ -603,6 +603,8 @@ class BuyingWeek(Document):
 
 				row.tea_purchase = purchase.name
 				row.tea_lot = matched_tea_lot
+				row.item_code = purchase.item
+				row.batch_no = purchase.batch_no
 				row.row_status = "Created"
 				row.message = _("Created {0}").format(purchase.name)
 				created += 1

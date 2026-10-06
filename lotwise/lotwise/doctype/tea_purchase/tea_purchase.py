@@ -102,6 +102,17 @@ class TeaPurchase(Document):
 		)
 
 		self.db_set({"item": item_code, "batch_no": batch_id})
+		self.sync_deal_book_row(item_code, batch_id)
+
+	def sync_deal_book_row(self, item_code, batch_id):
+		if self.source_doctype != "Buying Week" or not self.source_doctype_id:
+			return
+
+		frappe.db.set_value(
+			"Buying Week Deal Book Tea",
+			{"parent": self.source_doctype_id, "tea_purchase": self.name},
+			{"item_code": item_code, "batch_no": batch_id},
+		)
 
 	def get_or_create_item(self, item_code):
 		if frappe.db.exists("Item", item_code):
