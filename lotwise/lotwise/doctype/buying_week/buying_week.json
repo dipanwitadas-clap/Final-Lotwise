@@ -175,8 +175,8 @@
   {
    "collapsible": 1,
    "fieldname": "items_section",
-   "fieldtype": "Section Break",
-   "label": "Buying Week Items"
+   "fieldtype": "Tab Break",
+   "label": "Auction Catalogue Items"
   },
   {
    "fieldname": "items",
@@ -187,7 +187,7 @@
   {
    "collapsible": 1,
    "fieldname": "deal_book_items_section",
-   "fieldtype": "Section Break",
+   "fieldtype": "Tab Break",
    "label": "Deal Book Items"
   },
   {
@@ -231,7 +231,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-01 10:51:23.901242",
+ "modified": "2026-10-06 10:48:25.031280",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",
