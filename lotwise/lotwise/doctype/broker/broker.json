@@ -30,30 +30,34 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Auction Centre",
-   "options": "Auction Centre"
+   "options": "Auction Centre",
+   "reqd": 1
   },
   {
    "fieldname": "broker_short_name",
    "fieldtype": "Data",
-   "label": "Broker Short Name"
+   "label": "Broker Short Name",
+   "reqd": 1
   },
   {
    "fetch_from": "auction_centre.auction_centre_code",
    "fieldname": "auction_centre_code",
    "fieldtype": "Data",
-   "label": "Auction Centre Code"
+   "label": "Auction Centre Code",
+   "reqd": 1
   },
   {
    "fieldname": "supplier",
    "fieldtype": "Link",
    "label": "Supplier",
-   "options": "Supplier"
+   "options": "Supplier",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-05 12:05:00.000000",
+ "modified": "2026-10-06 17:25:47.730991",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Broker",
