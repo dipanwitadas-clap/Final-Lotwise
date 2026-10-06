@@ -3,7 +3,7 @@
  "allow_bulk_edit": 1,
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "field:broker_name",
+ "autoname": "format:{broker_name}-{auction_centre}",
  "creation": "2026-06-09 16:03:28.462975",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -21,8 +21,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Broker Name",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "auction_centre",
@@ -61,7 +60,7 @@
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Broker",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

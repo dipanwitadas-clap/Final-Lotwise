@@ -331,10 +331,15 @@ class BuyingWeek(Document):
 		return _read_spreadsheetml_rows(file_doc.get_full_path())
 
 	def _get_broker_by_short_name(self, broker_code):
-		"""Return the Broker name whose broker_short_name matches `broker_code`, else None."""
+		"""Return the Broker name whose broker_short_name matches `broker_code` and whose
+		Auction Centre is this document's Auction Centre, else None."""
 		if not broker_code:
 			return None
-		return frappe.db.get_value("Broker", {"broker_short_name": broker_code}, "name")
+		return frappe.db.get_value(
+			"Broker",
+			{"broker_short_name": broker_code, "auction_centre": self.auction_centre},
+			"name",
+		)
 
 	@frappe.whitelist()
 	def create_tea_lots(self):
@@ -411,8 +416,8 @@ class BuyingWeek(Document):
 				broker_name = self._get_broker_by_short_name(broker_code)
 				if not broker_name:
 					row.row_status = "Error"
-					row.message = _("Broker code '{0}' not found in Broker (Broker Short Name).").format(
-						broker_code
+					row.message = _("Broker code '{0}' not found for Auction Centre '{1}'.").format(
+						broker_code, self.auction_centre
 					)
 					error += 1
 					continue
@@ -576,8 +581,8 @@ class BuyingWeek(Document):
 				broker_name = self._get_broker_by_short_name(broker_code)
 				if not broker_name:
 					row.row_status = "Error"
-					row.message = _("Broker code '{0}' not found in Broker (Broker Short Name).").format(
-						broker_code
+					row.message = _("Broker code '{0}' not found for Auction Centre '{1}'.").format(
+						broker_code, self.auction_centre
 					)
 					error += 1
 					continue

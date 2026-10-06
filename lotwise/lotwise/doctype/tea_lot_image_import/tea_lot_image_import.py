@@ -212,6 +212,15 @@ def _resolve_master(doctype: str, value: str, label: str) -> tuple[str | None, s
 	canonical = frappe.db.get_value(doctype, value, "name")
 	if canonical:
 		return canonical, None
+	if doctype == "Broker":
+		# Broker docnames are "<broker_name>-<Auction Centre>", so fall back to broker_name.
+		matches = frappe.get_all("Broker", filters={"broker_name": value}, pluck="name", limit=2)
+		if len(matches) == 1:
+			return matches[0], None
+		if len(matches) > 1:
+			return None, _("{0} '{1}' is ambiguous - it exists for more than one Auction Centre.").format(
+				label, value
+			)
 	return None, _("{0} '{1}' not found. Please create it first.").format(label, value)
 
 
