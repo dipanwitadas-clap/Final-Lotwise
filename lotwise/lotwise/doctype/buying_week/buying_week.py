@@ -191,7 +191,7 @@ class BuyingWeek(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
-		company: DF.Data | None
+		company: DF.Link | None
 		computed_total_net_weight: DF.Float
 		computed_total_packages: DF.Int
 		day: DF.Int

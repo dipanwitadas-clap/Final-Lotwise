@@ -81,8 +81,9 @@
   },
   {
    "fieldname": "company",
-   "fieldtype": "Data",
-   "label": "Company"
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
   },
   {
    "fieldname": "col_break_1b",
@@ -231,7 +232,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-06 10:48:25.031280",
+ "modified": "2026-10-06 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",
