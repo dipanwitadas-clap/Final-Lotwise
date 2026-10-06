@@ -590,6 +590,9 @@ class BuyingWeek(Document):
 					continue
 
 				matched_tea_lot = computed_name if frappe.db.exists("Tea Lot", computed_name) else None
+				warehouse = (
+					frappe.db.get_value("Tea Lot", matched_tea_lot, "warehouse") if matched_tea_lot else None
+				)
 
 				values = {
 					"doctype": "Tea Purchase",
@@ -607,6 +610,7 @@ class BuyingWeek(Document):
 					"season": season,
 					"sale_no": sale_no,
 					"tea_lot": matched_tea_lot,
+					"warehouse": warehouse,
 					"broker": broker_name,
 					"broker_code": broker_code,
 					"source_doctype": self.doctype,
@@ -622,6 +626,7 @@ class BuyingWeek(Document):
 
 				row.tea_purchase = purchase.name
 				row.tea_lot = matched_tea_lot
+				row.warehouse = purchase.warehouse
 				row.item_code = purchase.item
 				row.batch_no = purchase.batch_no
 				row.row_status = "Created"
