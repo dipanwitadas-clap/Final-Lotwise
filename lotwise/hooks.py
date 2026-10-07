@@ -244,7 +244,21 @@ require_type_annotated_api_methods = True
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-fixtures = [{"doctype": "Role", "filters": [["role_name", "in", ["Tea Manager", "Taster", "Data Entry"]]]}]
+# fixtures = [{"doctype": "Role", "filters": [["role_name", "in", ["Tea Manager", "Taster", "Data Entry"]]]}]
+fixtures = [
+	{
+		"doctype": "Role",
+		"filters": [["role_name", "in", ["Tea Manager", "Taster", "Data Entry"]]],
+	},
+	{
+		"doctype": "Custom Field",
+		"filters": [
+			["dt", "=", "Purchase Order Item"],
+			["module", "=", "Lotwise"],
+		],
+	},
+]
+
 ignore_links_on_delete = [
 	"Tea Lot Import",
 ]
