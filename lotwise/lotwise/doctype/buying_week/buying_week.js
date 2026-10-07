@@ -98,5 +98,34 @@ frappe.ui.form.on("Buying Week", {
 				)
 			).addClass("btn-primary");
 		}
+
+		if (
+			frm.doc.acquisition_channel === "Auction" &&
+			(frm.doc.deal_book_items || []).some((r) => r.batch_no && !r.purchase_order)
+		) {
+			frm.add_custom_button(__("Create PO"), () => {
+				if (frm.is_dirty()) {
+					frappe.msgprint(__("Please save the document before creating records."));
+					return;
+				}
+				frappe.confirm(
+					__("Create Purchase Orders (one per Broker) for rows with a Batch?"),
+					() => {
+						frm.call({
+							doc: frm.doc,
+							method: "create_purchase_orders",
+							freeze: true,
+							freeze_message: __("Creating Purchase Orders…"),
+						}).then((r) => {
+							frm.reload_doc();
+							const m = r.message || {};
+							frappe.msgprint(
+								__("Created: {0}  ·  Errors: {1}", [m.created || 0, m.errors || 0])
+							);
+						});
+					}
+				);
+			}).addClass("btn-primary");
+		}
 	},
 });

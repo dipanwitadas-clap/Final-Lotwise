@@ -187,6 +187,9 @@ class BuyingWeek(Document):
 		from lotwise.lotwise.doctype.buying_week_deal_book_tea.buying_week_deal_book_tea import (
 			BuyingWeekDealBookTea,
 		)
+		from lotwise.lotwise.doctype.buying_week_purchase_order.buying_week_purchase_order import (
+			BuyingWeekPurchaseOrder,
+		)
 		from lotwise.lotwise.doctype.buying_week_tea.buying_week_tea import BuyingWeekTea
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
@@ -198,6 +201,7 @@ class BuyingWeek(Document):
 		deal_book_items: DF.Table[BuyingWeekDealBookTea]
 		import_file: DF.Attach
 		items: DF.Table[BuyingWeekTea]
+		purchase_orders: DF.Table[BuyingWeekPurchaseOrder]
 		purchase_status: DF.Link | None
 		rows_created: DF.Int
 		rows_duplicate: DF.Int
@@ -632,6 +636,7 @@ class BuyingWeek(Document):
 				row.tea_purchase = purchase.name
 				row.tea_lot = matched_tea_lot
 				row.warehouse = purchase.warehouse
+				row.broker = purchase.broker
 				row.item_code = purchase.item
 				row.batch_no = purchase.batch_no
 				row.row_status = "Created"
@@ -650,3 +655,99 @@ class BuyingWeek(Document):
 		self.save()
 
 		return {"created": created, "errors": error, "duplicates": duplicate}
+
+	@frappe.whitelist()
+	def create_purchase_orders(self):
+		"""Create one draft Purchase Order per Broker from the Deal Book rows that
+		already have a Batch (created with their Tea Purchase). The supplier is the
+		Broker's `supplier`; the PO date is the date part of the row's Deal Time
+		(dd/mm/yyyy hh:mm:ss). Rows already carrying a `purchase_order` are skipped,
+		so the button is safe to press again. Each PO is recorded in the
+		`purchase_orders` table; when every batch row has a PO the status becomes
+		"Ordered"."""
+		if self.acquisition_channel != "Auction":
+			frappe.throw(_("Purchase Order creation is only available for the Auction channel."))
+		if not self.deal_book_items:
+			frappe.throw(_("There are no Deal Book rows to create Purchase Orders from."))
+		if not self.company:
+			frappe.throw(_("Company is required to create Purchase Orders."))
+
+		groups = {}
+		for row in self.deal_book_items:
+			if not row.batch_no or row.purchase_order:
+				continue
+			if not row.broker:
+				row.message = _("Broker is missing on this row.")
+				continue
+			groups.setdefault(row.broker, []).append(row)
+
+		created = error = 0
+
+		for broker, rows in groups.items():
+			try:
+				supplier = frappe.db.get_value("Broker", broker, "supplier")
+				if not supplier:
+					raise frappe.ValidationError(_("Broker '{0}' has no Supplier.").format(broker))
+
+				deal_date = self._deal_date(rows[0].deal_time)
+
+				po = frappe.get_doc(
+					{
+						"doctype": "Purchase Order",
+						"supplier": supplier,
+						"company": self.company,
+						"transaction_date": deal_date,
+						"schedule_date": deal_date,
+						"items": [
+							{
+								"item_code": r.item_code,
+								"batch_no": r.batch_no,
+								"qty": flt(r.total_net_weight or r.net_weight),
+								"rate": flt(r.price_per_kg),
+								"warehouse": r.warehouse,
+								"schedule_date": deal_date,
+							}
+							for r in rows
+						],
+					}
+				)
+				po.insert(ignore_permissions=True)
+
+				for r in rows:
+					r.purchase_order = po.name
+					r.message = _("PO {0}").format(po.name)
+				self.append(
+					"purchase_orders",
+					{
+						"broker": broker,
+						"supplier": supplier,
+						"purchase_order": po.name,
+						"deal_date": deal_date,
+					},
+				)
+				created += 1
+
+			except Exception as e:
+				for r in rows:
+					r.message = str(e)[:140]
+				error += 1
+				frappe.log_error(frappe.get_traceback(), "Buying Week: create_purchase_orders failed")
+
+		if (
+			self.deal_book_items
+			and all(r.purchase_order for r in self.deal_book_items if r.batch_no)
+			and any(r.batch_no for r in self.deal_book_items)
+		):
+			self.status = "Ordered"
+		self.save()
+
+		return {"created": created, "errors": error}
+
+	@staticmethod
+	def _deal_date(deal_time):
+		"""Date part of a Deal Time such as '25/09/2026 11:30:00'."""
+		date_part = (deal_time or "").strip().split(" ")[0]
+		try:
+			return datetime.strptime(date_part, "%d/%m/%Y").date()
+		except ValueError:
+			raise frappe.ValidationError(_("Deal Time '{0}' is not in dd/mm/yyyy format.").format(deal_time))
