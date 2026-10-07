@@ -23,6 +23,8 @@
   "col_break_source",
   "source_row_type",
   "warehouse",
+  "broker",
+  "purchase_order",
   "deal_book_section",
   "price_per_kg",
   "gross_wtpkg",
@@ -289,12 +291,24 @@
    "fieldtype": "Link",
    "label": "Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "fieldname": "broker",
+   "fieldtype": "Link",
+   "label": "Broker",
+   "options": "Broker"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Purchase Order"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-10-06 15:44:46.201529",
+ "modified": "2026-10-07 12:51:48.726177",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week Deal Book Tea",

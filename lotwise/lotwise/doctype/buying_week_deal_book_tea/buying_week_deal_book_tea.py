@@ -16,6 +16,7 @@ class BuyingWeekDealBookTea(Document):
 		auction_valuation: DF.Currency
 		base_price: DF.Currency
 		batch_no: DF.Link | None
+		broker: DF.Link | None
 		broker_code: DF.Data | None
 		buyer_export_address_code: DF.Data | None
 		buyer_interstate_address_code: DF.Data | None
@@ -39,6 +40,7 @@ class BuyingWeekDealBookTea(Document):
 		parenttype: DF.Data
 		preference: DF.Data | None
 		price_per_kg: DF.Currency
+		purchase_order: DF.Link | None
 		row_status: DF.Literal["Pending", "Created", "Error", "Duplicate"]
 		sale_no: DF.Int
 		sample_qty: DF.Float
