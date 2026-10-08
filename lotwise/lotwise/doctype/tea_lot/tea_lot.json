@@ -90,6 +90,7 @@
   {
    "fieldname": "mark",
    "fieldtype": "Link",
+   "in_filter": 1,
    "in_global_search": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -435,7 +436,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-10-09 00:51:08.440946",
+ "modified": "2026-10-09 01:15:24.536396",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
