@@ -8,7 +8,6 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_mgxs",
-  "fiscal_year",
   "season",
   "acquisition_channel",
   "offer_sample_list",
@@ -27,6 +26,7 @@
   "item",
   "mark",
   "grade",
+  "category",
   "net_weight_total",
   "intended_segment",
   "source_doctype",
@@ -90,6 +90,8 @@
   {
    "fieldname": "mark",
    "fieldtype": "Link",
+   "in_global_search": 1,
+   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Mark",
    "options": "Mark",
@@ -103,6 +105,14 @@
    "label": "Grade",
    "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\"",
    "options": "Grade"
+  },
+  {
+   "description": "Auction Catalog CategoryId (e.g. CTC)",
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Category"
   },
   {
    "fieldname": "invoice_number",
@@ -388,12 +398,6 @@
    "label": "Purchase Check"
   },
   {
-   "fieldname": "fiscal_year",
-   "fieldtype": "Link",
-   "label": "Fiscal Year",
-   "options": "Fiscal Year"
-  },
-  {
    "fieldname": "season",
    "fieldtype": "Int",
    "label": "Season",
@@ -431,7 +435,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-10-05 16:02:24.219255",
+ "modified": "2026-10-09 00:51:08.440946",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

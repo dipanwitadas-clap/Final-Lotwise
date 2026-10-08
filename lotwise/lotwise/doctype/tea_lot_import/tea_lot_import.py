@@ -312,7 +312,7 @@ class TeaLotImport(Document):
 							"mark": mark_name,
 							"lot_no": lot_no,
 							"sale_no": self.sale_no,
-							"fiscal_year": self.fiscal_year,
+							"season": self.season,
 							"grade": grade_code or None,
 						},
 						"name",
@@ -350,7 +350,7 @@ class TeaLotImport(Document):
 						row.row_status = "Error"
 						row.message = _(
 							"No existing Tea Lot found to move to Bag Sample. "
-							"Auction Centre, Mark, Lot No, Sale No, Fiscal Year and Grade must match "
+							"Auction Centre, Mark, Lot No, Sale No, Season and Grade must match "
 							"a previously purchased lot."
 						)
 						error += 1

@@ -30,6 +30,7 @@ class TeaLot(Document):
 		blend: DF.Link | None
 		broker: DF.Link | None
 		broker_code: DF.Data | None
+		category: DF.Data | None
 		certification: DF.Data | None
 		chest_serial_range: DF.Data | None
 		density: DF.Float
@@ -37,7 +38,6 @@ class TeaLot(Document):
 		do_date: DF.Data | None
 		do_reference: DF.Data | None
 		evaluation_status: DF.Link | None
-		fiscal_year: DF.Link | None
 		gp_date: DF.Date | None
 		gp_no: DF.Data | None
 		grade: DF.Link | None
@@ -79,7 +79,6 @@ class TeaLot(Document):
 	# end: auto-generated types
 
 	def validate(self):
-		self.validate_fiscal_year()
 		self.set_status_checks()
 
 	def set_status_checks(self):
@@ -87,39 +86,6 @@ class TeaLot(Document):
 			self.offer_check = 1
 		if self.purchase_status == "Purchase":
 			self.purchase_check = 1
-
-	def validate_fiscal_year(self):
-		if not self.fiscal_year:
-			return
-
-		if self.purchase_status == "Offer":
-			relevant_date = self.offer_date
-			date_label = _("Offer Date")
-		else:
-			relevant_date = self.purchase_date
-			date_label = _("Purchase Date")
-
-		if not relevant_date:
-			return
-
-		year_start_date, year_end_date = frappe.db.get_value(
-			"Fiscal Year", self.fiscal_year, ["year_start_date", "year_end_date"]
-		)
-		relevant_date = getdate(relevant_date)
-
-		if relevant_date < year_start_date or relevant_date > year_end_date:
-			frappe.throw(
-				_(
-					"{0} <b>{1}</b> must fall within Fiscal Year <b>{2}</b> (<b>{3}</b> to <b>{4}</b>)."
-				).format(
-					date_label,
-					frappe.utils.formatdate(relevant_date, "dd-MMM-yyyy"),
-					self.fiscal_year,
-					frappe.utils.formatdate(year_start_date, "dd-MMM-yyyy"),
-					frappe.utils.formatdate(year_end_date, "dd-MMM-yyyy"),
-				),
-				title=_("Invalid {0}").format(date_label),
-			)
 
 	def autoname(self):
 		if self.acquisition_channel in ["Auction", "Outsourced"]:

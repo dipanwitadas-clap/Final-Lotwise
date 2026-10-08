@@ -464,6 +464,7 @@ class BuyingWeek(Document):
 					"auction_centre": self.auction_centre,
 					"mark": mark_name,
 					"grade": grade_code or None,
+					"category": (row.category_id or "").strip() or None,
 					"lot_no": row.lot_no,
 					"broker": broker_name,
 					"broker_code": broker_code,
@@ -599,8 +600,10 @@ class BuyingWeek(Document):
 					continue
 
 				matched_tea_lot = computed_name if frappe.db.exists("Tea Lot", computed_name) else None
-				warehouse = (
-					frappe.db.get_value("Tea Lot", matched_tea_lot, "warehouse") if matched_tea_lot else None
+				warehouse, category = (
+					frappe.db.get_value("Tea Lot", matched_tea_lot, ["warehouse", "category"])
+					if matched_tea_lot
+					else (None, None)
 				)
 
 				values = {
@@ -610,6 +613,7 @@ class BuyingWeek(Document):
 					"auction_centre": self.auction_centre,
 					"mark": mark_name,
 					"grade": grade_code or None,
+					"category": category,
 					"lot_no": row.lot_no,
 					"invoice_number": row.invoice_number,
 					"deal_no": row.deal_no,
@@ -636,6 +640,7 @@ class BuyingWeek(Document):
 				row.tea_purchase = purchase.name
 				row.tea_lot = matched_tea_lot
 				row.warehouse = purchase.warehouse
+				row.category = purchase.category
 				row.broker = purchase.broker
 				row.item_code = purchase.item
 				row.batch_no = purchase.batch_no

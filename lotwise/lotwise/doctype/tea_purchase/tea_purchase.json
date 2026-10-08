@@ -16,6 +16,7 @@
   "details_section",
   "mark",
   "grade",
+  "category",
   "lot_no",
   "invoice_number",
   "deal_no",
@@ -104,6 +105,13 @@
    "in_list_view": 1,
    "label": "Grade",
    "options": "Grade"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "label": "Category",
+   "read_only": 1,
+   "description": "Copied from the matched Tea Lot"
   },
   {
    "fieldname": "lot_no",

@@ -192,41 +192,6 @@ class TestTeaLotImportCreate(FrappeTestCase):
 		self.assertEqual(lot.purchase_status, "Offer")
 		self.assertEqual(str(lot.offer_date), "2026-05-01")
 
-	def test_create_tea_lots_rejects_date_outside_fiscal_year(self):
-		"""Rows whose purchase_date falls outside the selected Fiscal Year should error, not create a lot."""
-		doc = frappe.get_doc(
-			{
-				"doctype": "Tea Lot Import",
-				"acquisition_channel": "Auction",
-				"sale_no": "5",
-				"season": "2026",
-				"purchase_status": "Test Purchased",
-				"fiscal_year": "2026-2027",
-				"items": [
-					{
-						"lot_no": "TEST003",
-						"invoice_number": "INV003",
-						"mark_raw": "TESTMARK",
-						"grade_raw": "BP",
-						"packages": 15,
-						"net_weight_total": 519.2,
-						"liquor_mark": "C+",
-						"auction_centre": "Siliguri",
-						"purchase_date": "2025-12-31",
-						"row_status": "Pending",
-					}
-				],
-			}
-		)
-		doc.insert(ignore_permissions=True, ignore_mandatory=True)
-
-		result = doc.create_tea_lots()
-
-		self.assertEqual(result["created"], 0)
-		self.assertEqual(result["errors"], 1)
-		self.assertIn("must fall within Fiscal Year", doc.items[0].message)
-		self.assertFalse(frappe.db.exists("Tea Lot", "SLG-2026-5-TEST003"))
-
 	def test_create_tea_lots_accepts_date_inside_fiscal_year(self):
 		"""Rows whose purchase_date falls inside the selected Fiscal Year should create the lot normally."""
 		doc = frappe.get_doc(
@@ -259,8 +224,6 @@ class TestTeaLotImportCreate(FrappeTestCase):
 
 		self.assertEqual(result["created"], 1)
 		self.assertEqual(result["errors"], 0)
-		lot_name = doc.items[0].tea_lot
-		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "fiscal_year"), "2026-2027")
 
 	def test_purchase_import_updates_existing_offer_lot_in_place(self):
 		"""A Purchase-phase row matching an existing Offer lot (by centre+mark+lot_no+sale_no+

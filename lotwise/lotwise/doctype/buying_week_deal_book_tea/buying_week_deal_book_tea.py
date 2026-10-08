@@ -21,6 +21,7 @@ class BuyingWeekDealBookTea(Document):
 		buyer_export_address_code: DF.Data | None
 		buyer_interstate_address_code: DF.Data | None
 		buyer_within_address_code: DF.Data | None
+		category: DF.Data | None
 		deal_no: DF.Data | None
 		deal_time: DF.Data | None
 		export: DF.Data | None

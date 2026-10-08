@@ -22,6 +22,7 @@ class TeaPurchase(Document):
 		batch_no: DF.Link | None
 		broker: DF.Link | None
 		broker_code: DF.Data | None
+		category: DF.Data | None
 		deal_no: DF.Data | None
 		grade: DF.Link | None
 		invoice_number: DF.Data | None
@@ -69,7 +70,7 @@ class TeaPurchase(Document):
 	def get_batch_blockers(self):
 		missing = [
 			_(self.meta.get_label(fieldname))
-			for fieldname in ("invoice_number", "grade", "mark", "season", "sale_no")
+			for fieldname in ("invoice_number", "grade", "category", "mark", "season", "sale_no")
 			if not self.get(fieldname)
 		]
 		if missing:
@@ -80,11 +81,11 @@ class TeaPurchase(Document):
 			return _("Batch {0} already exists.").format(batch_id)
 
 	def get_batch_id(self):
-		parts = [self.invoice_number, self.grade, self.mark, self.season, self.sale_no]
+		parts = [self.invoice_number, self.grade, self.mark, self.season, self.sale_no, self.lot_no]
 		return "-".join(str(p) for p in parts if p)
 
 	def validate_batch_inputs(self):
-		for fieldname in ("invoice_number", "grade", "mark"):
+		for fieldname in ("invoice_number", "grade", "category", "mark"):
 			if not self.get(fieldname):
 				frappe.throw(
 					_("{0} is required to create the Batch.").format(_(self.meta.get_label(fieldname)))
@@ -95,7 +96,7 @@ class TeaPurchase(Document):
 			frappe.throw(_("Batch {0} already exists.").format(frappe.bold(batch_id)))
 
 	def create_batch(self):
-		item_code = self.get_or_create_item(f"CTC-{self.grade}")
+		item_code = self.get_or_create_item(f"{self.category}-{self.grade}", self.category)
 		batch_id = self.get_batch_id()
 
 		frappe.get_doc({"doctype": "Batch", "batch_id": batch_id, "item": item_code}).insert(
@@ -112,45 +113,65 @@ class TeaPurchase(Document):
 		frappe.db.set_value(
 			"Buying Week Deal Book Tea",
 			{"parent": self.source_doctype_id, "tea_purchase": self.name},
-			{"item_code": item_code, "batch_no": batch_id},
+			{"item_code": item_code, "batch_no": batch_id, "category": self.category},
 		)
 
-	def get_or_create_item(self, item_code):
+	def get_or_create_item(self, item_code, category):
 		if frappe.db.exists("Item", item_code):
-			if not frappe.db.get_value("Item", item_code, "has_batch_no"):
+			has_batch_no, stock_uom = frappe.db.get_value("Item", item_code, ["has_batch_no", "stock_uom"])
+			if not has_batch_no:
 				frappe.throw(
 					_("Item {0} exists but is not batch enabled (Has Batch No).").format(
 						frappe.bold(item_code)
 					)
 				)
+			if stock_uom != "Kg":
+				frappe.throw(_("Item {0} exists but its Stock UOM is not Kg.").format(frappe.bold(item_code)))
 			return item_code
 
-		if not frappe.db.exists("Item Group", "Raw Tea - CTC"):
+		item_group = f"Raw Tea - {category}"
+		if not frappe.db.exists("Item Group", item_group):
 			frappe.get_doc(
 				{
 					"doctype": "Item Group",
-					"item_group_name": "Raw Tea - CTC",
+					"item_group_name": item_group,
 					"parent_item_group": _("All Item Groups"),
 					"is_group": 0,
 				}
 			).insert(ignore_permissions=True)
 
-		if not frappe.db.exists("UOM", "Nos"):
-			frappe.throw(_("UOM 'Nos' does not exist. Please create it first."))
+		if not frappe.db.exists("UOM", "Kg"):
+			frappe.throw(_("UOM 'Kg' does not exist. Please create it first."))
 
 		item = {
 			"doctype": "Item",
 			"item_code": item_code,
 			"item_name": item_code,
-			"item_group": "Raw Tea - CTC",
-			"stock_uom": "Nos",
+			"item_group": item_group,
+			"stock_uom": "Kg",
 			"is_stock_item": 1,
 			"has_batch_no": 1,
 		}
 		if frappe.get_meta("Item").has_field("gst_hsn_code"):
 			item["gst_hsn_code"] = "090240"
+			item["taxes"] = [{"item_tax_template": self.get_gst_item_tax_template(5)}]
 
 		return frappe.get_doc(item).insert(ignore_permissions=True).name
+
+	def get_gst_item_tax_template(self, gst_rate):
+		company = None
+		if self.source_doctype == "Buying Week" and self.source_doctype_id:
+			company = frappe.db.get_value("Buying Week", self.source_doctype_id, "company")
+		company = company or frappe.defaults.get_global_default("company")
+
+		template = frappe.db.get_value("Item Tax Template", {"gst_rate": gst_rate, "company": company})
+		if not template:
+			frappe.throw(
+				_("No Item Tax Template with GST rate {0}% found for Company {1}.").format(
+					gst_rate, frappe.bold(company)
+				)
+			)
+		return template
 
 	def autoname(self):
 		"""Same naming scheme as Tea Lot's Auction/Outsourced branch

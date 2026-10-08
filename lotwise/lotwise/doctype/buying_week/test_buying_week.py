@@ -389,6 +389,7 @@ class TestBuyingWeekCreateTeaPurchases(FrappeTestCase):
 					{
 						"lot_no": "TPU001",
 						"mark_raw": "TESTMARK TPU",
+						"category_id": "CTC",
 						"packages": 20,
 						"gross_weight": 40,
 						"net_weight": 39,
@@ -405,6 +406,7 @@ class TestBuyingWeekCreateTeaPurchases(FrappeTestCase):
 		doc.create_tea_lots()
 		lot_name = doc.items[0].tea_lot
 		self.assertEqual(lot_name, "TSLGTPU-2025-950-TPU001")
+		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "category"), "CTC")
 
 		doc.status = "Deal Book Loaded"
 		doc.set(
@@ -451,6 +453,9 @@ class TestBuyingWeekCreateTeaPurchases(FrappeTestCase):
 			"Tea Purchase", row1.tea_purchase, ["tea_lot", "rate", "net_weight_total"], as_dict=True
 		)
 		self.assertEqual(purchase1.tea_lot, lot_name)
+		self.assertEqual(frappe.db.get_value("Tea Purchase", row1.tea_purchase, "category"), "CTC")
+		self.assertEqual(row1.category, "CTC")
+		self.assertFalse(row2.category)
 		self.assertEqual(purchase1.rate, 260)
 		self.assertEqual(purchase1.net_weight_total, 780)
 

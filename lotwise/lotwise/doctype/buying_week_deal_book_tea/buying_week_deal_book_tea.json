@@ -46,6 +46,7 @@
   "message",
   "tea_lot",
   "tea_purchase",
+  "category",
   "item_code",
   "batch_no"
  ],
@@ -265,6 +266,15 @@
    "in_list_view": 1,
    "label": "Tea Purchase",
    "options": "Tea Purchase"
+  },
+  {
+   "columns": 1,
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Category",
+   "read_only": 1,
+   "description": "Copied from the matched Tea Lot"
   },
   {
    "columns": 1,
