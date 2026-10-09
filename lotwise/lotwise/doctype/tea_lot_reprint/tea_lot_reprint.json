@@ -5,17 +5,17 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "buying_week",
+  "buying_day",
   "reprint_date",
   "remarks"
  ],
  "fields": [
   {
-   "fieldname": "buying_week",
+   "fieldname": "buying_day",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Buying Week",
-   "options": "Buying Week",
+   "label": "Buying Day",
+   "options": "Buying Day",
    "read_only": 1
   },
   {

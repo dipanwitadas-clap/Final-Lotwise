@@ -107,7 +107,7 @@ class TeaPurchase(Document):
 		self.sync_deal_book_row(item_code, batch_id)
 
 	def sync_deal_book_row(self, item_code, batch_id):
-		if self.source_doctype != "Buying Week" or not self.source_doctype_id:
+		if self.source_doctype != "Buying Day" or not self.source_doctype_id:
 			return
 
 		frappe.db.set_value(
@@ -160,8 +160,8 @@ class TeaPurchase(Document):
 
 	def get_gst_item_tax_template(self, gst_rate):
 		company = None
-		if self.source_doctype == "Buying Week" and self.source_doctype_id:
-			company = frappe.db.get_value("Buying Week", self.source_doctype_id, "company")
+		if self.source_doctype == "Buying Day" and self.source_doctype_id:
+			company = frappe.db.get_value("Buying Day", self.source_doctype_id, "company")
 		company = company or frappe.defaults.get_global_default("company")
 
 		template = frappe.db.get_value("Item Tax Template", {"gst_rate": gst_rate, "company": company})

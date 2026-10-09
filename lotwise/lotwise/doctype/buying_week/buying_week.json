@@ -1,70 +1,18 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-09-26 22:00:00",
+ "creation": "2026-10-09 10:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "source_section",
   "acquisition_channel",
-  "status",
-  "import_file",
-  "col_break_1",
-  "purchase_status",
-  "company",
-  "col_break_1b",
   "auction_centre",
   "sale_no",
   "season",
-  "day",
-  "week_no",
-  "week_start",
-  "week_end",
-  "recon_section",
-  "computed_total_packages",
-  "col_break_2",
-  "computed_total_net_weight",
-  "summary_section",
-  "rows_parsed",
-  "rows_created",
-  "col_break_3",
-  "rows_error",
-  "rows_duplicate",
-  "rows_updated",
-  "items_section",
-  "items",
-  "deal_book_items_section",
-  "deal_book_items",
-  "purchase_orders_section",
-  "purchase_orders"
+  "days_section",
+  "buying_days"
  ],
  "fields": [
-  {
-   "fieldname": "source_section",
-   "fieldtype": "Section Break",
-   "label": "Source File"
-  },
-  {
-   "description": "Upload (.xlsx file)",
-   "fieldname": "import_file",
-   "fieldtype": "Attach",
-   "label": "Upload XLSX",
-   "reqd": 1
-  },
-  {
-   "default": "Draft",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Status",
-   "options": "Draft\nCatalogue Loaded\nDeal Book Loaded\nOrdered\nReceived\nInvoiced\nPaid\nClosed",
-   "reqd": 1
-  },
-  {
-   "fieldname": "col_break_1",
-   "fieldtype": "Column Break"
-  },
   {
    "description": "Auction, Private purchase, or Outsourced",
    "fieldname": "acquisition_channel",
@@ -76,176 +24,47 @@
    "reqd": 1
   },
   {
-   "fieldname": "purchase_status",
-   "fieldtype": "Link",
-   "label": "Purchase Status",
-   "options": "Purchase Status"
-  },
-  {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Company"
-  },
-  {
-   "fieldname": "col_break_1b",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "auction_centre",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Auction Centre",
-   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'",
-   "options": "Auction Centre"
+   "options": "Auction Centre",
+   "reqd": 1
   },
   {
    "fieldname": "sale_no",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Sale No",
-   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'"
+   "reqd": 1
   },
   {
    "fieldname": "season",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Season",
-   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'"
+   "reqd": 1
   },
   {
-   "collapsible": 1,
-   "fieldname": "recon_section",
+   "fieldname": "days_section",
    "fieldtype": "Section Break",
-   "label": "Reconciliation"
+   "label": "Buying Days"
   },
   {
-   "fieldname": "computed_total_packages",
-   "fieldtype": "Int",
-   "label": "Computed Total Pkgs",
-   "read_only": 1
-  },
-  {
-   "fieldname": "col_break_2",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "computed_total_net_weight",
-   "fieldtype": "Float",
-   "label": "Computed Total Nett. Wt. (Kgs)",
-   "read_only": 1
-  },
-  {
-   "fieldname": "summary_section",
-   "fieldtype": "Section Break",
-   "label": "Import Summary"
-  },
-  {
-   "fieldname": "rows_parsed",
-   "fieldtype": "Int",
-   "label": "Rows Parsed",
-   "read_only": 1
-  },
-  {
-   "fieldname": "rows_created",
-   "fieldtype": "Int",
-   "label": "Rows Created",
-   "read_only": 1
-  },
-  {
-   "fieldname": "col_break_3",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "rows_error",
-   "fieldtype": "Int",
-   "label": "Rows with Error",
-   "read_only": 1
-  },
-  {
-   "fieldname": "rows_duplicate",
-   "fieldtype": "Int",
-   "label": "Rows Duplicate",
-   "read_only": 1
-  },
-  {
-   "fieldname": "rows_updated",
-   "fieldtype": "Int",
-   "label": "Rows Updated",
-   "read_only": 1
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "items_section",
-   "fieldtype": "Tab Break",
-   "label": "Auction Catalogue Items"
-  },
-  {
-   "fieldname": "items",
+   "fieldname": "buying_days",
    "fieldtype": "Table",
-   "label": "Items",
-   "options": "Buying Week Tea"
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "deal_book_items_section",
-   "fieldtype": "Tab Break",
-   "label": "Deal Book Items"
-  },
-  {
-   "fieldname": "deal_book_items",
-   "fieldtype": "Table",
-   "label": "Deal Book Items",
-   "options": "Buying Week Deal Book Tea"
-  },
-  {
-   "fieldname": "week_no",
-   "fieldtype": "Int",
-   "label": "Week No"
-  },
-  {
-   "fieldname": "week_start",
-   "fieldtype": "Date",
-   "label": "Week Start"
-  },
-  {
-   "fieldname": "week_end",
-   "fieldtype": "Date",
-   "label": "Week End"
-  },
-  {
-   "fieldname": "day",
-   "fieldtype": "Int",
-   "label": "Day",
-   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'"
-  },
-  {
-   "fieldname": "purchase_orders_section",
-   "fieldtype": "Tab Break",
-   "label": "Purchase Orders"
-  },
-  {
-   "fieldname": "purchase_orders",
-   "fieldtype": "Table",
-   "label": "Purchase Orders",
-   "options": "Buying Week Purchase Order"
+   "label": "Buying Days",
+   "options": "Buying Week Day"
   }
  ],
- "index_web_pages_for_search": 1,
  "links": [
   {
-   "group": "Tea Lot",
-   "link_doctype": "Tea Lot",
-   "link_fieldname": "source_doctype_id"
-  },
-  {
-   "group": "Tea Purchase",
-   "link_doctype": "Tea Purchase",
-   "link_fieldname": "source_doctype_id"
+   "group": "Buying Day",
+   "link_doctype": "Buying Day",
+   "link_fieldname": "buying_week"
   }
  ],
- "modified": "2026-10-07 17:52:29.945746",
+ "modified": "2026-10-09 07:52:44.306109",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",
@@ -291,7 +110,5 @@
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1,
- "track_seen": 1,
- "track_views": 1
+ "track_changes": 1
 }

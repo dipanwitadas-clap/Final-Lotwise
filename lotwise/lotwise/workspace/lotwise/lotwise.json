@@ -215,7 +215,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Tea Lot & Evaluation",
-   "link_count": 4,
+   "link_count": 5,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -226,6 +226,16 @@
    "label": "Buying Week",
    "link_count": 0,
    "link_to": "Buying Week",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Buying Day",
+   "link_count": 0,
+   "link_to": "Buying Day",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -261,7 +271,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-09-30 11:07:32.315181",
+ "modified": "2026-10-09 02:02:11.227562",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Lotwise",
