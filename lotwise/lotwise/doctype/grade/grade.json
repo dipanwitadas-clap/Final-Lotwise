@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_bulk_edit": 1,
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:grade_code",
  "creation": "2026-06-09 16:51:51.355871",
@@ -29,7 +30,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-10 15:43:11.822584",
+ "modified": "2026-10-09 15:37:54.357749",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Grade",
