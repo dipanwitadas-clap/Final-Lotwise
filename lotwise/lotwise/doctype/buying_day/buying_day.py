@@ -665,7 +665,10 @@ class BuyingDay(Document):
 				purchase = frappe.get_doc(values)
 				purchase.insert(ignore_permissions=True)
 
-				frappe.db.set_value("Tea Lot", matched_tea_lot, "tea_purchase", purchase.name)
+				tea_lot_updates = {"tea_purchase": purchase.name}
+				if self.purchase_status:
+					tea_lot_updates["purchase_status"] = self.purchase_status
+				frappe.db.set_value("Tea Lot", matched_tea_lot, tea_lot_updates)
 
 				row.tea_purchase = purchase.name
 				row.tea_lot = matched_tea_lot

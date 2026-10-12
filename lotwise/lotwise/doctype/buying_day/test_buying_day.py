@@ -464,3 +464,4 @@ class TestBuyingDayCreateTeaPurchases(FrappeTestCase):
 
 		# Bidirectional: the Tea Lot's own tea_purchase field points back
 		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "tea_purchase"), row1.tea_purchase)
+		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "purchase_status"), "Test Purchased TPU")
