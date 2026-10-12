@@ -539,12 +539,11 @@ class BuyingDay(Document):
 		`season`/`sale_no` - same rule as create_tea_lots().
 
 		Tea Purchase uses the exact same name as the Tea Lot for the same
-		physical lot (`{auction_centre_code}-{season}-{sale_no}-{lot_no}`) - if
-		a Tea Lot with that name already exists (created earlier from the
-		Auction Catalog), the two are linked both ways: the new Tea Purchase's
-		`tea_lot` is set, and that Tea Lot's `tea_purchase` is set back to it.
-		No matching Tea Lot is not an error - the purchase is recorded either
-		way, just without the link."""
+		physical lot (`{auction_centre_code}-{season}-{sale_no}-{lot_no}`). The
+		Tea Lot (created earlier from the Auction Catalog) must already exist:
+		the two are linked both ways - the new Tea Purchase's `tea_lot` is set,
+		and that Tea Lot's `tea_purchase` is set back to it. If no matching Tea
+		Lot exists, the row is marked Error and no Tea Purchase is created."""
 		if self.acquisition_channel != "Auction":
 			frappe.throw(_("Tea Purchase creation is only available for the Auction channel."))
 		if self.status != "Deal Book Loaded":
@@ -625,11 +624,17 @@ class BuyingDay(Document):
 					duplicate += 1
 					continue
 
-				matched_tea_lot = computed_name if frappe.db.exists("Tea Lot", computed_name) else None
-				warehouse, category = (
-					frappe.db.get_value("Tea Lot", matched_tea_lot, ["warehouse", "category"])
-					if matched_tea_lot
-					else (None, None)
+				if not frappe.db.exists("Tea Lot", computed_name):
+					row.row_status = "Error"
+					row.message = _(
+						"Tea Lot '{0}' does not exist. Please create the Tea Lot before creating the Tea Purchase."
+					).format(computed_name)
+					error += 1
+					continue
+
+				matched_tea_lot = computed_name
+				warehouse, category = frappe.db.get_value(
+					"Tea Lot", matched_tea_lot, ["warehouse", "category"]
 				)
 
 				values = {
@@ -660,8 +665,7 @@ class BuyingDay(Document):
 				purchase = frappe.get_doc(values)
 				purchase.insert(ignore_permissions=True)
 
-				if matched_tea_lot:
-					frappe.db.set_value("Tea Lot", matched_tea_lot, "tea_purchase", purchase.name)
+				frappe.db.set_value("Tea Lot", matched_tea_lot, "tea_purchase", purchase.name)
 
 				row.tea_purchase = purchase.name
 				row.tea_lot = matched_tea_lot
