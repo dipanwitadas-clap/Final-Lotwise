@@ -283,9 +283,10 @@ frappe.query_reports["Tea Evaluation Comparison"] = {
 		}
 
 		let stage_class = "";
-		if (fieldname && fieldname.startsWith("s1_")) {
+		const has_value = value !== null && value !== undefined && value !== "";
+		if (has_value && fieldname && fieldname.startsWith("s1_")) {
 			stage_class = " stage-col-1";
-		} else if (fieldname && fieldname.startsWith("s2_")) {
+		} else if (has_value && fieldname && fieldname.startsWith("s2_")) {
 			stage_class = " stage-col-2";
 		}
 
