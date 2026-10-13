@@ -14,6 +14,7 @@ class TeaEvaluation(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		actual_valuation: DF.Currency
 		briskness: DF.Int
 		colour: DF.Int
 		density: DF.Float
@@ -40,3 +41,4 @@ class TeaEvaluation(Document):
 		if self.tea_lot:
 			frappe.db.set_value("Tea Lot", self.tea_lot, "evaluation_status", "Evaluated")
 			frappe.db.set_value("Tea Lot", self.tea_lot, "suggested_valuation", self.suggested_valuation)
+			frappe.db.set_value("Tea Lot", self.tea_lot, "actual_valuation", self.actual_valuation)

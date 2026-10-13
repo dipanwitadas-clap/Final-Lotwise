@@ -131,6 +131,7 @@ function TeaEvaluationEntry(wrapper) {
 		},
 		{ key: "evaluation_date", label: "Eval Date", type: "date", width: 120 },
 		{ key: "suggested_valuation", label: "Suggested Val", type: "currency", width: 100 },
+		{ key: "actual_valuation", label: "Actual Val", type: "currency", width: 100 },
 		{ key: "colour", label: "Colour", type: "number", width: 60 },
 		{ key: "strength", label: "Strength", type: "number", width: 70 },
 		{ key: "taste", label: "Taste", type: "number", width: 60 },
@@ -152,6 +153,7 @@ function TeaEvaluationEntry(wrapper) {
 		"liquor_mark",
 		"evaluation_date",
 		"suggested_valuation",
+		"actual_valuation",
 		"colour",
 		"strength",
 		"taste",
@@ -353,6 +355,9 @@ TeaEvaluationEntry.prototype = {
 						</button>
 						<button class="btn btn-outline-primary btn-sm" data-field="suggested_valuation">
 							${get_ws_icon("valuation", "14px")} Suggested Val
+						</button>
+						<button class="btn btn-outline-primary btn-sm" data-field="actual_valuation">
+							${get_ws_icon("valuation", "14px")} Actual Val
 						</button>
 						<button class="btn btn-outline-primary btn-sm" data-field="colour">
 							${get_ws_icon("colour", "14px")} Colour
@@ -826,6 +831,7 @@ TeaEvaluationEntry.prototype = {
 			evaluation_date: { label: "Eval Date", fieldtype: "Date" },
 			liquor_mark: { label: "Liquor Mark", fieldtype: "Link", options: "Liquor Mark" },
 			suggested_valuation: { label: "Suggested Val", fieldtype: "Float" },
+			actual_valuation: { label: "Actual Val", fieldtype: "Float" },
 			colour: { label: "Colour", fieldtype: "Int" },
 			strength: { label: "Strength", fieldtype: "Int" },
 			taste: { label: "Taste", fieldtype: "Int" },
@@ -1468,6 +1474,7 @@ TeaEvaluationEntry.prototype = {
 				liquor_mark: me.edited_rows[row_key].liquor_mark || "",
 				evaluation_date: me.edited_rows[row_key].evaluation_date || "",
 				suggested_valuation: me.edited_rows[row_key].suggested_valuation || "",
+				actual_valuation: me.edited_rows[row_key].actual_valuation || "",
 				colour: me.edited_rows[row_key].colour || "",
 				strength: me.edited_rows[row_key].strength || "",
 				taste: me.edited_rows[row_key].taste || "",

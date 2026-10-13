@@ -17,6 +17,7 @@
   "briskness",
   "quality_grade",
   "suggested_valuation",
+  "actual_valuation",
   "notes",
   "col_break_status",
   "row_status",
@@ -99,6 +100,11 @@
    "fieldname": "suggested_valuation",
    "fieldtype": "Currency",
    "label": "Suggested Valuation"
+  },
+  {
+   "fieldname": "actual_valuation",
+   "fieldtype": "Currency",
+   "label": "Actual Valuation"
   },
   {
    "fieldname": "notes",

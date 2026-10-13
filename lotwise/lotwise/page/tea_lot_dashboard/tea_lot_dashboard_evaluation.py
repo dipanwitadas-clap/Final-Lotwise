@@ -27,6 +27,7 @@ def get_evaluations() -> dict:
 			e.briskness,
 			e.quality_grade,
 			e.suggested_valuation,
+			e.actual_valuation,
 			e.notes,
 			tl.lot_no AS tea_lot_no,
 			tl.mark AS tea_lot_mark
@@ -59,6 +60,7 @@ def download_evaluation_xlsx():
 			e.briskness,
 			e.quality_grade,
 			e.suggested_valuation,
+			e.actual_valuation,
 			e.notes,
 			tl.lot_no AS tea_lot_no,
 			tl.mark AS tea_lot_mark
@@ -81,6 +83,7 @@ def download_evaluation_xlsx():
 		"Briskness",
 		"Quality Grade",
 		"Suggested Valuation",
+		"Actual Valuation",
 		"Notes",
 		"Lot No",
 		"Mark",
@@ -105,9 +108,10 @@ def download_evaluation_xlsx():
 		ws.cell(row=row_idx, column=9, value=ev.briskness)
 		ws.cell(row=row_idx, column=10, value=ev.quality_grade)
 		ws.cell(row=row_idx, column=11, value=ev.suggested_valuation)
-		ws.cell(row=row_idx, column=12, value=ev.notes)
-		ws.cell(row=row_idx, column=13, value=ev.tea_lot_no)
-		ws.cell(row=row_idx, column=14, value=ev.tea_lot_mark)
+		ws.cell(row=row_idx, column=12, value=ev.actual_valuation)
+		ws.cell(row=row_idx, column=13, value=ev.notes)
+		ws.cell(row=row_idx, column=14, value=ev.tea_lot_no)
+		ws.cell(row=row_idx, column=15, value=ev.tea_lot_mark)
 
 	output = io.BytesIO()
 	wb.save(output)

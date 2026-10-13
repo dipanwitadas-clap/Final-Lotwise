@@ -13,6 +13,7 @@
   "liquor_mark",
   "evaluation_date",
   "suggested_valuation",
+  "actual_valuation",
   "remarks",
   "evaluation_stage",
   "column_break_imtm",
@@ -85,6 +86,11 @@
    "fieldname": "suggested_valuation",
    "fieldtype": "Currency",
    "label": "Suggested Valuation"
+  },
+  {
+   "fieldname": "actual_valuation",
+   "fieldtype": "Currency",
+   "label": "Actual Valuation"
   },
   {
    "fieldname": "notes",

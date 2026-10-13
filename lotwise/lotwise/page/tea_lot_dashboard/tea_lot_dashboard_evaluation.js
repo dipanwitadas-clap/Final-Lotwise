@@ -167,6 +167,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 							<th>Stage</th>
 							<th>Eval Date</th>
 							<th>Suggested Valuation</th>
+							<th>Actual Valuation</th>
 							<th>Notes</th>
 						</tr>
 		`;
@@ -187,6 +188,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 					<td>${value_or_dash(e.stage)}</td>
 					<td>${value_or_dash(e.evaluation_date)}</td>
 					<td>${money(e.suggested_valuation)}</td>
+					<td>${money(e.actual_valuation)}</td>
 					<td>${value_or_dash(e.notes)}</td>
 				</tr>
 			`;

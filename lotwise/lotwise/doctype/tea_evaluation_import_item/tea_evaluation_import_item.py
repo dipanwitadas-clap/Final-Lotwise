@@ -13,6 +13,7 @@ class TeaEvaluationImportItem(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		actual_valuation: DF.Currency
 		auction_centre: DF.Link | None
 		briskness: DF.Int
 		colour: DF.Int

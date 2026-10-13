@@ -25,6 +25,7 @@ class TeaLot(Document):
 		from lotwise.lotwise.doctype.tea_lot_reprint.tea_lot_reprint import TeaLotReprint
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
+		actual_valuation: DF.Currency
 		auction_centre: DF.Link | None
 		awr_date: DF.Date | None
 		blend: DF.Link | None
@@ -314,7 +315,7 @@ def create_tea_evaluation() -> dict:
 	Create a Tea Evaluation from the inline DataTable row data.
 	Expects POST data via frappe.call with args:
 		tea_lot, taster, evaluation_stage, liquor_mark, evaluation_date,
-		suggested_valuation, colour, strength, taste, briskness,
+		suggested_valuation, actual_valuation, colour, strength, taste, briskness,
 		quality_grade, invoice_number, mark, notes
 	"""
 	data = frappe.local.form_dict
@@ -333,6 +334,7 @@ def create_tea_evaluation() -> dict:
 			"liquor_mark": data.get("liquor_mark"),
 			"evaluation_date": data.get("evaluation_date"),
 			"suggested_valuation": flt(data.get("suggested_valuation")),
+			"actual_valuation": flt(data.get("actual_valuation")),
 			"colour": flt(data.get("colour")),
 			"strength": flt(data.get("strength")),
 			"taste": flt(data.get("taste")),

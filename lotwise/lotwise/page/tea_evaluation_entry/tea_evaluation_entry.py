@@ -34,6 +34,7 @@ CREATE_FIELDS = [
 	"liquor_mark",
 	"evaluation_date",
 	"suggested_valuation",
+	"actual_valuation",
 	"colour",
 	"strength",
 	"taste",
@@ -180,6 +181,7 @@ def create_evaluation() -> dict:
 			"liquor_mark": data.get("liquor_mark"),
 			"evaluation_date": data.get("evaluation_date"),
 			"suggested_valuation": flt(data.get("suggested_valuation")),
+			"actual_valuation": flt(data.get("actual_valuation")),
 			"colour": flt(data.get("colour")),
 			"strength": flt(data.get("strength")),
 			"taste": flt(data.get("taste")),
@@ -230,6 +232,7 @@ def bulk_save(records: str) -> dict:
 						"liquor_mark": row.get("liquor_mark"),
 						"evaluation_date": row.get("evaluation_date"),
 						"suggested_valuation": flt(row.get("suggested_valuation")),
+						"actual_valuation": flt(row.get("actual_valuation")),
 						"colour": flt(row.get("colour")),
 						"strength": flt(row.get("strength")),
 						"taste": flt(row.get("taste")),
@@ -291,6 +294,7 @@ def export_data(filters: str | None = None, table_data: str | None = None) -> di
 			"Quality Grade",
 			"Density",
 			"Remarks",
+			"Actual Val",
 		]
 
 		from openpyxl import Workbook
@@ -328,6 +332,7 @@ def export_data(filters: str | None = None, table_data: str | None = None) -> di
 				ws.cell(row=row_idx, column=17, value=r.get("quality_grade", ""))
 				ws.cell(row=row_idx, column=18, value=r.get("density", ""))
 				ws.cell(row=row_idx, column=19, value=r.get("remarks", ""))
+				ws.cell(row=row_idx, column=20, value=r.get("actual_valuation", ""))
 				row_idx += 1
 		else:
 			# Fallback: fetch from database
@@ -363,7 +368,7 @@ def export_data(filters: str | None = None, table_data: str | None = None) -> di
 				ws.cell(row=row_idx, column=5, value=r.get("grade", ""))
 				ws.cell(row=row_idx, column=6, value=r.get("auction_centre", ""))
 				ws.cell(row=row_idx, column=7, value=r.get("invoice_number", ""))
-				# Columns 8-19 left empty for evaluation fields
+				# Columns 8-20 left empty for evaluation fields
 				row_idx += 1
 
 		output = io.BytesIO()
