@@ -54,8 +54,18 @@ def get_columns(stage_1, stage_2):
 	return columns
 
 
+def _valuation_field(stage):
+	"""Offer Sample shows Suggested Valuation; every other stage shows Actual Valuation."""
+	if (stage or "").strip().lower() == "offer sample":
+		return "suggested_valuation"
+	return "actual_valuation"
+
+
 def _stage_columns(stage, prefix):
 	label = stage or ("Stage 1" if prefix == "s1" else "Stage 2")
+	valuation_label = (
+		"Suggested Valuation" if _valuation_field(stage) == "suggested_valuation" else "Actual Valuation"
+	)
 	return [
 		{
 			"label": _(f"{label} - Taster"),
@@ -84,6 +94,12 @@ def _stage_columns(stage, prefix):
 			"fieldtype": "Link",
 			"options": "Quality Grade",
 			"width": 140,
+		},
+		{
+			"label": _(f"{label} - {valuation_label}"),
+			"fieldname": f"{prefix}_valuation",
+			"fieldtype": "Currency",
+			"width": 150,
 		},
 	]
 
@@ -165,12 +181,14 @@ def get_data(filters, stage_1, stage_2):
 			s1.taste AS s1_taste,
 			s1.briskness AS s1_briskness,
 			s1.quality_grade AS s1_quality_grade,
+			s1.{_valuation_field(stage_1)} AS s1_valuation,
 			s2.taster AS s2_taster,
 			s2.colour AS s2_colour,
 			s2.strength AS s2_strength,
 			s2.taste AS s2_taste,
 			s2.briskness AS s2_briskness,
 			s2.quality_grade AS s2_quality_grade,
+			s2.{_valuation_field(stage_2)} AS s2_valuation,
 			s1.name AS s1_eval_name,
 			s2.name AS s2_eval_name
 		FROM `tabTea Lot` tl
