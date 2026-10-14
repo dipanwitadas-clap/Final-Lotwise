@@ -21,6 +21,7 @@ class BuyingWeek(Document):
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link
 		buying_days: DF.Table[BuyingWeekDay]
+		company: DF.Link | None
 		sale_no: DF.Int
 		season: DF.Int
 	# end: auto-generated types

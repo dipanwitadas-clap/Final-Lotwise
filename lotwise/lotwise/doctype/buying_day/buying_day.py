@@ -195,12 +195,13 @@ class BuyingDay(Document):
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
 		buying_week: DF.Link | None
+		catalogue_file: DF.Attach | None
 		company: DF.Link | None
 		computed_total_net_weight: DF.Float
 		computed_total_packages: DF.Int
 		day: DF.Int
+		deal_book_file: DF.Attach | None
 		deal_book_items: DF.Table[BuyingWeekDealBookTea]
-		import_file: DF.Attach
 		items: DF.Table[BuyingWeekTea]
 		purchase_orders: DF.Table[BuyingWeekPurchaseOrder]
 		purchase_status: DF.Link | None
@@ -338,15 +339,24 @@ class BuyingDay(Document):
 	@frappe.whitelist()
 	def parse_auction_catalog(self):
 		"""Read the attached file as an Auction All Catalog export."""
-		return self._parse("Auction Catalog", HEADER_TO_FIELD_AUCTION_CATALOG, "Catalogue Loaded", "items")
+		return self._parse(
+			"Auction Catalog", HEADER_TO_FIELD_AUCTION_CATALOG, "Catalogue Loaded", "items", "catalogue_file"
+		)
 
 	@frappe.whitelist()
 	def parse_deal_book(self):
 		"""Read the attached file as a Deal Book export."""
-		return self._parse("Deal Book", HEADER_TO_FIELD_DEAL_BOOK, "Deal Book Loaded", "deal_book_items")
+		return self._parse(
+			"Deal Book", HEADER_TO_FIELD_DEAL_BOOK, "Deal Book Loaded", "deal_book_items", "deal_book_file"
+		)
 
 	def _parse(
-		self, source_label: str, header_map: dict, status_after: str, target_field: str = "items"
+		self,
+		source_label: str,
+		header_map: dict,
+		status_after: str,
+		target_field: str = "items",
+		file_field: str = "catalogue_file",
 	) -> dict:
 		"""Shared body for parse_auction_catalog/parse_deal_book: read the attached
 		file with `header_map`, replace the `target_field` child table (`items` for
@@ -354,7 +364,7 @@ class BuyingDay(Document):
 		separate so loading one doesn't wipe out the other), compute the
 		reconciliation totals, and move `status` to `status_after` once parsing
 		succeeds."""
-		rows = self._read_rows()
+		rows = self._read_rows(file_field)
 		if not rows:
 			frappe.throw(_("The uploaded file has no rows."))
 
@@ -409,10 +419,11 @@ class BuyingDay(Document):
 
 		return {"rows": len(rows_list), "status": self.status, "source_type": source_label}
 
-	def _read_rows(self) -> list:
-		if not self.import_file:
-			frappe.throw(_("Attach a file first."))
-		file_doc = frappe.get_doc("File", {"file_url": self.import_file})
+	def _read_rows(self, file_field: str) -> list:
+		file_url = self.get(file_field)
+		if not file_url:
+			frappe.throw(_("Attach the {0} first.").format(self.meta.get_label(file_field)))
+		file_doc = frappe.get_doc("File", {"file_url": file_url})
 		return _read_spreadsheetml_rows(file_doc.get_full_path())
 
 	def _get_broker_by_short_name(self, broker_code):

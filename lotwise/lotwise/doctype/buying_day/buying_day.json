@@ -9,10 +9,11 @@
   "source_section",
   "acquisition_channel",
   "status",
-  "import_file",
+  "catalogue_file",
+  "deal_book_file",
   "col_break_1",
-  "purchase_status",
   "company",
+  "purchase_status",
   "col_break_1b",
   "auction_centre",
   "sale_no",
@@ -54,11 +55,18 @@
    "label": "Source File"
   },
   {
-   "description": "Upload (.xlsx file)",
-   "fieldname": "import_file",
+   "depends_on": "eval:doc.status=='Catalogue Loaded'",
+   "description": "Upload the Auction Catalogue (.xlsx file)",
+   "fieldname": "catalogue_file",
    "fieldtype": "Attach",
-   "label": "Upload XLSX",
-   "reqd": 1
+   "label": "Auction Catalogue File"
+  },
+  {
+   "depends_on": "eval:doc.status=='Deal Book Loaded'",
+   "description": "Upload the Deal Book (.xlsx file)",
+   "fieldname": "deal_book_file",
+   "fieldtype": "Attach",
+   "label": "Deal Book File"
   },
   {
    "default": "Draft",
@@ -92,6 +100,7 @@
    "options": "Purchase Status"
   },
   {
+   "fetch_from": "buying_week.company",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
@@ -261,7 +270,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-09 07:53:35.664367",
+ "modified": "2026-10-14 17:42:28.003386",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",

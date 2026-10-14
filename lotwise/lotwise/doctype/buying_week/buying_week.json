@@ -9,6 +9,7 @@
   "auction_centre",
   "sale_no",
   "season",
+  "company",
   "days_section",
   "buying_days"
  ],
@@ -55,6 +56,12 @@
    "fieldtype": "Table",
    "label": "Buying Days",
    "options": "Buying Week Day"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
   }
  ],
  "links": [
@@ -64,7 +71,7 @@
    "link_fieldname": "buying_week"
   }
  ],
- "modified": "2026-10-09 07:52:44.306109",
+ "modified": "2026-10-14 16:14:38.401805",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",

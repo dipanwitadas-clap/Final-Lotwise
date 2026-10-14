@@ -85,7 +85,7 @@ class TestBuyingDayParseFile(FrappeTestCase):
 				ignore_permissions=True
 			)
 
-	def _attach(self, doc, xml_content, filename):
+	def _attach(self, doc, xml_content, filename, field):
 		file_doc = frappe.get_doc(
 			{
 				"doctype": "File",
@@ -97,7 +97,7 @@ class TestBuyingDayParseFile(FrappeTestCase):
 			}
 		)
 		file_doc.insert(ignore_permissions=True)
-		doc.import_file = file_doc.file_url
+		doc.set(field, file_doc.file_url)
 		doc.save(ignore_permissions=True)
 
 	def test_parse_deal_book(self):
@@ -144,7 +144,7 @@ class TestBuyingDayParseFile(FrappeTestCase):
 				],
 			]
 		)
-		self._attach(doc, xml, "deal_book_test.xls")
+		self._attach(doc, xml, "deal_book_test.xls", "deal_book_file")
 
 		result = doc.parse_deal_book()
 
@@ -203,7 +203,7 @@ class TestBuyingDayParseFile(FrappeTestCase):
 				],
 			]
 		)
-		self._attach(doc, xml, "auction_catalog_test.xls")
+		self._attach(doc, xml, "auction_catalog_test.xls", "catalogue_file")
 
 		result = doc.parse_auction_catalog()
 
