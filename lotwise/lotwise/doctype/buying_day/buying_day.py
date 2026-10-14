@@ -281,6 +281,61 @@ class BuyingDay(Document):
 		frappe.db.delete("Buying Week Day", {"parent": self.buying_week, "buying_day": self.name})
 
 	@frappe.whitelist()
+	def export_error_rows(self, table):
+		"""Export rows with row_status == 'Error' of one child table as a base64 xlsx.
+
+		`table` is "items" (Auction Catalogue Items) or "deal_book_items" (Deal Book Items).
+		"""
+		import base64
+		import io
+
+		from openpyxl import Workbook
+
+		config = {
+			"items": ("Buying Week Tea", "auction_catalogue_errors"),
+			"deal_book_items": ("Buying Week Deal Book Tea", "deal_book_errors"),
+		}
+		if table not in config:
+			frappe.throw(_("Invalid table: {0}").format(table))
+		child_doctype, suffix = config[table]
+
+		error_rows = [r for r in self.get(table) if r.row_status == "Error"]
+		if not error_rows:
+			frappe.throw(_("No error rows to export."))
+
+		skip = {"row_status", "message"}
+		fields = [
+			df
+			for df in frappe.get_meta(child_doctype).fields
+			if df.fieldtype not in frappe.model.no_value_fields and df.fieldname not in skip
+		]
+
+		wb = Workbook()
+		ws = wb.active
+		ws.title = "Errors"
+		headers = ["#"] + [df.label or df.fieldname for df in fields] + ["Status", "Message"]
+		for col, header in enumerate(headers, start=1):
+			ws.cell(row=1, column=col, value=header)
+
+		for row_idx, row in enumerate(error_rows, start=2):
+			values = [row.idx]
+			for df in fields:
+				value = row.get(df.fieldname)
+				values.append(
+					None if value is None else (value if isinstance(value, (int, float)) else str(value))
+				)
+			values += [row.row_status, row.message]
+			for col, value in enumerate(values, start=1):
+				ws.cell(row=row_idx, column=col, value=value)
+
+		output = io.BytesIO()
+		wb.save(output)
+		return {
+			"filename": f"{self.name}_{suffix}.xlsx",
+			"content": base64.b64encode(output.getvalue()).decode("utf-8"),
+		}
+
+	@frappe.whitelist()
 	def parse_auction_catalog(self):
 		"""Read the attached file as an Auction All Catalog export."""
 		return self._parse("Auction Catalog", HEADER_TO_FIELD_AUCTION_CATALOG, "Catalogue Loaded", "items")

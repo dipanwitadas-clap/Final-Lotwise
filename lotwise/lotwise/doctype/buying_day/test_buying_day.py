@@ -350,6 +350,44 @@ class TestBuyingDayCreateTeaLots(FrappeTestCase):
 		self.assertEqual(doc.items[0].row_status, "Error")
 		self.assertIn("not found", doc.items[0].message)
 
+	def test_export_error_rows(self):
+		import base64
+		import io
+
+		from openpyxl import load_workbook
+
+		doc = self._make_doc(
+			sale_no=781,
+			items=[
+				{
+					"lot_no": "BWCT004",
+					"mark_raw": "NO SUCH MARK BW",
+					"packages": 10,
+					"gross_weight": 40,
+					"net_weight": 38,
+					"base_price": 200,
+					"season": 2026,
+					"sale_no": 40,
+					"row_status": "Pending",
+					"source_row_type": "Auction Catalog",
+				}
+			],
+		)
+
+		# no error rows yet
+		self.assertRaises(frappe.ValidationError, doc.export_error_rows, "items")
+
+		doc.create_tea_lots()
+		result = doc.export_error_rows("items")
+
+		self.assertTrue(result["filename"].endswith("_auction_catalogue_errors.xlsx"))
+		ws = load_workbook(io.BytesIO(base64.b64decode(result["content"]))).active
+		self.assertEqual(ws.max_row, 2)
+		self.assertIn("not found", ws.cell(row=2, column=ws.max_column).value)
+
+		self.assertRaises(frappe.ValidationError, doc.export_error_rows, "deal_book_items")
+		self.assertRaises(frappe.ValidationError, doc.export_error_rows, "bogus")
+
 
 class TestBuyingDayCreateTeaPurchases(FrappeTestCase):
 	"""create_tea_purchases(): Deal Book rows -> Tea Purchase, linked back to a

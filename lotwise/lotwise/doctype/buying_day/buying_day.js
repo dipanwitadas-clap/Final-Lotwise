@@ -127,5 +127,59 @@ frappe.ui.form.on("Buying Day", {
 				);
 			}).addClass("btn-primary");
 		}
+
+		// Export Errors dropdown - one option per child table that has Error rows
+		const has_errors = (table) => (frm.doc[table] || []).some((r) => r.row_status === "Error");
+		const export_options = [
+			["items", __("Auction Catalogue Items Errors")],
+			["deal_book_items", __("Deal Book Items Errors")],
+		].filter(([table]) => has_errors(table));
+
+		export_options.forEach(([table, label]) => {
+			frm.add_custom_button(label, () => export_errors(frm, table), __("Export Errors"));
+		});
+		if (export_options.length) {
+			frm.page.inner_toolbar
+				.find(
+					`.inner-group-button[data-label="${encodeURIComponent(
+						__("Export Errors")
+					)}"] > button`
+				)
+				.removeClass("btn-default")
+				.addClass("btn-danger");
+		}
 	},
 });
+
+function export_errors(frm, table) {
+	frm.call({
+		doc: frm.doc,
+		method: "export_error_rows",
+		args: { table: table },
+		freeze: true,
+		freeze_message: __("Exporting error rows…"),
+	}).then((r) => {
+		if (r.message && r.message.content) {
+			const binary = atob(r.message.content);
+			const bytes = new Uint8Array(binary.length);
+			for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+			const blob = new Blob([bytes.buffer], {
+				type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			});
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = r.message.filename || frm.doc.name + "_errors.xlsx";
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);
+			frappe.show_alert({
+				message: __("Error rows exported successfully."),
+				indicator: "green",
+			});
+		} else {
+			frappe.msgprint(__("No error data to export."));
+		}
+	});
+}
