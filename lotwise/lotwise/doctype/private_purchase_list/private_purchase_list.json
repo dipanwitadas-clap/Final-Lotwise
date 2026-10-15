@@ -1,0 +1,250 @@
+{
+ "actions": [],
+ "creation": "2026-10-15 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "list_no",
+  "list_date",
+  "broker",
+  "seller",
+  "seller_gstin",
+  "tax_invoice_no",
+  "tax_invoice_date",
+  "warehouse",
+  "delivery",
+  "transporter",
+  "bilty_lr_no",
+  "lot_invoice_no",
+  "mark_raw",
+  "grade_raw",
+  "packages",
+  "net_kg_per_package",
+  "short_packages",
+  "kg_short_per_package",
+  "net_kg",
+  "rate_per_kg",
+  "value",
+  "brokerage_percent",
+  "brokerage",
+  "bill_mode",
+  "overall_rating",
+  "density",
+  "for_blend",
+  "row_status",
+  "message",
+  "tea_lot",
+  "tea_purchase"
+ ],
+ "fields": [
+  {
+   "fieldname": "list_no",
+   "fieldtype": "Data",
+   "label": "List No",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "list_date",
+   "fieldtype": "Date",
+   "label": "List Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "broker",
+   "fieldtype": "Link",
+   "label": "Broker",
+   "options": "Broker",
+   "description": "Our team only"
+  },
+  {
+   "fieldname": "seller",
+   "fieldtype": "Data",
+   "label": "Seller",
+   "reqd": 1
+  },
+  {
+   "fieldname": "seller_gstin",
+   "fieldtype": "Data",
+   "label": "Seller GSTIN",
+   "length": 15,
+   "reqd": 1
+  },
+  {
+   "fieldname": "tax_invoice_no",
+   "fieldtype": "Data",
+   "label": "Tax Invoice No"
+  },
+  {
+   "fieldname": "tax_invoice_date",
+   "fieldtype": "Date",
+   "label": "Tax Invoice Date"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "delivery",
+   "fieldtype": "Select",
+   "label": "Delivery",
+   "options": "Garden delivers\nWe collect",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transporter",
+   "fieldtype": "Data",
+   "label": "Transporter"
+  },
+  {
+   "fieldname": "bilty_lr_no",
+   "fieldtype": "Data",
+   "label": "Bilty / LR No"
+  },
+  {
+   "fieldname": "lot_invoice_no",
+   "fieldtype": "Data",
+   "label": "Lot / Invoice No"
+  },
+  {
+   "fieldname": "mark_raw",
+   "fieldtype": "Data",
+   "label": "Garden / Mark",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "grade_raw",
+   "fieldtype": "Data",
+   "label": "Grade",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "packages",
+   "fieldtype": "Int",
+   "label": "Packages",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "net_kg_per_package",
+   "fieldtype": "Float",
+   "label": "Net Kg per Package",
+   "reqd": 1
+  },
+  {
+   "fieldname": "short_packages",
+   "fieldtype": "Int",
+   "label": "Short Packages"
+  },
+  {
+   "fieldname": "kg_short_per_package",
+   "fieldtype": "Float",
+   "label": "Kg Short per Short Package"
+  },
+  {
+   "fieldname": "net_kg",
+   "fieldtype": "Float",
+   "label": "Net Kg",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "rate_per_kg",
+   "fieldtype": "Currency",
+   "label": "Rate per Kg",
+   "options": "INR",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Currency",
+   "label": "Value",
+   "options": "INR",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "brokerage_percent",
+   "fieldtype": "Percent",
+   "label": "Brokerage %",
+   "description": "Our team only"
+  },
+  {
+   "fieldname": "brokerage",
+   "fieldtype": "Currency",
+   "label": "Brokerage",
+   "options": "INR",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bill_mode",
+   "fieldtype": "Link",
+   "label": "Bill Mode",
+   "options": "Bill Mode",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "overall_rating",
+   "fieldtype": "Data",
+   "label": "Overall Rating"
+  },
+  {
+   "fieldname": "density",
+   "fieldtype": "Float",
+   "label": "Density"
+  },
+  {
+   "fieldname": "for_blend",
+   "fieldtype": "Link",
+   "label": "For Blend",
+   "options": "Blend"
+  },
+  {
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "label": "Row Status",
+   "options": "Pending\nCreated\nError\nDuplicate",
+   "default": "Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "label": "Tea Lot",
+   "options": "Tea Lot",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tea_purchase",
+   "fieldtype": "Link",
+   "label": "Tea Purchase",
+   "options": "Tea Purchase",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-15 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Private Purchase List",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

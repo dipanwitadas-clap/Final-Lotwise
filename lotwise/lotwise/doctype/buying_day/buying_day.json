@@ -11,6 +11,7 @@
   "status",
   "catalogue_file",
   "deal_book_file",
+  "purchase_list_file",
   "col_break_1",
   "company",
   "purchase_status",
@@ -37,6 +38,8 @@
   "items",
   "deal_book_items_section",
   "deal_book_items",
+  "private_purchase_list_section",
+  "private_purchase_list",
   "purchase_orders_section",
   "purchase_orders"
  ],
@@ -75,7 +78,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Draft\nCatalogue Loaded\nDeal Book Loaded\nOrdered\nReceived\nInvoiced\nPaid\nClosed",
+   "options": "Draft\nCatalogue Loaded\nDeal Book Loaded\nPurchase list Loaded\nOrdered\nReceived\nInvoiced\nPaid\nClosed",
    "reqd": 1
   },
   {
@@ -202,6 +205,7 @@
   },
   {
    "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel!='Private'",
    "fieldname": "items_section",
    "fieldtype": "Tab Break",
    "label": "Auction Catalogue Items"
@@ -214,6 +218,7 @@
   },
   {
    "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel!='Private'",
    "fieldname": "deal_book_items_section",
    "fieldtype": "Tab Break",
    "label": "Deal Book Items"
@@ -255,6 +260,27 @@
    "fieldtype": "Table",
    "label": "Purchase Orders",
    "options": "Buying Week Purchase Order"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_purchase_list_section",
+   "fieldtype": "Tab Break",
+   "label": "Private Purchase List"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_purchase_list",
+   "fieldtype": "Table",
+   "label": "Private Purchase List",
+   "options": "Private Purchase List"
+  },
+  {
+   "depends_on": "eval:doc.status=='Purchase list Loaded'",
+   "description": "Upload the Purchase list File(.xlsx file)",
+   "fieldname": "purchase_list_file",
+   "fieldtype": "Attach",
+   "label": "Purchase list File"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -270,7 +296,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-14 17:42:28.003386",
+ "modified": "2026-10-15 12:49:04.739886",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",

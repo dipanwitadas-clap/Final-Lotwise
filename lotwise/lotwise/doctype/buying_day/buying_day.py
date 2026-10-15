@@ -191,6 +191,7 @@ class BuyingDay(Document):
 			BuyingWeekPurchaseOrder,
 		)
 		from lotwise.lotwise.doctype.buying_week_tea.buying_week_tea import BuyingWeekTea
+		from lotwise.lotwise.doctype.private_purchase_list.private_purchase_list import PrivatePurchaseList
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
@@ -203,6 +204,8 @@ class BuyingDay(Document):
 		deal_book_file: DF.Attach | None
 		deal_book_items: DF.Table[BuyingWeekDealBookTea]
 		items: DF.Table[BuyingWeekTea]
+		private_purchase_list: DF.Table[PrivatePurchaseList]
+		purchase_list_file: DF.Attach | None
 		purchase_orders: DF.Table[BuyingWeekPurchaseOrder]
 		purchase_status: DF.Link | None
 		rows_created: DF.Int
@@ -216,6 +219,7 @@ class BuyingDay(Document):
 			"Draft",
 			"Catalogue Loaded",
 			"Deal Book Loaded",
+			"Purchase list Loaded",
 			"Ordered",
 			"Received",
 			"Invoiced",
@@ -271,6 +275,17 @@ class BuyingDay(Document):
 
 	def validate(self):
 		self._copy_from_week()
+		self._compute_private_purchase_list()
+
+	def _compute_private_purchase_list(self):
+		for row in self.get("private_purchase_list") or []:
+			row.net_kg = flt(
+				flt(row.packages) * flt(row.net_kg_per_package)
+				- flt(row.short_packages) * flt(row.kg_short_per_package),
+				3,
+			)
+			row.value = flt(row.net_kg * flt(row.rate_per_kg), 2)
+			row.brokerage = flt(row.value * flt(row.brokerage_percent) / 100, 2)
 
 	def after_insert(self):
 		week = frappe.get_doc("Buying Week", self.buying_week)
