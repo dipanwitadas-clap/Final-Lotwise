@@ -120,6 +120,25 @@ HEADER_TO_FIELD_PRIVATE_PURCHASE = {
 	"for blend": {"field": "for_blend", "type": "str"},
 }
 
+# Offer Sample Evaluation sheet (first sheet; row 1 is a title, header on row 2).
+# Everything is stored as text except the date.
+HEADER_TO_FIELD_OFFER_SAMPLE = {
+	"sl no": {"field": "sl_no", "type": "str"},
+	"date": {"field": "date", "type": "date"},
+	"garden": {"field": "garden", "type": "str"},
+	"region": {"field": "region", "type": "str"},
+	"invoice no": {"field": "invoice_no", "type": "str"},
+	"grade": {"field": "grade", "type": "str"},
+	"qty": {"field": "qty", "type": "str"},
+	"pckgs": {"field": "pckgs", "type": "str"},
+	"broker/direct from garden": {"field": "broker_direct", "type": "str"},
+	"c": {"field": "c", "type": "str"},
+	"t": {"field": "t", "type": "str"},
+	"s": {"field": "s", "type": "str"},
+	"b": {"field": "b", "type": "str"},
+	"remark": {"field": "remark", "type": "str"},
+}
+
 # --------------------------------------------------------------------------- helpers
 
 
@@ -227,6 +246,9 @@ class BuyingDay(Document):
 			BuyingWeekPurchaseOrder,
 		)
 		from lotwise.lotwise.doctype.buying_week_tea.buying_week_tea import BuyingWeekTea
+		from lotwise.lotwise.doctype.offer_sample_evaluation_item.offer_sample_evaluation_item import (
+			OfferSampleEvaluationItem,
+		)
 		from lotwise.lotwise.doctype.private_purchase_list.private_purchase_list import PrivatePurchaseList
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
@@ -240,6 +262,8 @@ class BuyingDay(Document):
 		deal_book_file: DF.Attach | None
 		deal_book_items: DF.Table[BuyingWeekDealBookTea]
 		items: DF.Table[BuyingWeekTea]
+		offer_sample_evaluation: DF.Table[OfferSampleEvaluationItem]
+		offer_sample_evaluation_file: DF.Attach | None
 		private_purchase_list: DF.Table[PrivatePurchaseList]
 		purchase_list_file: DF.Attach | None
 		purchase_orders: DF.Table[BuyingWeekPurchaseOrder]
@@ -453,6 +477,56 @@ class BuyingDay(Document):
 		count = len(self.private_purchase_list)
 		self.save()
 		return {"rows": count, "status": self.status, "source_type": "Private Purchase List"}
+
+	@frappe.whitelist()
+	def parse_offer_sample_evaluation(self):
+		"""Read the attached Offer Sample Evaluation xlsx into the
+		offer_sample_evaluation child table (replaces existing rows)."""
+		from openpyxl import load_workbook
+
+		file_url = self.get("offer_sample_evaluation_file")
+		if not file_url:
+			frappe.throw(
+				_("Attach the {0} first.").format(self.meta.get_label("offer_sample_evaluation_file"))
+			)
+		path = frappe.get_doc("File", {"file_url": file_url}).get_full_path()
+
+		try:
+			wb = load_workbook(path, data_only=True, read_only=True)
+		except Exception:
+			frappe.throw(_("The uploaded file is not a valid .xlsx file."))
+		rows = list(wb[wb.sheetnames[0]].iter_rows(values_only=True))
+
+		# The header is the first row with at least 3 known column names (a title
+		# row may sit above it).
+		header_idx, column_map = None, {}
+		for r_idx, row in enumerate(rows):
+			found = {
+				i: HEADER_TO_FIELD_OFFER_SAMPLE[str(c).strip().lower()]
+				for i, c in enumerate(row)
+				if c is not None and str(c).strip().lower() in HEADER_TO_FIELD_OFFER_SAMPLE
+			}
+			if len(found) >= 3:
+				header_idx, column_map = r_idx, found
+				break
+		if header_idx is None:
+			frappe.throw(
+				_("None of the expected Offer Sample Evaluation columns were found. Check the file format.")
+			)
+
+		self.set("offer_sample_evaluation", [])
+		for raw_row in rows[header_idx + 1 :]:
+			if not any(c is not None and str(c).strip() != "" for c in raw_row):
+				break
+			values = {}
+			for idx, cfg in column_map.items():
+				cell = raw_row[idx] if idx < len(raw_row) else None
+				values[cfg["field"]] = _convert_cell(cell, cfg["type"])
+			self.append("offer_sample_evaluation", values)
+
+		count = len(self.offer_sample_evaluation)
+		self.save()
+		return {"rows": count, "status": self.status, "source_type": "Offer Sample Evaluation"}
 
 	def _parse(
 		self,

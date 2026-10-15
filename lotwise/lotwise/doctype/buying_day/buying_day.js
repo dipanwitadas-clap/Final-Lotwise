@@ -13,11 +13,21 @@ frappe.ui.form.on("Buying Day", {
 
 			let method;
 			if (frm.doc.acquisition_channel === "Private") {
-				if (!frm.doc.purchase_list_file) {
-					frappe.msgprint(__("Please attach the Private Purchase List File first."));
-					return;
+				if (frm.doc.status === "Offer Sample Evaluation Load") {
+					if (!frm.doc.offer_sample_evaluation_file) {
+						frappe.msgprint(
+							__("Please attach the Offer Sample Evaluation File first.")
+						);
+						return;
+					}
+					method = "parse_offer_sample_evaluation";
+				} else {
+					if (!frm.doc.purchase_list_file) {
+						frappe.msgprint(__("Please attach the Private Purchase List File first."));
+						return;
+					}
+					method = "parse_private_purchase_list";
 				}
-				method = "parse_private_purchase_list";
 			} else if (
 				frm.doc.acquisition_channel === "Auction" &&
 				frm.doc.status === "Catalogue Loaded"

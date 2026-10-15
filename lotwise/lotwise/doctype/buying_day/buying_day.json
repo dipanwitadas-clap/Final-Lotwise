@@ -12,6 +12,7 @@
   "catalogue_file",
   "deal_book_file",
   "purchase_list_file",
+  "offer_sample_evaluation_file",
   "col_break_1",
   "company",
   "purchase_status",
@@ -40,6 +41,8 @@
   "deal_book_items",
   "private_purchase_list_section",
   "private_purchase_list",
+  "offer_sample_evaluation_section",
+  "offer_sample_evaluation",
   "purchase_orders_section",
   "purchase_orders"
  ],
@@ -58,14 +61,14 @@
    "label": "Source File"
   },
   {
-   "depends_on": "eval:doc.status=='Catalogue Loaded'",
+   "depends_on": "eval:doc.acquisition_channel=='Auction' && doc.status=='Catalogue Loaded'",
    "description": "Upload the Auction Catalogue (.xlsx file)",
    "fieldname": "catalogue_file",
    "fieldtype": "Attach",
    "label": "Auction Catalogue File"
   },
   {
-   "depends_on": "eval:doc.status=='Deal Book Loaded'",
+   "depends_on": "eval:doc.acquisition_channel=='Auction' && doc.status=='Deal Book Loaded'",
    "description": "Upload the Deal Book (.xlsx file)",
    "fieldname": "deal_book_file",
    "fieldtype": "Attach",
@@ -205,7 +208,7 @@
   },
   {
    "collapsible": 1,
-   "depends_on": "eval:doc.acquisition_channel!='Private'",
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fieldname": "items_section",
    "fieldtype": "Tab Break",
    "label": "Auction Catalogue Items"
@@ -214,11 +217,12 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Buying Week Tea"
+   "options": "Buying Week Tea",
+   "depends_on": "eval:doc.acquisition_channel=='Auction'"
   },
   {
    "collapsible": 1,
-   "depends_on": "eval:doc.acquisition_channel!='Private'",
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fieldname": "deal_book_items_section",
    "fieldtype": "Tab Break",
    "label": "Deal Book Items"
@@ -227,7 +231,8 @@
    "fieldname": "deal_book_items",
    "fieldtype": "Table",
    "label": "Deal Book Items",
-   "options": "Buying Week Deal Book Tea"
+   "options": "Buying Week Deal Book Tea",
+   "depends_on": "eval:doc.acquisition_channel=='Auction'"
   },
   {
    "fieldname": "week_no",
@@ -276,11 +281,32 @@
    "options": "Private Purchase List"
   },
   {
-   "depends_on": "eval:doc.acquisition_channel=='Private'",
-   "description": "Upload the Private Purchase list File (.xlsx, data in the 'Example' sheet)",
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.status=='Purchase list Loaded'",
+   "description": "Upload the Private Purchase list File (.xlsx)",
    "fieldname": "purchase_list_file",
    "fieldtype": "Attach",
    "label": "Private Purchase List File"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.status=='Offer Sample Evaluation Load'",
+   "description": "Upload the Offer Sample Evaluation File (.xlsx)",
+   "fieldname": "offer_sample_evaluation_file",
+   "fieldtype": "Attach",
+   "label": "Offer Sample Evaluation File"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "offer_sample_evaluation_section",
+   "fieldtype": "Tab Break",
+   "label": "Offer Sample Evaluation"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "offer_sample_evaluation",
+   "fieldtype": "Table",
+   "label": "Offer Sample Evaluation",
+   "options": "Offer Sample Evaluation Item"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -296,7 +322,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-15 15:05:38.767144",
+ "modified": "2026-10-15 16:00:30.512757",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",
