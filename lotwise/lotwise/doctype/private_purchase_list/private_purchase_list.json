@@ -42,34 +42,29 @@
    "fieldname": "list_no",
    "fieldtype": "Data",
    "label": "List No",
-   "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "list_date",
    "fieldtype": "Date",
-   "label": "List Date",
-   "reqd": 1
+   "label": "List Date"
   },
   {
    "fieldname": "broker",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Broker",
-   "options": "Broker",
    "description": "Our team only"
   },
   {
    "fieldname": "seller",
    "fieldtype": "Data",
-   "label": "Seller",
-   "reqd": 1
+   "label": "Seller"
   },
   {
    "fieldname": "seller_gstin",
    "fieldtype": "Data",
    "label": "Seller GSTIN",
-   "length": 15,
-   "reqd": 1
+   "length": 15
   },
   {
    "fieldname": "tax_invoice_no",
@@ -83,17 +78,14 @@
   },
   {
    "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse",
-   "reqd": 1
+   "fieldtype": "Data",
+   "label": "Warehouse"
   },
   {
    "fieldname": "delivery",
    "fieldtype": "Select",
    "label": "Delivery",
-   "options": "Garden delivers\nWe collect",
-   "reqd": 1
+   "options": "Garden delivers\nWe collect"
   },
   {
    "fieldname": "transporter",
@@ -114,28 +106,24 @@
    "fieldname": "mark_raw",
    "fieldtype": "Data",
    "label": "Garden / Mark",
-   "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "grade_raw",
    "fieldtype": "Data",
    "label": "Grade",
-   "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "packages",
    "fieldtype": "Int",
    "label": "Packages",
-   "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "net_kg_per_package",
    "fieldtype": "Float",
-   "label": "Net Kg per Package",
-   "reqd": 1
+   "label": "Net Kg per Package"
   },
   {
    "fieldname": "short_packages",
@@ -159,7 +147,6 @@
    "fieldtype": "Currency",
    "label": "Rate per Kg",
    "options": "INR",
-   "reqd": 1,
    "in_list_view": 1
   },
   {
@@ -185,10 +172,8 @@
   },
   {
    "fieldname": "bill_mode",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Bill Mode",
-   "options": "Bill Mode",
-   "reqd": 1,
    "in_list_view": 1
   },
   {
@@ -203,9 +188,8 @@
   },
   {
    "fieldname": "for_blend",
-   "fieldtype": "Link",
-   "label": "For Blend",
-   "options": "Blend"
+   "fieldtype": "Data",
+   "label": "For Blend"
   },
   {
    "fieldname": "row_status",
@@ -223,16 +207,14 @@
   },
   {
    "fieldname": "tea_lot",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Tea Lot",
-   "options": "Tea Lot",
    "read_only": 1
   },
   {
    "fieldname": "tea_purchase",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Tea Purchase",
-   "options": "Tea Purchase",
    "read_only": 1
   }
  ],

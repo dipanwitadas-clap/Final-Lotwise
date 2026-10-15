@@ -12,7 +12,13 @@ frappe.ui.form.on("Buying Day", {
 			}
 
 			let method;
-			if (
+			if (frm.doc.acquisition_channel === "Private") {
+				if (!frm.doc.purchase_list_file) {
+					frappe.msgprint(__("Please attach the Private Purchase List File first."));
+					return;
+				}
+				method = "parse_private_purchase_list";
+			} else if (
 				frm.doc.acquisition_channel === "Auction" &&
 				frm.doc.status === "Catalogue Loaded"
 			) {

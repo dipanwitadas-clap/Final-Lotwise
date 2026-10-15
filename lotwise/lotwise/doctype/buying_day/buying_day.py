@@ -88,6 +88,38 @@ HEADER_TO_FIELD_AUCTION_CATALOG = {
 	"warehouse name": {"field": "warehouse_name", "type": "str"},
 }
 
+# Private Purchase List template (real .xlsx, data in the "Example" sheet). Keyed by
+# the lowercased raw header (not _normalize_header) because "Brokerage %" and
+# "Brokerage" would collapse to the same key. Net kg / Value / Brokerage (amount) are
+# formula columns and are recalculated by _compute_private_purchase_list instead.
+PRIVATE_PURCHASE_SHEET = "Example"
+HEADER_TO_FIELD_PRIVATE_PURCHASE = {
+	"list no": {"field": "list_no", "type": "str"},
+	"list date": {"field": "list_date", "type": "date"},
+	"broker": {"field": "broker", "type": "str"},
+	"seller": {"field": "seller", "type": "str"},
+	"seller gstin": {"field": "seller_gstin", "type": "str"},
+	"tax invoice no.": {"field": "tax_invoice_no", "type": "str"},
+	"tax invoice date": {"field": "tax_invoice_date", "type": "date"},
+	"warehouse": {"field": "warehouse", "type": "str"},
+	"delivery": {"field": "delivery", "type": "str"},
+	"transporter": {"field": "transporter", "type": "str"},
+	"bilty / lr no.": {"field": "bilty_lr_no", "type": "str"},
+	"lot / invoice no.": {"field": "lot_invoice_no", "type": "str"},
+	"garden / mark": {"field": "mark_raw", "type": "str"},
+	"grade": {"field": "grade_raw", "type": "str"},
+	"packages": {"field": "packages", "type": "int"},
+	"net kg per package": {"field": "net_kg_per_package", "type": "float"},
+	"short packages": {"field": "short_packages", "type": "int"},
+	"kg short per short package": {"field": "kg_short_per_package", "type": "float"},
+	"rate per kg": {"field": "rate_per_kg", "type": "float"},
+	"brokerage %": {"field": "brokerage_percent", "type": "float"},
+	"bill mode": {"field": "bill_mode", "type": "str"},
+	"liquor mark": {"field": "overall_rating", "type": "str"},
+	"density": {"field": "density", "type": "float"},
+	"for blend": {"field": "for_blend", "type": "str"},
+}
+
 # --------------------------------------------------------------------------- helpers
 
 
@@ -124,6 +156,10 @@ def _convert_cell(value, field_type):
 			return None
 
 	if field_type == "date":
+		if isinstance(value, datetime):
+			return value.date()
+		if hasattr(value, "year") and hasattr(value, "month"):
+			return value
 		try:
 			return datetime.strptime(str(value).strip(), "%d/%m/%Y").date()
 		except (TypeError, ValueError):
@@ -220,6 +256,7 @@ class BuyingDay(Document):
 			"Catalogue Loaded",
 			"Deal Book Loaded",
 			"Purchase list Loaded",
+			"Offer Sample Evaluation Load",
 			"Ordered",
 			"Received",
 			"Invoiced",
@@ -364,6 +401,58 @@ class BuyingDay(Document):
 		return self._parse(
 			"Deal Book", HEADER_TO_FIELD_DEAL_BOOK, "Deal Book Loaded", "deal_book_items", "deal_book_file"
 		)
+
+	@frappe.whitelist()
+	def parse_private_purchase_list(self):
+		"""Read the attached Private Purchase List xlsx ("Example" sheet) into the
+		private_purchase_list child table (replaces existing rows)."""
+		from openpyxl import load_workbook
+
+		file_url = self.get("purchase_list_file")
+		if not file_url:
+			frappe.throw(_("Attach the {0} first.").format(self.meta.get_label("purchase_list_file")))
+		path = frappe.get_doc("File", {"file_url": file_url}).get_full_path()
+
+		try:
+			wb = load_workbook(path, data_only=True, read_only=True)
+		except Exception:
+			frappe.throw(_("The uploaded file is not a valid .xlsx file."))
+		if PRIVATE_PURCHASE_SHEET not in wb.sheetnames:
+			frappe.throw(_("Sheet '{0}' was not found in the uploaded file.").format(PRIVATE_PURCHASE_SHEET))
+
+		rows = list(wb[PRIVATE_PURCHASE_SHEET].iter_rows(values_only=True))
+		if not rows:
+			frappe.throw(_("The uploaded file has no rows."))
+
+		column_map = {}
+		for idx, cell in enumerate(rows[0]):
+			cfg = HEADER_TO_FIELD_PRIVATE_PURCHASE.get(str(cell or "").strip().lower())
+			if cfg:
+				column_map[idx] = cfg
+		if not column_map:
+			frappe.throw(
+				_("None of the expected Private Purchase List columns were found. Check the file format.")
+			)
+
+		self.set("private_purchase_list", [])
+		for raw_row in rows[1:]:
+			# The table is one contiguous block; the first fully blank row ends it
+			# (anything below, e.g. the explanatory note, is not data).
+			if not any(c is not None and str(c).strip() != "" for c in raw_row):
+				break
+			values = {"row_status": "Pending"}
+			for idx, cfg in column_map.items():
+				cell = raw_row[idx] if idx < len(raw_row) else None
+				values[cfg["field"]] = _convert_cell(cell, cfg["type"])
+			if not any(v not in (None, "") for k, v in values.items() if k != "row_status"):
+				continue
+			# The template has no Delivery column; the field is mandatory.
+			values["delivery"] = values.get("delivery") or "Garden delivers"
+			self.append("private_purchase_list", values)
+
+		count = len(self.private_purchase_list)
+		self.save()
+		return {"rows": count, "status": self.status, "source_type": "Private Purchase List"}
 
 	def _parse(
 		self,

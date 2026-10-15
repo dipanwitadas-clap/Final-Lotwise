@@ -78,7 +78,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Draft\nCatalogue Loaded\nDeal Book Loaded\nPurchase list Loaded\nOrdered\nReceived\nInvoiced\nPaid\nClosed",
+   "options": "Draft\nCatalogue Loaded\nDeal Book Loaded\nPurchase list Loaded\nOffer Sample Evaluation Load\nOrdered\nReceived\nInvoiced\nPaid\nClosed",
    "reqd": 1
   },
   {
@@ -276,11 +276,11 @@
    "options": "Private Purchase List"
   },
   {
-   "depends_on": "eval:doc.status=='Purchase list Loaded'",
-   "description": "Upload the Purchase list File(.xlsx file)",
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "description": "Upload the Private Purchase list File (.xlsx, data in the 'Example' sheet)",
    "fieldname": "purchase_list_file",
    "fieldtype": "Attach",
-   "label": "Purchase list File"
+   "label": "Private Purchase List File"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -296,7 +296,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-15 12:49:04.739886",
+ "modified": "2026-10-15 15:05:38.767144",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",
