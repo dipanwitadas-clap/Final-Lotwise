@@ -40,10 +40,10 @@
   "items",
   "deal_book_items_section",
   "deal_book_items",
-  "private_purchase_list_section",
-  "private_purchase_list",
   "offer_sample_evaluation_section",
   "offer_sample_evaluation",
+  "private_purchase_list_section",
+  "private_purchase_list",
   "purchase_orders_section",
   "purchase_orders"
  ],
@@ -227,11 +227,11 @@
    "label": "Auction Catalogue Items"
   },
   {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Buying Week Tea",
-   "depends_on": "eval:doc.acquisition_channel=='Auction'"
+   "options": "Buying Week Tea"
   },
   {
    "collapsible": 1,
@@ -241,11 +241,11 @@
    "label": "Deal Book Items"
   },
   {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fieldname": "deal_book_items",
    "fieldtype": "Table",
    "label": "Deal Book Items",
-   "options": "Buying Week Deal Book Tea",
-   "depends_on": "eval:doc.acquisition_channel=='Auction'"
+   "options": "Buying Week Deal Book Tea"
   },
   {
    "fieldname": "week_no",
@@ -335,7 +335,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-15 16:00:30.512757",
+ "modified": "2026-10-23 14:11:22.739317",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",

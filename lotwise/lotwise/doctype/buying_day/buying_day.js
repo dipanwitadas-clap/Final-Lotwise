@@ -116,6 +116,46 @@ frappe.ui.form.on("Buying Day", {
 		}
 
 		if (
+			frm.doc.acquisition_channel === "Private" &&
+			frm.doc.status === "Offer Sample Evaluation Load" &&
+			(frm.doc.offer_sample_evaluation || []).length > 0
+		) {
+			const offer_group = __("Offer Sample Evaluation");
+			frm.add_custom_button(
+				__("Create Tea Lots"),
+				() =>
+					run_create(
+						"create_tea_lots_from_offer_samples",
+						__("Create Tea Lots for all Offer Sample rows?"),
+						__("Creating Tea Lots…")
+					),
+				offer_group
+			);
+
+			if (frm.doc.offer_sample_evaluation.some((r) => r.tea_lot)) {
+				frm.add_custom_button(
+					__("Tea Evaluation"),
+					() =>
+						run_create(
+							"create_tea_evaluations_from_offer_samples",
+							__(
+								"Create Tea Evaluations for all Offer Sample rows that have a Tea Lot?"
+							),
+							__("Creating Tea Evaluations…")
+						),
+					offer_group
+				);
+			}
+
+			frm.page.inner_toolbar
+				.find(
+					`.inner-group-button[data-label="${encodeURIComponent(offer_group)}"] > button`
+				)
+				.removeClass("btn-default")
+				.addClass("btn-primary");
+		}
+
+		if (
 			frm.doc.acquisition_channel === "Auction" &&
 			frm.doc.status === "Deal Book Loaded" &&
 			(frm.doc.deal_book_items || []).length > 0
@@ -159,10 +199,14 @@ frappe.ui.form.on("Buying Day", {
 		}
 
 		// Export Errors dropdown - one option per child table that has Error rows
-		const has_errors = (table) => (frm.doc[table] || []).some((r) => r.row_status === "Error");
+		const has_errors = (table) =>
+			(frm.doc[table] || []).some(
+				(r) => r.row_status === "Error" || r.eval_status === "Error"
+			);
 		const export_options = [
 			["items", __("Auction Catalogue Items Errors")],
 			["deal_book_items", __("Deal Book Items Errors")],
+			["offer_sample_evaluation", __("Offer Sample Errors")],
 		].filter(([table]) => has_errors(table));
 
 		export_options.forEach(([table, label]) => {

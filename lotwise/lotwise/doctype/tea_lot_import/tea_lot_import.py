@@ -6,7 +6,9 @@ import frappe
 import openpyxl
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, flt, getdate
+from frappe.utils import cint, flt
+
+from lotwise.lotwise.doctype.tea_lot.tea_lot import get_private_tea_lot_name
 
 # --------------------------------------------------------------------------- config
 # Add new column
@@ -376,29 +378,13 @@ class TeaLotImport(Document):
 						error += 1
 						continue
 
-					if self.purchase_status == "Offer":
-						if not row.offer_date:
-							row.row_status = "Error"
-							row.message = _("Offer Date is required for Private lots.")
-							error += 1
-							continue
-						year = getdate(row.offer_date).strftime("%y")
-					else:
-						if not row.purchase_date:
-							row.row_status = "Error"
-							row.message = _("Purchase Date is required for Private lots.")
-							error += 1
-							continue
-						year = getdate(row.purchase_date).strftime("%y")
+					if not self.season:
+						row.row_status = "Error"
+						row.message = _("Season is required for Private lots.")
+						error += 1
+						continue
 
-					purchase_invoice_no = str(row.purchase_invoice_no)
-					if "-" in purchase_invoice_no:
-						first, second = purchase_invoice_no.rsplit("-", 1)
-						last_part = f"{first[-1]}-{second}"
-					else:
-						last_part = purchase_invoice_no
-
-					tea_lot_name = f"{invoice}-{year}-{mark_name}-{grade_code}-{last_part}"
+					tea_lot_name = get_private_tea_lot_name(mark_name, invoice, grade_code, self.season)
 					if frappe.db.exists("Tea Lot", tea_lot_name):
 						row.row_status = "Duplicate"
 						row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)

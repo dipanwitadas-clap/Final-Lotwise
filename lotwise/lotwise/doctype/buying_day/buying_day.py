@@ -9,7 +9,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, nowdate
 
 # --------------------------------------------------------------------------- config
 #
@@ -374,16 +374,20 @@ class BuyingDay(Document):
 		config = {
 			"items": ("Buying Week Tea", "auction_catalogue_errors"),
 			"deal_book_items": ("Buying Week Deal Book Tea", "deal_book_errors"),
+			"offer_sample_evaluation": ("Offer Sample Evaluation Item", "offer_sample_errors"),
 		}
 		if table not in config:
 			frappe.throw(_("Invalid table: {0}").format(table))
 		child_doctype, suffix = config[table]
 
-		error_rows = [r for r in self.get(table) if r.row_status == "Error"]
+		# Offer Sample rows track Tea Lot and Tea Evaluation steps separately.
+		error_rows = [
+			r for r in self.get(table) if r.row_status == "Error" or r.get("eval_status") == "Error"
+		]
 		if not error_rows:
 			frappe.throw(_("No error rows to export."))
 
-		skip = {"row_status", "message"}
+		skip = {"row_status", "message", "eval_status", "eval_message"}
 		fields = [
 			df
 			for df in frappe.get_meta(child_doctype).fields
@@ -404,7 +408,10 @@ class BuyingDay(Document):
 				values.append(
 					None if value is None else (value if isinstance(value, (int, float)) else str(value))
 				)
-			values += [row.row_status, row.message]
+			if row.get("eval_status") == "Error" and row.row_status != "Error":
+				values += [row.eval_status, row.eval_message]
+			else:
+				values += [row.row_status, row.message]
 			for col, value in enumerate(values, start=1):
 				ws.cell(row=row_idx, column=col, value=value)
 
@@ -492,6 +499,8 @@ class BuyingDay(Document):
 			frappe.throw(
 				_("Attach the {0} first.").format(self.meta.get_label("offer_sample_evaluation_file"))
 			)
+		if any(r.tea_lot for r in self.offer_sample_evaluation):
+			frappe.throw(_("Tea Lots are already created from these rows. Re-parsing is not allowed."))
 		path = frappe.get_doc("File", {"file_url": file_url}).get_full_path()
 
 		try:
@@ -617,6 +626,259 @@ class BuyingDay(Document):
 			{"broker_short_name": broker_code, "auction_centre": self.auction_centre},
 			"name",
 		)
+
+	@frappe.whitelist()
+	def create_tea_lots_from_offer_samples(self):
+		"""Create one Private Tea Lot per Offer Sample Evaluation row. Garden maps to
+		Mark; qty is the net weight per package. Per-row try/except with
+		row_status/message/tea_lot tracking and a {created, errors, duplicates} summary."""
+		if self.acquisition_channel != "Private":
+			frappe.throw(_("Tea Lot creation from Offer Samples is only available for the Private channel."))
+		if self.status != "Offer Sample Evaluation Load":
+			frappe.throw(_("Load the Offer Sample Evaluation file before creating Tea Lots."))
+		if not self.offer_sample_evaluation:
+			frappe.throw(_("There are no rows to create Tea Lots from."))
+		if not self.season:
+			frappe.throw(_("Season is required on the Buying Day."))
+
+		from lotwise.lotwise.doctype.tea_lot.tea_lot import get_private_tea_lot_name
+
+		meta = frappe.get_meta("Tea Lot")
+		created = duplicate = error = 0
+
+		for row in self.offer_sample_evaluation:
+			if row.row_status == "Created":
+				continue
+			try:
+				mark_name = (row.garden or "").strip()
+				if not mark_name:
+					row.row_status = "Error"
+					row.message = _("Garden (Mark) is missing on this row.")
+					error += 1
+					continue
+				if not frappe.db.exists("Mark", mark_name):
+					row.row_status = "Error"
+					row.message = _("Mark '{0}' not found. Please create it first.").format(mark_name)
+					error += 1
+					continue
+
+				invoice = (row.invoice_no or "").strip()
+				if not invoice:
+					row.row_status = "Error"
+					row.message = _("Invoice No is missing on this row.")
+					error += 1
+					continue
+
+				grade_code = (row.grade or "").strip()
+				if not grade_code:
+					row.row_status = "Error"
+					row.message = _("Grade is missing on this row.")
+					error += 1
+					continue
+				if not frappe.db.exists("Grade", grade_code):
+					row.row_status = "Error"
+					row.message = _("Grade '{0}' not found. Please create it first.").format(grade_code)
+					error += 1
+					continue
+
+				try:
+					net_wt = flt((row.qty or "0").replace(",", ""))
+					packages = cint(flt((row.pckgs or "0").replace(",", "")))
+				except ValueError:
+					row.row_status = "Error"
+					row.message = _("Qty / Pckgs must be numbers.")
+					error += 1
+					continue
+
+				broker_text = (row.broker_direct or "").strip()
+				broker = None
+				if broker_text and broker_text.upper() != "DIRECT":
+					broker = frappe.db.get_value("Broker", {"broker_name": broker_text}, "name")
+					if not broker:
+						row.row_status = "Error"
+						row.message = _("Broker '{0}' not found.").format(broker_text)
+						error += 1
+						continue
+
+				tea_lot_name = get_private_tea_lot_name(mark_name, invoice, grade_code, self.season)
+				if frappe.db.exists("Tea Lot", tea_lot_name):
+					row.row_status = "Duplicate"
+					row.tea_lot = tea_lot_name
+					row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
+					duplicate += 1
+					continue
+
+				values = {
+					"doctype": "Tea Lot",
+					"acquisition_channel": "Private",
+					"purchase_status": "Offer",
+					"mark": mark_name,
+					"grade": grade_code,
+					"invoice_number": invoice,
+					"season": self.season,
+					"packages": packages,
+					"net_wtpkg": net_wt,
+					"net_weight_total": net_wt * packages,
+					"offer_date": row.date,
+					"broker": broker,
+					"broker_type": self.broker_type,
+					"region": (row.region or "").strip() or None,
+					"source_doctype": self.doctype,
+					"source_doctype_id": self.name,
+				}
+				values = {k: v for k, v in values.items() if k == "doctype" or meta.has_field(k)}
+
+				lot = frappe.get_doc(values)
+				lot.insert(ignore_permissions=True)
+
+				row.tea_lot = lot.name
+				row.row_status = "Created"
+				row.message = _("Created {0}").format(lot.name)
+				created += 1
+
+			except Exception as e:
+				row.row_status = "Error"
+				row.message = str(e)[:140]
+				error += 1
+				frappe.clear_last_message()
+				frappe.log_error(
+					frappe.get_traceback(), "Buying Day: create_tea_lots_from_offer_samples row failed"
+				)
+
+		self.save()
+		return {"created": created, "errors": error, "duplicates": duplicate}
+
+	@frappe.whitelist()
+	def create_tea_evaluations_from_offer_samples(self):
+		"""Create one Tea Evaluation (stage "Offer Sample", dated today) per Offer Sample
+		Evaluation row that already has a Tea Lot. Taster, Evaluation Stage and Quality
+		Grade must exist in their masters; otherwise the row is marked Error."""
+		if self.acquisition_channel != "Private":
+			frappe.throw(_("Tea Evaluation from Offer Samples is only available for the Private channel."))
+		if self.status != "Offer Sample Evaluation Load":
+			frappe.throw(_("Load the Offer Sample Evaluation file before creating Tea Evaluations."))
+		if not any(r.tea_lot for r in self.offer_sample_evaluation):
+			frappe.throw(_("Create Tea Lots first. No row has a Tea Lot yet."))
+
+		stage = "Offer Sample"
+		evaluation_date = nowdate()
+		created = duplicate = error = 0
+
+		def set_error(row, message):
+			row.eval_status = "Error"
+			row.eval_message = message
+
+		for row in self.offer_sample_evaluation:
+			if row.eval_status == "Created":
+				continue
+			try:
+				if not row.tea_lot:
+					set_error(row, _("Create the Tea Lot for this row first."))
+					error += 1
+					continue
+
+				taster = (row.taster or "").strip()
+				if not taster:
+					set_error(row, _("Taster is missing on this row."))
+					error += 1
+					continue
+				if not frappe.db.exists("Taster", taster):
+					set_error(row, _("Taster '{0}' not found in Taster master.").format(taster))
+					error += 1
+					continue
+
+				if not frappe.db.exists("Evaluation Stage", stage):
+					set_error(
+						row, _("Evaluation Stage '{0}' not found. Please create it first.").format(stage)
+					)
+					error += 1
+					continue
+
+				quality_grade = (row.overall_rating or "").strip()
+				if quality_grade and not frappe.db.exists("Quality Grade", quality_grade):
+					set_error(
+						row, _("Quality Grade '{0}' not found. Please create it first.").format(quality_grade)
+					)
+					error += 1
+					continue
+
+				scores = {}
+				for label, source, target in (
+					("C", row.c, "colour"),
+					("T", row.t, "taste"),
+					("S", row.s, "strength"),
+					("B", row.b, "briskness"),
+				):
+					try:
+						scores[target] = cint(flt((source or "0").replace(",", "")))
+					except ValueError:
+						raise_msg = _("{0} must be a number.").format(label)
+						set_error(row, raise_msg)
+						scores = None
+						break
+				if scores is None:
+					error += 1
+					continue
+
+				existing = frappe.db.get_value(
+					"Tea Evaluation",
+					{
+						"tea_lot": row.tea_lot,
+						"taster": taster,
+						"evaluation_stage": stage,
+						"evaluation_date": evaluation_date,
+					},
+					"name",
+				)
+				if existing:
+					row.evaluation = existing
+					row.eval_status = "Duplicate"
+					row.eval_message = _("Tea Evaluation '{0}' already exists.").format(existing)
+					duplicate += 1
+					continue
+
+				# Tea Evaluation.on_update copies its valuations onto the Tea Lot, so carry the
+				# lot's current values over to avoid blanking them.
+				lot_valuation = (
+					frappe.db.get_value(
+						"Tea Lot", row.tea_lot, ["suggested_valuation", "actual_valuation"], as_dict=True
+					)
+					or {}
+				)
+
+				evaluation = frappe.get_doc(
+					{
+						"doctype": "Tea Evaluation",
+						"tea_lot": row.tea_lot,
+						"taster": taster,
+						"evaluation_date": evaluation_date,
+						"evaluation_stage": stage,
+						"quality_grade": quality_grade or None,
+						"invoice_number": (row.invoice_no or "").strip() or None,
+						"mark": (row.garden or "").strip() or None,
+						"remarks": (row.remark or "").strip() or None,
+						"suggested_valuation": lot_valuation.get("suggested_valuation"),
+						"actual_valuation": lot_valuation.get("actual_valuation"),
+						**scores,
+					}
+				)
+				evaluation.insert(ignore_permissions=True)
+
+				row.evaluation = evaluation.name
+				row.eval_status = "Created"
+				row.eval_message = _("Created {0}").format(evaluation.name)
+				created += 1
+
+			except Exception as e:
+				set_error(row, str(e)[:140])
+				error += 1
+				frappe.clear_last_message()
+				frappe.log_error(
+					frappe.get_traceback(), "Buying Day: create_tea_evaluations_from_offer_samples row failed"
+				)
+
+		self.save()
+		return {"created": created, "errors": error, "duplicates": duplicate}
 
 	@frappe.whitelist()
 	def create_tea_lots(self):

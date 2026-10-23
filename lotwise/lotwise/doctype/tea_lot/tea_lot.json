@@ -41,6 +41,8 @@
   "purchase_check",
   "section_break_7zcb",
   "broker",
+  "broker_type",
+  "region",
   "broker_code",
   "sale_no",
   "auction_centre",
@@ -159,6 +161,17 @@
    "fieldtype": "Link",
    "label": "Broker",
    "options": "Broker"
+  },
+  {
+   "fieldname": "broker_type",
+   "fieldtype": "Select",
+   "label": "Broker Type",
+   "options": "\nInternal\nExternal"
+  },
+  {
+   "fieldname": "region",
+   "fieldtype": "Data",
+   "label": "Region"
   },
   {
    "fieldname": "sale_no",
@@ -442,7 +455,7 @@
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-10-09 01:15:24.536396",
+ "modified": "2026-10-23 17:00:00",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",

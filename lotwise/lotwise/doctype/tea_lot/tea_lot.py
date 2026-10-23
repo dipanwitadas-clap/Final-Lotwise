@@ -9,8 +9,12 @@ import openpyxl
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
-from frappe.utils import flt, getdate
+from frappe.utils import flt
 from openpyxl.utils import get_column_letter
+
+
+def get_private_tea_lot_name(mark, invoice_number, grade, season):
+	return f"PVT-{mark}-{invoice_number}-{grade}-{season}"
 
 
 class TeaLot(Document):
@@ -30,6 +34,7 @@ class TeaLot(Document):
 		awr_date: DF.Date | None
 		blend: DF.Link | None
 		broker: DF.Link | None
+		broker_type: DF.Literal["", "Internal", "External"]
 		broker_code: DF.Data | None
 		category: DF.Data | None
 		certification: DF.Data | None
@@ -65,6 +70,7 @@ class TeaLot(Document):
 		purchase_invoice_no: DF.Data | None
 		purchase_status: DF.Link | None
 		rate: DF.Currency
+		region: DF.Data | None
 		reprints: DF.Table[TeaLotReprint]
 		sale_no: DF.Int
 		season: DF.Int
@@ -120,30 +126,10 @@ class TeaLot(Document):
 			if not self.grade:
 				frappe.throw(_("Grade is required."))
 
-			if (
-				self.purchase_status != "Offer"
-				and not self.offer_sample_list
-				and not self.purchase_invoice_no
-			):
-				frappe.throw(_("purchase_invoice_no is required."))
+			if not self.season:
+				frappe.throw(_("Season is required to generate the Tea Lot name."))
 
-			if self.purchase_status == "Offer":
-				year = getdate(self.offer_date).strftime("%y")
-			else:
-				year = getdate(self.purchase_date).strftime("%y")
-
-			if self.purchase_status != "Offer" and not self.offer_sample_list:
-				purchase_invoice = str(self.purchase_invoice_no)
-
-				if "-" in purchase_invoice:
-					first, second = purchase_invoice.rsplit("-", 1)
-					last_part = f"{first[-1]}-{second}"
-				else:
-					last_part = purchase_invoice
-
-				self.name = f"{self.invoice_number}-{year}-{self.mark}-{self.grade}-{last_part}"
-			else:
-				self.name = f"{self.invoice_number}-{year}-{self.mark}-{self.grade}"
+			self.name = get_private_tea_lot_name(self.mark, self.invoice_number, self.grade, self.season)
 
 		else:
 			self.name = make_autoname("LOT-.####")
