@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2026-10-15 12:00:00",
+ "creation": "2026-10-16 13:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -14,10 +14,12 @@
   "qty",
   "pckgs",
   "broker_direct",
+  "taster",
   "c",
   "t",
   "s",
   "b",
+  "overall_rating",
   "remark"
  ],
  "fields": [
@@ -73,6 +75,11 @@
    "label": "Broker/Direct from Garden"
   },
   {
+   "fieldname": "taster",
+   "fieldtype": "Data",
+   "label": "Taster"
+  },
+  {
    "fieldname": "c",
    "fieldtype": "Data",
    "label": "C"
@@ -91,6 +98,11 @@
    "fieldname": "b",
    "fieldtype": "Data",
    "label": "B"
+  },
+  {
+   "fieldname": "overall_rating",
+   "fieldtype": "Data",
+   "label": "Overall Rating"
   },
   {
    "fieldname": "remark",

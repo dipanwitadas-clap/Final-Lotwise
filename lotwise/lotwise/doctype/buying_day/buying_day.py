@@ -132,10 +132,12 @@ HEADER_TO_FIELD_OFFER_SAMPLE = {
 	"qty": {"field": "qty", "type": "str"},
 	"pckgs": {"field": "pckgs", "type": "str"},
 	"broker/direct from garden": {"field": "broker_direct", "type": "str"},
+	"taster": {"field": "taster", "type": "str"},
 	"c": {"field": "c", "type": "str"},
 	"t": {"field": "t", "type": "str"},
 	"s": {"field": "s", "type": "str"},
 	"b": {"field": "b", "type": "str"},
+	"overall rating": {"field": "overall_rating", "type": "str"},
 	"remark": {"field": "remark", "type": "str"},
 }
 
@@ -253,6 +255,7 @@ class BuyingDay(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
+		broker_type: DF.Literal["", "Internal", "External"]
 		buying_week: DF.Link | None
 		catalogue_file: DF.Attach | None
 		company: DF.Link | None

@@ -8,6 +8,7 @@
   "acquisition_channel",
   "auction_centre",
   "sale_no",
+  "broker_type",
   "season",
   "company",
   "days_section",
@@ -29,15 +30,23 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Auction Centre",
-   "options": "Auction Centre",
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "options": "Auction Centre"
   },
   {
    "fieldname": "sale_no",
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Sale No",
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "broker_type",
+   "fieldtype": "Select",
+   "label": "Broker Type",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'",
+   "options": "\nInternal\nExternal"
   },
   {
    "fieldname": "season",
@@ -71,7 +80,7 @@
    "link_fieldname": "buying_week"
   }
  ],
- "modified": "2026-10-14 16:14:38.401805",
+ "modified": "2026-10-16 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",

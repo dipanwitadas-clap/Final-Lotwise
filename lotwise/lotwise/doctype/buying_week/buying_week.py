@@ -19,12 +19,17 @@ class BuyingWeek(Document):
 		from lotwise.lotwise.doctype.buying_week_day.buying_week_day import BuyingWeekDay
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
-		auction_centre: DF.Link
+		auction_centre: DF.Link | None
+		broker_type: DF.Literal["", "Internal", "External"]
 		buying_days: DF.Table[BuyingWeekDay]
 		company: DF.Link | None
 		sale_no: DF.Int
 		season: DF.Int
 	# end: auto-generated types
+
+	def validate(self):
+		if self.acquisition_channel != "Private":
+			self.broker_type = None
 
 	def autoname(self):
 		if self.acquisition_channel == "Auction":
