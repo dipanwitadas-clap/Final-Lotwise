@@ -2,6 +2,20 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Buying Day", {
+	status(frm) {
+		const purchase_status_map = {
+			Draft: "Offer",
+			"Catalogue Loaded": "Offer",
+			"Offer Sample Evaluation Load": "Offer",
+			"Deal Book Loaded": "Purchase",
+			"Purchase list Loaded": "Purchase",
+		};
+		const purchase_status = purchase_status_map[frm.doc.status];
+		if (purchase_status) {
+			frm.set_value("purchase_status", purchase_status);
+		}
+	},
+
 	refresh(frm) {
 		if (frm.is_new()) return;
 
