@@ -41,5 +41,8 @@ class BuyingWeek(Document):
 			if not code:
 				frappe.throw(_("Auction Centre Code not found."))
 			self.name = f"BW-{code}-{self.season}-{self.sale_no}"
+		elif self.acquisition_channel == "Private":
+			# season and week_no are mandatory for Private, so always use this format
+			self.name = make_autoname(f"BW-{self.season}-{self.week_no}-.#####")
 		else:
 			self.name = make_autoname("BW-.YYYY.-.#####")

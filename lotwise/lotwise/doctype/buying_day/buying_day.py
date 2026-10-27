@@ -332,8 +332,15 @@ class BuyingDay(Document):
 				frappe.throw(_("Day is required to generate the Buying Day name."))
 
 			self.name = f"BD-{auction_centre_code}-{self.season}-{self.sale_no}-{self.day}"
+		elif self.acquisition_channel == "Private":
+			if not self.season or not self.week_no:
+				frappe.throw(_("Season and Week No are required to generate the Buying Day name."))
+
+			# BD-{season}-{week_no}-{counter}, e.g. BD-2026-43-00008 (season-wise counter continues)
+			counter = make_autoname(f"BD-{self.season}-.#####").rsplit("-", 1)[1]
+			self.name = f"BD-{self.season}-{self.week_no}-{counter}"
 		else:
-			# Private/Outsourced naming hasn't been specified yet - fall back to a
+			# Outsourced naming hasn't been specified yet - fall back to a
 			# safe generic series rather than guessing.
 			self.name = make_autoname("BD-.YYYY.-.#####")
 
