@@ -9,8 +9,11 @@
   "auction_centre",
   "sale_no",
   "purchase_type",
+  "week_no",
+  "column_break_wtjh",
   "season",
   "company",
+  "section_break_s4h8",
   "days_section",
   "buying_days"
  ],
@@ -26,6 +29,7 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fieldname": "auction_centre",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -34,11 +38,20 @@
    "options": "Auction Centre"
   },
   {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fieldname": "sale_no",
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Sale No",
    "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "week_no",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Week No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'"
   },
   {
    "depends_on": "eval:doc.acquisition_channel=='Private'",
@@ -70,7 +83,16 @@
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
-   "options": "Company"
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_wtjh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_s4h8",
+   "fieldtype": "Section Break"
   }
  ],
  "links": [
@@ -80,7 +102,7 @@
    "link_fieldname": "buying_week"
   }
  ],
- "modified": "2026-10-16 12:00:00.000000",
+ "modified": "2026-10-27 11:46:16.246521",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Week",

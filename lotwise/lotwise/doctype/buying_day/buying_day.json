@@ -16,15 +16,15 @@
   "col_break_1",
   "company",
   "purchase_status",
+  "week_start",
+  "week_end",
   "col_break_1b",
   "auction_centre",
   "sale_no",
   "purchase_type",
+  "week_no",
   "season",
   "day",
-  "week_no",
-  "week_start",
-  "week_end",
   "recon_section",
   "computed_total_packages",
   "col_break_2",
@@ -129,6 +129,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fetch_from": "buying_week.sale_no",
    "fieldname": "sale_no",
    "fieldtype": "Int",
@@ -248,9 +249,13 @@
    "options": "Buying Week Deal Book Tea"
   },
   {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fetch_from": "buying_week.week_no",
    "fieldname": "week_no",
    "fieldtype": "Int",
-   "label": "Week No"
+   "label": "Week No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'",
+   "read_only": 1
   },
   {
    "fieldname": "week_start",
@@ -335,7 +340,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-23 14:11:22.739317",
+ "modified": "2026-10-27 11:49:52.138914",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",

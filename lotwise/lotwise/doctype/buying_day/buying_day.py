@@ -255,7 +255,6 @@ class BuyingDay(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
-		purchase_type: DF.Literal["", "Internal", "External"]
 		buying_week: DF.Link | None
 		catalogue_file: DF.Attach | None
 		company: DF.Link | None
@@ -271,6 +270,7 @@ class BuyingDay(Document):
 		purchase_list_file: DF.Attach | None
 		purchase_orders: DF.Table[BuyingWeekPurchaseOrder]
 		purchase_status: DF.Link | None
+		purchase_type: DF.Literal["", "Internal", "External"]
 		rows_created: DF.Int
 		rows_duplicate: DF.Int
 		rows_error: DF.Int
@@ -304,7 +304,7 @@ class BuyingDay(Document):
 		week = frappe.db.get_value(
 			"Buying Week",
 			self.buying_week,
-			["acquisition_channel", "auction_centre", "sale_no", "season"],
+			["acquisition_channel", "auction_centre", "sale_no", "week_no", "season"],
 			as_dict=True,
 		)
 		for key, value in week.items():
