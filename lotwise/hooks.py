@@ -11,15 +11,7 @@ app_license = "mit"
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "lotwise",
-# 		"logo": "/assets/lotwise/logo.png",
-# 		"title": "Lotwise",
-# 		"route": "/lotwise",
-# 		"has_permission": "lotwise.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [{"name": "lotwise", "title": "Lotwise", "route": "/desk/lotwise"}]
 
 # Includes in <head>
 # ------------------
