@@ -9,6 +9,7 @@
  "field_order": [
   "section_break_mgxs",
   "season",
+  "week_no",
   "acquisition_channel",
   "offer_sample_list",
   "seller",
@@ -422,6 +423,13 @@
    "fieldtype": "Int",
    "label": "Season",
    "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "week_no",
+   "fieldtype": "Int",
+   "label": "Week No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'"
   },
   {
    "fieldname": "reprints",

@@ -147,6 +147,7 @@ class TeaLotImport(Document):
 		rows_updated: DF.Int
 		sale_no: DF.Int
 		season: DF.Int
+		week_no: DF.Int
 	# end: auto-generated types
 
 	"""Parse Dalmia XLSX -> items table -> create Tea Lots."""
@@ -383,7 +384,15 @@ class TeaLotImport(Document):
 						error += 1
 						continue
 
-					tea_lot_name = get_private_tea_lot_name(mark_name, invoice, grade_code, self.season)
+					if not self.week_no:
+						row.row_status = "Error"
+						row.message = _("Week No is required for Private lots.")
+						error += 1
+						continue
+
+					tea_lot_name = get_private_tea_lot_name(
+						mark_name, invoice, grade_code, self.season, self.week_no
+					)
 					if frappe.db.exists("Tea Lot", tea_lot_name):
 						row.row_status = "Duplicate"
 						row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
@@ -412,6 +421,7 @@ class TeaLotImport(Document):
 					"blend": row.blend or None,
 					"sale_no": self.sale_no or None,
 					"season": self.season or None,
+					"week_no": self.week_no or None,
 					"fiscal_year": self.fiscal_year or None,
 					"auction_centre": auction_centre or None,
 					"purchase_date": row.purchase_date or None,

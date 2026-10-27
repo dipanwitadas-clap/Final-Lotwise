@@ -13,8 +13,8 @@ from frappe.utils import flt
 from openpyxl.utils import get_column_letter
 
 
-def get_private_tea_lot_name(mark, invoice_number, grade, season):
-	return f"PVT-{mark}-{invoice_number}-{grade}-{season}"
+def get_private_tea_lot_name(mark, invoice_number, grade, season, week_no):
+	return f"PVT-{season}-{week_no}-{grade}-{mark}-{invoice_number}"
 
 
 class TeaLot(Document):
@@ -83,6 +83,7 @@ class TeaLot(Document):
 		warehouse: DF.Link | None
 		warehouse_name: DF.Data | None
 		warehouselocation: DF.Data | None
+		week_no: DF.Int
 	# end: auto-generated types
 
 	def validate(self):
@@ -129,7 +130,12 @@ class TeaLot(Document):
 			if not self.season:
 				frappe.throw(_("Season is required to generate the Tea Lot name."))
 
-			self.name = get_private_tea_lot_name(self.mark, self.invoice_number, self.grade, self.season)
+			if not self.week_no:
+				frappe.throw(_("Week No is required to generate the Tea Lot name."))
+
+			self.name = get_private_tea_lot_name(
+				self.mark, self.invoice_number, self.grade, self.season, self.week_no
+			)
 
 		else:
 			self.name = make_autoname("LOT-.####")

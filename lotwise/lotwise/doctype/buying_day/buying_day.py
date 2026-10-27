@@ -640,6 +640,8 @@ class BuyingDay(Document):
 			frappe.throw(_("There are no rows to create Tea Lots from."))
 		if not self.season:
 			frappe.throw(_("Season is required on the Buying Day."))
+		if not self.week_no:
+			frappe.throw(_("Week No is required on the Buying Day."))
 
 		from lotwise.lotwise.doctype.tea_lot.tea_lot import get_private_tea_lot_name
 
@@ -700,7 +702,9 @@ class BuyingDay(Document):
 						error += 1
 						continue
 
-				tea_lot_name = get_private_tea_lot_name(mark_name, invoice, grade_code, self.season)
+				tea_lot_name = get_private_tea_lot_name(
+					mark_name, invoice, grade_code, self.season, self.week_no
+				)
 				if frappe.db.exists("Tea Lot", tea_lot_name):
 					row.row_status = "Duplicate"
 					row.tea_lot = tea_lot_name
@@ -716,6 +720,7 @@ class BuyingDay(Document):
 					"grade": grade_code,
 					"invoice_number": invoice,
 					"season": self.season,
+					"week_no": self.week_no,
 					"packages": packages,
 					"net_wtpkg": net_wt,
 					"net_weight_total": net_wt * packages,
