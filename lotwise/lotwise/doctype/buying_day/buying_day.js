@@ -1,7 +1,37 @@
 // Copyright (c) 2026, BusinessThat.Works and contributors
 // For license information, please see license.txt
 
+const COMMON_START = ["Draft"];
+const COMMON_END = ["Ordered", "Received", "Invoiced", "Paid", "Closed"];
+const STATUS_OPTIONS = {
+	Auction: [...COMMON_START, "Catalogue Loaded", "Deal Book Loaded", ...COMMON_END],
+	Private: [
+		...COMMON_START,
+		"Purchase list Loaded",
+		"Offer Sample Evaluation Load",
+		...COMMON_END,
+	],
+};
+const ALL_STATUS_OPTIONS = [
+	...COMMON_START,
+	"Catalogue Loaded",
+	"Deal Book Loaded",
+	"Purchase list Loaded",
+	"Offer Sample Evaluation Load",
+	...COMMON_END,
+];
+
+function set_status_options(frm) {
+	const options = STATUS_OPTIONS[frm.doc.acquisition_channel] || ALL_STATUS_OPTIONS;
+	frm.set_df_property("status", "options", options.join("\n"));
+	frm.refresh_field("status");
+}
+
 frappe.ui.form.on("Buying Day", {
+	acquisition_channel(frm) {
+		set_status_options(frm);
+	},
+
 	status(frm) {
 		const purchase_status_map = {
 			Draft: "Offer",
@@ -17,6 +47,7 @@ frappe.ui.form.on("Buying Day", {
 	},
 
 	refresh(frm) {
+		set_status_options(frm);
 		if (frm.is_new()) return;
 
 		frm.add_custom_button(__("Parse File"), () => {
