@@ -255,7 +255,7 @@ class BuyingDay(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
-		broker_type: DF.Literal["", "Internal", "External"]
+		purchase_type: DF.Literal["", "Internal", "External"]
 		buying_week: DF.Link | None
 		catalogue_file: DF.Attach | None
 		company: DF.Link | None
@@ -721,7 +721,7 @@ class BuyingDay(Document):
 					"net_weight_total": net_wt * packages,
 					"offer_date": row.date,
 					"broker": broker,
-					"broker_type": self.broker_type,
+					"purchase_type": self.purchase_type,
 					"region": (row.region or "").strip() or None,
 					"source_doctype": self.doctype,
 					"source_doctype_id": self.name,

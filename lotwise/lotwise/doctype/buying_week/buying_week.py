@@ -20,7 +20,7 @@ class BuyingWeek(Document):
 
 		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
 		auction_centre: DF.Link | None
-		broker_type: DF.Literal["", "Internal", "External"]
+		purchase_type: DF.Literal["", "Internal", "External"]
 		buying_days: DF.Table[BuyingWeekDay]
 		company: DF.Link | None
 		sale_no: DF.Int
@@ -29,7 +29,7 @@ class BuyingWeek(Document):
 
 	def validate(self):
 		if self.acquisition_channel != "Private":
-			self.broker_type = None
+			self.purchase_type = None
 
 	def autoname(self):
 		if self.acquisition_channel == "Auction":

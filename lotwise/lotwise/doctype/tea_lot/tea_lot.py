@@ -34,7 +34,7 @@ class TeaLot(Document):
 		awr_date: DF.Date | None
 		blend: DF.Link | None
 		broker: DF.Link | None
-		broker_type: DF.Literal["", "Internal", "External"]
+		purchase_type: DF.Literal["", "Internal", "External"]
 		broker_code: DF.Data | None
 		category: DF.Data | None
 		certification: DF.Data | None

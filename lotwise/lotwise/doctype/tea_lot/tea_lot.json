@@ -41,7 +41,7 @@
   "purchase_check",
   "section_break_7zcb",
   "broker",
-  "broker_type",
+  "purchase_type",
   "region",
   "broker_code",
   "sale_no",
@@ -163,9 +163,9 @@
    "options": "Broker"
   },
   {
-   "fieldname": "broker_type",
+   "fieldname": "purchase_type",
    "fieldtype": "Select",
-   "label": "Broker Type",
+   "label": "Purchase Type",
    "options": "\nInternal\nExternal"
   },
   {

@@ -8,7 +8,7 @@
   "acquisition_channel",
   "auction_centre",
   "sale_no",
-  "broker_type",
+  "purchase_type",
   "season",
   "company",
   "days_section",
@@ -42,9 +42,9 @@
   },
   {
    "depends_on": "eval:doc.acquisition_channel=='Private'",
-   "fieldname": "broker_type",
+   "fieldname": "purchase_type",
    "fieldtype": "Select",
-   "label": "Broker Type",
+   "label": "Purchase Type",
    "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'",
    "options": "\nInternal\nExternal"
   },
