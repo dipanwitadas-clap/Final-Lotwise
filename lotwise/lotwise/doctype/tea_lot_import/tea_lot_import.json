@@ -12,7 +12,6 @@
   "col_break_1",
   "purchase_status",
   "company",
-  "purchase_type",
   "col_break_1b",
   "fiscal_year",
   "sale_no",
@@ -147,13 +146,6 @@
    "fieldtype": "Table",
    "label": "Items",
    "options": "Tea Lot Import Item"
-  },
-  {
-   "fieldname": "purchase_type",
-   "fieldtype": "Select",
-   "hidden": 1,
-   "label": "Purchase Type",
-   "options": "\nPurchase\nOffer"
   },
   {
    "fieldname": "purchase_status",
