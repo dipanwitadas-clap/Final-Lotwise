@@ -168,6 +168,7 @@
   }
  ],
  "istable": 1,
+ "rows_threshold_for_grid_search": 1,
  "links": [],
  "modified": "2026-10-28 13:05:07.356335",
  "modified_by": "Administrator",

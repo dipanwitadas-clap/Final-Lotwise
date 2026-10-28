@@ -54,6 +54,7 @@
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
+ "rows_threshold_for_grid_search": 1,
  "links": [],
  "modified": "2026-10-07 00:00:00",
  "modified_by": "Administrator",
