@@ -624,13 +624,17 @@ class BuyingDay(Document):
 		return _read_spreadsheetml_rows(file_doc.get_full_path())
 
 	def _get_broker_by_short_name(self, broker_code):
-		"""Return the Broker name whose broker_short_name matches `broker_code` and whose
-		Auction Centre is this document's Auction Centre, else None."""
+		"""Return the Auction Broker name whose broker_short_name matches `broker_code` and
+		whose Auction Centre is this document's Auction Centre, else None."""
 		if not broker_code:
 			return None
 		return frappe.db.get_value(
 			"Broker",
-			{"broker_short_name": broker_code, "auction_centre": self.auction_centre},
+			{
+				"broker_short_name": broker_code,
+				"auction_centre": self.auction_centre,
+				"acquisition_channel": "Auction",
+			},
 			"name",
 		)
 
@@ -702,10 +706,14 @@ class BuyingDay(Document):
 				broker_text = (row.broker_direct or "").strip()
 				broker = None
 				if broker_text and broker_text.upper() != "DIRECT":
-					broker = frappe.db.get_value("Broker", {"broker_name": broker_text}, "name")
+					broker = frappe.db.get_value(
+						"Broker",
+						{"broker_name": broker_text, "acquisition_channel": "Private"},
+						"name",
+					)
 					if not broker:
 						row.row_status = "Error"
-						row.message = _("Broker '{0}' not found.").format(broker_text)
+						row.message = _("Private Broker '{0}' not found.").format(broker_text)
 						error += 1
 						continue
 
