@@ -27,6 +27,7 @@
   "net_weight_total",
   "rate",
   "season",
+  "week_no",
   "sale_no",
   "broker_code",
   "linked_section",
@@ -153,6 +154,12 @@
    "fieldname": "season",
    "fieldtype": "Int",
    "label": "Season"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "week_no",
+   "fieldtype": "Int",
+   "label": "Week No"
   },
   {
    "fieldname": "sale_no",

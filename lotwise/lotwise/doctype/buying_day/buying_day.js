@@ -201,6 +201,46 @@ frappe.ui.form.on("Buying Day", {
 		}
 
 		if (
+			frm.doc.acquisition_channel === "Private" &&
+			frm.doc.status === "Purchase list Loaded" &&
+			(frm.doc.private_purchase_list || []).length > 0
+		) {
+			const create_purchase = () =>
+				run_create(
+					"create_private_tea_purchases",
+					__("Create Tea Purchases for all rows in the table?"),
+					__("Creating Tea Purchases…")
+				);
+
+			if (frm.doc.purchase_type === "External") {
+				const group = __("Private Purchase");
+				frm.add_custom_button(
+					__("Create Tea Lot"),
+					() =>
+						run_create(
+							"create_tea_lots_from_private_purchase_list",
+							__("Create Tea Lots for all rows in the table?"),
+							__("Creating Tea Lots…")
+						),
+					group
+				);
+				if (frm.doc.private_purchase_list.some((r) => r.tea_lot)) {
+					frm.add_custom_button(__("Create Tea Purchase"), create_purchase, group);
+				}
+				frm.page.inner_toolbar
+					.find(
+						`.inner-group-button[data-label="${encodeURIComponent(group)}"] > button`
+					)
+					.removeClass("btn-default")
+					.addClass("btn-primary");
+			} else {
+				frm.add_custom_button(__("Create Tea Purchase"), create_purchase).addClass(
+					"btn-primary"
+				);
+			}
+		}
+
+		if (
 			frm.doc.acquisition_channel === "Auction" &&
 			(frm.doc.deal_book_items || []).some((r) => r.batch_no && !r.purchase_order)
 		) {
@@ -215,6 +255,35 @@ frappe.ui.form.on("Buying Day", {
 						frm.call({
 							doc: frm.doc,
 							method: "create_purchase_orders",
+							freeze: true,
+							freeze_message: __("Creating Purchase Orders…"),
+						}).then((r) => {
+							frm.reload_doc();
+							const m = r.message || {};
+							frappe.msgprint(
+								__("Created: {0}  ·  Errors: {1}", [m.created || 0, m.errors || 0])
+							);
+						});
+					}
+				);
+			}).addClass("btn-primary");
+		}
+
+		if (
+			frm.doc.acquisition_channel === "Private" &&
+			(frm.doc.private_purchase_list || []).some((r) => r.batch_no && !r.purchase_order)
+		) {
+			frm.add_custom_button(__("Create PO"), () => {
+				if (frm.is_dirty()) {
+					frappe.msgprint(__("Please save the document before creating records."));
+					return;
+				}
+				frappe.confirm(
+					__("Create Purchase Orders (one per Seller + Invoice / Bill Mode)?"),
+					() => {
+						frm.call({
+							doc: frm.doc,
+							method: "create_private_purchase_orders",
 							freeze: true,
 							freeze_message: __("Creating Purchase Orders…"),
 						}).then((r) => {

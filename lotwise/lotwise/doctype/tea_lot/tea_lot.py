@@ -34,7 +34,6 @@ class TeaLot(Document):
 		awr_date: DF.Date | None
 		blend: DF.Link | None
 		broker: DF.Link | None
-		purchase_type: DF.Literal["", "Internal", "External"]
 		broker_code: DF.Data | None
 		category: DF.Data | None
 		certification: DF.Data | None
@@ -69,6 +68,7 @@ class TeaLot(Document):
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
 		purchase_status: DF.Link | None
+		purchase_type: DF.Literal["", "Internal", "External"]
 		rate: DF.Currency
 		region: DF.Data | None
 		reprints: DF.Table[TeaLotReprint]

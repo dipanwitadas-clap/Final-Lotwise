@@ -1231,6 +1231,279 @@ class BuyingDay(Document):
 
 		return {"created": created, "errors": error, "duplicates": duplicate}
 
+	def _resolve_warehouse(self, raw):
+		"""Sheet holds the warehouse_name; the record name carries a company suffix."""
+		raw = (raw or "").strip()
+		filters = {"warehouse_name": raw}
+		if self.company:
+			filters["company"] = self.company
+		return frappe.db.get_value("Warehouse", filters, "name") or frappe.db.exists("Warehouse", raw)
+
+	@frappe.whitelist()
+	def create_tea_lots_from_private_purchase_list(self):
+		"""External purchases only: create one Private Tea Lot per Private Purchase
+		List row and store its id in the row's `tea_lot`, so Tea Purchases can then be
+		created from it. Returns {created, errors, duplicates}."""
+		if self.acquisition_channel != "Private" or self.purchase_type != "External":
+			frappe.throw(_("This is only available for Private External purchases."))
+		if self.status != "Purchase list Loaded":
+			frappe.throw(_("Load the Private Purchase List file before creating Tea Lots."))
+		if not self.private_purchase_list:
+			frappe.throw(_("There are no rows to create Tea Lots from."))
+		if not self.season:
+			frappe.throw(_("Season is required on the Buying Day."))
+		if not self.week_no:
+			frappe.throw(_("Week No is required on the Buying Day."))
+
+		from lotwise.lotwise.doctype.tea_lot.tea_lot import get_private_tea_lot_name
+
+		meta = frappe.get_meta("Tea Lot")
+		created = duplicate = error = 0
+
+		for row in self.private_purchase_list:
+			if row.tea_lot:
+				continue
+			try:
+				mark_name = (row.mark_raw or "").strip()
+				invoice = (row.lot_invoice_no or "").strip()
+				grade_code = (row.grade_raw or "").strip()
+
+				if not mark_name:
+					row.row_status = "Error"
+					row.message = _("Garden / Mark is missing on this row.")
+					error += 1
+					continue
+				if not frappe.db.exists("Mark", mark_name):
+					row.row_status = "Error"
+					row.message = _("Mark '{0}' not found. Please create it first.").format(mark_name)
+					error += 1
+					continue
+				if not invoice:
+					row.row_status = "Error"
+					row.message = _("Lot / Invoice No is missing on this row.")
+					error += 1
+					continue
+				if not grade_code:
+					row.row_status = "Error"
+					row.message = _("Grade is missing on this row.")
+					error += 1
+					continue
+				if not frappe.db.exists("Grade", grade_code):
+					row.row_status = "Error"
+					row.message = _("Grade '{0}' not found. Please create it first.").format(grade_code)
+					error += 1
+					continue
+
+				warehouse = None
+				warehouse_raw = (row.warehouse or "").strip()
+				if warehouse_raw:
+					warehouse = self._resolve_warehouse(warehouse_raw)
+					if not warehouse:
+						row.row_status = "Error"
+						row.message = _("Warehouse '{0}' not found for company '{1}'.").format(
+							warehouse_raw, self.company or ""
+						)
+						error += 1
+						continue
+
+				tea_lot_name = get_private_tea_lot_name(
+					mark_name, invoice, grade_code, self.season, self.week_no
+				)
+				if frappe.db.exists("Tea Lot", tea_lot_name):
+					row.row_status = "Duplicate"
+					row.tea_lot = tea_lot_name
+					row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
+					duplicate += 1
+					continue
+
+				values = {
+					"doctype": "Tea Lot",
+					"acquisition_channel": "Private",
+					"purchase_status": self.purchase_status,
+					"purchase_type": self.purchase_type,
+					"mark": mark_name,
+					"grade": grade_code,
+					"category": "CTC",
+					"invoice_number": invoice,
+					"season": self.season,
+					"week_no": self.week_no,
+					"packages": cint(row.packages),
+					"net_wtpkg": flt(row.net_kg_per_package),
+					"net_weight_total": flt(row.net_kg),
+					"rate": flt(row.rate_per_kg),
+					"warehouse": warehouse,
+					"broker": row.broker,
+					"source_doctype": self.doctype,
+					"source_doctype_id": self.name,
+				}
+				values = {k: v for k, v in values.items() if k == "doctype" or meta.has_field(k)}
+
+				lot = frappe.get_doc(values)
+				lot.insert(ignore_permissions=True)
+
+				row.tea_lot = lot.name
+				row.row_status = "Created"
+				row.message = _("Created Tea Lot {0}").format(lot.name)
+				created += 1
+
+			except Exception as e:
+				row.row_status = "Error"
+				row.message = str(e)[:140]
+				error += 1
+				frappe.clear_last_message()
+				frappe.log_error(
+					frappe.get_traceback(),
+					"Buying Day: create_tea_lots_from_private_purchase_list row failed",
+				)
+
+		self.save()
+		return {"created": created, "errors": error, "duplicates": duplicate}
+
+	@frappe.whitelist()
+	def create_private_tea_purchases(self):
+		"""Create one Tea Purchase per Private Purchase List row (Private channel,
+		once the purchase list is loaded). Same rules as create_tea_purchases():
+		the Tea Lot with the same name (PVT-{season}-{week_no}-{grade}-{mark}-{invoice})
+		must already exist, otherwise the row is marked Error and nothing is
+		created. For External purchases the Tea Lot id comes from the row's
+		`tea_lot` (set by create_tea_lots_from_private_purchase_list). Returns {created, errors, duplicates}."""
+		if self.acquisition_channel != "Private":
+			frappe.throw(_("This Tea Purchase creation is only available for the Private channel."))
+		if self.status != "Purchase list Loaded":
+			frappe.throw(_("Load the Private Purchase List file before creating Tea Purchases."))
+		if not self.private_purchase_list:
+			frappe.throw(_("There are no rows to create Tea Purchases from."))
+		if not self.season:
+			frappe.throw(_("Season is required on the Buying Day."))
+		if not self.week_no:
+			frappe.throw(_("Week No is required on the Buying Day."))
+
+		from lotwise.lotwise.doctype.tea_lot.tea_lot import get_private_tea_lot_name
+
+		meta = frappe.get_meta("Tea Purchase")
+		external = self.purchase_type == "External"
+		created = duplicate = error = 0
+
+		for row in self.private_purchase_list:
+			if row.tea_purchase:
+				# Backfill Item / Batch on rows created before those columns existed
+				if not (row.item_code and row.batch_no):
+					item, batch_no = frappe.db.get_value(
+						"Tea Purchase", row.tea_purchase, ["item", "batch_no"]
+					) or (None, None)
+					row.item_code = row.item_code or item
+					row.batch_no = row.batch_no or batch_no
+				continue
+			try:
+				mark_name = (row.mark_raw or "").strip()
+				invoice = (row.lot_invoice_no or "").strip()
+				grade_code = (row.grade_raw or "").strip()
+
+				if not mark_name:
+					row.row_status = "Error"
+					row.message = _("Garden / Mark is missing on this row.")
+					error += 1
+					continue
+				if not invoice:
+					row.row_status = "Error"
+					row.message = _("Lot / Invoice No is missing on this row.")
+					error += 1
+					continue
+				if not grade_code:
+					row.row_status = "Error"
+					row.message = _("Grade is missing on this row.")
+					error += 1
+					continue
+
+				if external:
+					computed_name = row.tea_lot
+					if not computed_name or not frappe.db.exists("Tea Lot", computed_name):
+						row.row_status = "Error"
+						row.message = _("Create the Tea Lot for this row first.")
+						error += 1
+						continue
+				else:
+					computed_name = get_private_tea_lot_name(
+						mark_name, invoice, grade_code, self.season, self.week_no
+					)
+				if frappe.db.exists("Tea Purchase", computed_name):
+					row.row_status = "Duplicate"
+					row.message = _("Tea Purchase '{0}' already exists.").format(computed_name)
+					duplicate += 1
+					continue
+
+				if not frappe.db.exists("Tea Lot", computed_name):
+					row.row_status = "Error"
+					row.message = _(
+						"Tea Lot '{0}' does not exist. Please create the Tea Lot before creating the Tea Purchase."
+					).format(computed_name)
+					error += 1
+					continue
+
+				lot_warehouse = frappe.db.get_value("Tea Lot", computed_name, "warehouse")
+
+				warehouse_raw = (row.warehouse or "").strip()
+				if warehouse_raw:
+					warehouse = self._resolve_warehouse(warehouse_raw)
+					if not warehouse:
+						row.row_status = "Error"
+						row.message = _("Warehouse '{0}' not found for company '{1}'.").format(
+							warehouse_raw, self.company or ""
+						)
+						error += 1
+						continue
+				else:
+					warehouse = lot_warehouse
+
+				values = {
+					"doctype": "Tea Purchase",
+					"acquisition_channel": "Private",
+					"purchase_status": self.purchase_status,
+					"mark": mark_name,
+					"grade": grade_code,
+					"category": "CTC",
+					"invoice_number": invoice,
+					"packages": cint(row.packages),
+					"net_weight_total": flt(row.net_kg),
+					"rate": flt(row.rate_per_kg),
+					"season": self.season,
+					"week_no": self.week_no,
+					"tea_lot": computed_name,
+					"warehouse": warehouse,
+					"broker": row.broker,
+					"source_doctype": self.doctype,
+					"source_doctype_id": self.name,
+				}
+				values = {k: v for k, v in values.items() if k == "doctype" or meta.has_field(k)}
+
+				purchase = frappe.get_doc(values)
+				purchase.insert(ignore_permissions=True)
+
+				tea_lot_updates = {"tea_purchase": purchase.name}
+				if self.purchase_status:
+					tea_lot_updates["purchase_status"] = self.purchase_status
+				frappe.db.set_value("Tea Lot", computed_name, tea_lot_updates)
+
+				row.tea_purchase = purchase.name
+				row.tea_lot = computed_name
+				row.item_code = purchase.item
+				row.batch_no = purchase.batch_no
+				row.row_status = "Created"
+				row.message = _("Created {0}").format(purchase.name)
+				created += 1
+
+			except Exception as e:
+				row.row_status = "Error"
+				row.message = str(e)[:140]
+				error += 1
+				frappe.log_error(
+					frappe.get_traceback(), "Buying Day: create_private_tea_purchases row failed"
+				)
+
+		self.save()
+
+		return {"created": created, "errors": error, "duplicates": duplicate}
+
 	@frappe.whitelist()
 	def create_purchase_orders(self):
 		"""Create one draft Purchase Order per Broker from the Deal Book rows that
@@ -1313,6 +1586,103 @@ class BuyingDay(Document):
 			and all(r.purchase_order for r in self.deal_book_items if r.batch_no)
 			and any(r.batch_no for r in self.deal_book_items)
 		):
+			self.status = "Ordered"
+		self.save()
+
+		return {"created": created, "errors": error}
+
+	@frappe.whitelist()
+	def create_private_purchase_orders(self):
+		"""Create draft Purchase Orders from Private Purchase List rows that already
+		have a Batch. One PO per Seller + Tax Invoice No; when there is no invoice
+		number yet, one PO per Seller + Bill Mode. Rows already carrying a
+		`purchase_order` are skipped. The supplier is matched on the seller name and
+		the PO date is the row's List Date. Returns {created, errors}."""
+		if self.acquisition_channel != "Private":
+			frappe.throw(_("This Purchase Order creation is only available for the Private channel."))
+		if not self.private_purchase_list:
+			frappe.throw(_("There are no Private Purchase List rows to create Purchase Orders from."))
+		if not self.company:
+			frappe.throw(_("Company is required to create Purchase Orders."))
+
+		groups = {}
+		for row in self.private_purchase_list:
+			if not row.batch_no or row.purchase_order:
+				continue
+			seller = (row.seller or "").strip()
+			if not seller:
+				row.message = _("Seller is missing on this row.")
+				continue
+			invoice = (row.tax_invoice_no or "").strip()
+			key = (seller, invoice) if invoice else (seller, (row.bill_mode or "").strip())
+			groups.setdefault(key, []).append(row)
+
+		created = error = 0
+
+		for (seller, _ref), rows in groups.items():
+			try:
+				supplier = frappe.db.get_value(
+					"Supplier", {"supplier_name": seller}, "name"
+				) or frappe.db.exists("Supplier", seller)
+				if not supplier:
+					raise frappe.ValidationError(_("Supplier '{0}' not found.").format(seller))
+
+				list_date = rows[0].list_date or nowdate()
+
+				items = []
+				for r in rows:
+					warehouse = None
+					if (r.warehouse or "").strip():
+						warehouse = self._resolve_warehouse(r.warehouse)
+						if not warehouse:
+							raise frappe.ValidationError(
+								_("Warehouse '{0}' not found for company '{1}'.").format(
+									r.warehouse, self.company
+								)
+							)
+					elif r.tea_lot:
+						warehouse = frappe.db.get_value("Tea Lot", r.tea_lot, "warehouse")
+					items.append(
+						{
+							"item_code": r.item_code,
+							"batch_no": r.batch_no,
+							"qty": flt(r.net_kg),
+							"rate": flt(r.rate_per_kg),
+							"warehouse": warehouse,
+							"schedule_date": list_date,
+						}
+					)
+
+				po = frappe.get_doc(
+					{
+						"doctype": "Purchase Order",
+						"supplier": supplier,
+						"company": self.company,
+						"transaction_date": list_date,
+						"schedule_date": list_date,
+						"items": items,
+					}
+				)
+				po.insert(ignore_permissions=True)
+
+				for r in rows:
+					r.purchase_order = po.name
+					r.message = _("PO {0}").format(po.name)
+				self.append(
+					"purchase_orders",
+					{"supplier": supplier, "purchase_order": po.name, "deal_date": list_date},
+				)
+				created += 1
+
+			except Exception as e:
+				for r in rows:
+					r.message = str(e)[:140]
+				error += 1
+				frappe.clear_last_message()
+				frappe.log_error(frappe.get_traceback(), "Buying Day: create_private_purchase_orders failed")
+
+		batch_rows = [r for r in self.private_purchase_list if r.batch_no]
+		if batch_rows and all(r.purchase_order for r in batch_rows):
 			self.status = "Ordered"
 		self.save()
 

@@ -39,6 +39,7 @@ class TeaPurchase(Document):
 		source_doctype_id: DF.DynamicLink | None
 		tea_lot: DF.Link | None
 		warehouse: DF.Link | None
+		week_no: DF.Int
 	# end: auto-generated types
 
 	def validate(self):
@@ -198,5 +199,22 @@ class TeaPurchase(Document):
 				frappe.throw(_("Lot No is required to generate the Tea Purchase name."))
 
 			self.name = f"{auction_centre_code}-{self.season}-{self.sale_no}-{self.lot_no}"
+		elif self.acquisition_channel == "Private":
+			from lotwise.lotwise.doctype.tea_lot.tea_lot import get_private_tea_lot_name
+
+			for fieldname, label in (
+				("mark", "Mark"),
+				("grade", "Grade"),
+				("invoice_number", "Invoice Number"),
+				("season", "Season"),
+				("week_no", "Week No"),
+			):
+				if not self.get(fieldname):
+					frappe.throw(_("{0} is required to generate the Tea Purchase name.").format(label))
+
+			# Same name as the Tea Lot for this physical lot
+			self.name = get_private_tea_lot_name(
+				self.mark, self.invoice_number, self.grade, self.season, self.week_no
+			)
 		else:
 			self.name = make_autoname("TPUR-.YYYY.-.#####")
