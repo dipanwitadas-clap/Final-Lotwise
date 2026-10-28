@@ -458,10 +458,18 @@ class BuyingDay(Document):
 			wb = load_workbook(path, data_only=True, read_only=True)
 		except Exception:
 			frappe.throw(_("The uploaded file is not a valid .xlsx file."))
-		if PRIVATE_PURCHASE_SHEET not in wb.sheetnames:
-			frappe.throw(_("Sheet '{0}' was not found in the uploaded file.").format(PRIVATE_PURCHASE_SHEET))
+		if PRIVATE_PURCHASE_SHEET in wb.sheetnames:
+			sheet_name = PRIVATE_PURCHASE_SHEET
+		elif len(wb.sheetnames) == 1:
+			sheet_name = wb.sheetnames[0]
+		else:
+			frappe.throw(
+				_("Sheet '{0}' was not found in the uploaded file. Sheets found: {1}").format(
+					PRIVATE_PURCHASE_SHEET, ", ".join(wb.sheetnames)
+				)
+			)
 
-		rows = list(wb[PRIVATE_PURCHASE_SHEET].iter_rows(values_only=True))
+		rows = list(wb[sheet_name].iter_rows(values_only=True))
 		if not rows:
 			frappe.throw(_("The uploaded file has no rows."))
 
