@@ -33,7 +33,8 @@
   "linked_section",
   "item",
   "batch_no",
-  "batch_error"
+  "batch_error",
+  "purchase_order"
  ],
  "fields": [
   {
@@ -193,6 +194,14 @@
    "fieldtype": "Small Text",
    "label": "Batch Error",
    "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "no_copy": 1,
+   "options": "Purchase Order",
    "read_only": 1
   },
   {

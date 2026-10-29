@@ -741,6 +741,7 @@ class BuyingDay(Document):
 					"purchase_status": "Offer",
 					"mark": mark_name,
 					"grade": grade_code,
+					"category": "CTC",
 					"invoice_number": invoice,
 					"season": self.season,
 					"week_no": self.week_no,
@@ -953,6 +954,14 @@ class BuyingDay(Document):
 					error += 1
 					continue
 
+				if cint(sale_no) != cint(self.sale_no):
+					row.row_status = "Error"
+					row.message = _("Sale No {0} on this row does not match Buying Day Sale No {1}.").format(
+						sale_no, self.sale_no
+					)
+					error += 1
+					continue
+
 				if not row.lot_no:
 					row.row_status = "Error"
 					row.message = _("Lot No is missing on this row.")
@@ -973,9 +982,21 @@ class BuyingDay(Document):
 					continue
 
 				grade_code = (row.grade_raw or "").strip()
-				if grade_code and not frappe.db.exists("Grade", grade_code):
+				if not grade_code:
+					row.row_status = "Error"
+					row.message = _("Grade is missing on this row.")
+					error += 1
+					continue
+				if not frappe.db.exists("Grade", grade_code):
 					row.row_status = "Error"
 					row.message = _("Grade '{0}' not found. Please create it first.").format(grade_code)
+					error += 1
+					continue
+
+				category = (row.category_id or "").strip()
+				if not category:
+					row.row_status = "Error"
+					row.message = _("Category is missing on this row.")
 					error += 1
 					continue
 
@@ -1026,8 +1047,8 @@ class BuyingDay(Document):
 					"purchase_status": self.purchase_status,
 					"auction_centre": self.auction_centre,
 					"mark": mark_name,
-					"grade": grade_code or None,
-					"category": (row.category_id or "").strip() or None,
+					"grade": grade_code,
+					"category": category,
 					"lot_no": row.lot_no,
 					"broker": broker_name,
 					"broker_code": broker_code,
@@ -1103,6 +1124,7 @@ class BuyingDay(Document):
 			if row.row_status == "Created":
 				continue
 			try:
+				frappe.db.savepoint("tea_purchase_row")
 				season = row.season or self.season
 				sale_no = row.sale_no or self.sale_no
 
@@ -1157,7 +1179,7 @@ class BuyingDay(Document):
 				computed_name = f"{auction_centre_code}-{season}-{sale_no}-{row.lot_no}"
 				if frappe.db.exists("Tea Purchase", computed_name):
 					row.row_status = "Duplicate"
-					row.message = _("Tea Purchase '{0}' already exists.").format(computed_name)
+					self._fill_row_from_existing_purchase(row, computed_name)
 					duplicate += 1
 					continue
 
@@ -1219,9 +1241,12 @@ class BuyingDay(Document):
 				created += 1
 
 			except Exception as e:
+				# Roll back the Tea Purchase, its Batch/Item and the Tea Lot link together
+				frappe.db.rollback(save_point="tea_purchase_row")
 				row.row_status = "Error"
 				row.message = str(e)[:140]
 				error += 1
+				frappe.clear_last_message()
 				frappe.log_error(frappe.get_traceback(), "Buying Day: create_tea_purchases row failed")
 
 		self.rows_created = sum(1 for item in self.deal_book_items if item.row_status == "Created")
@@ -1230,6 +1255,34 @@ class BuyingDay(Document):
 		self.save()
 
 		return {"created": created, "errors": error, "duplicates": duplicate}
+
+	def _fill_row_from_existing_purchase(self, row, purchase_name):
+		"""A Tea Purchase with this name already exists: copy its Item / Batch / Purchase
+		Order onto the row so "Create PO" can pick the row up if its PO is still missing."""
+		purchase = frappe.db.get_value(
+			"Tea Purchase",
+			purchase_name,
+			["tea_lot", "category", "broker", "warehouse", "item", "batch_no", "purchase_order"],
+			as_dict=True,
+		)
+		row.tea_purchase = purchase_name
+		row.tea_lot = purchase.tea_lot or row.tea_lot
+		if row.meta.has_field("category"):
+			row.category = purchase.category or row.category
+		row.broker = purchase.broker or row.broker
+		row.warehouse = purchase.warehouse or row.warehouse
+		row.item_code = purchase.item or row.item_code
+		row.batch_no = purchase.batch_no or row.batch_no
+		row.purchase_order = purchase.purchase_order or row.purchase_order
+
+		if not purchase.batch_no:
+			row.message = _("Tea Purchase '{0}' already exists, but it has no Batch.").format(purchase_name)
+		elif purchase.purchase_order:
+			row.message = _("Tea Purchase '{0}' already exists (PO {1}).").format(
+				purchase_name, purchase.purchase_order
+			)
+		else:
+			row.message = _("Tea Purchase '{0}' already exists. PO pending.").format(purchase_name)
 
 	def _resolve_warehouse(self, raw):
 		"""Sheet holds the warehouse_name; the record name carries a company suffix."""
@@ -1395,6 +1448,7 @@ class BuyingDay(Document):
 					row.batch_no = row.batch_no or batch_no
 				continue
 			try:
+				frappe.db.savepoint("tea_purchase_row")
 				mark_name = (row.mark_raw or "").strip()
 				invoice = (row.lot_invoice_no or "").strip()
 				grade_code = (row.grade_raw or "").strip()
@@ -1428,7 +1482,7 @@ class BuyingDay(Document):
 					)
 				if frappe.db.exists("Tea Purchase", computed_name):
 					row.row_status = "Duplicate"
-					row.message = _("Tea Purchase '{0}' already exists.").format(computed_name)
+					self._fill_row_from_existing_purchase(row, computed_name)
 					duplicate += 1
 					continue
 
@@ -1493,9 +1547,11 @@ class BuyingDay(Document):
 				created += 1
 
 			except Exception as e:
+				frappe.db.rollback(save_point="tea_purchase_row")
 				row.row_status = "Error"
 				row.message = str(e)[:140]
 				error += 1
+				frappe.clear_last_message()
 				frappe.log_error(
 					frappe.get_traceback(), "Buying Day: create_private_tea_purchases row failed"
 				)
@@ -1562,6 +1618,8 @@ class BuyingDay(Document):
 				po.insert(ignore_permissions=True)
 
 				for r in rows:
+					if r.tea_purchase:
+						frappe.db.set_value("Tea Purchase", r.tea_purchase, "purchase_order", po.name)
 					r.purchase_order = po.name
 					r.message = _("PO {0}").format(po.name)
 				self.append(
@@ -1666,6 +1724,8 @@ class BuyingDay(Document):
 				po.insert(ignore_permissions=True)
 
 				for r in rows:
+					if r.tea_purchase:
+						frappe.db.set_value("Tea Purchase", r.tea_purchase, "purchase_order", po.name)
 					r.purchase_order = po.name
 					r.message = _("PO {0}").format(po.name)
 				self.append(

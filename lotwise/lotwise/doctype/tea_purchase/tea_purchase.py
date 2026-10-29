@@ -31,6 +31,7 @@ class TeaPurchase(Document):
 		mark: DF.Link | None
 		net_weight_total: DF.Float
 		packages: DF.Int
+		purchase_order: DF.Link | None
 		purchase_status: DF.Link | None
 		rate: DF.Currency
 		sale_no: DF.Int
@@ -43,50 +44,23 @@ class TeaPurchase(Document):
 	# end: auto-generated types
 
 	def validate(self):
-		if self.is_new() and self.acquisition_channel != "Auction":
+		# Tea Purchase and its Batch are created together: any problem with the
+		# Batch inputs must stop the Tea Purchase from being saved at all.
+		if self.is_new():
 			self.validate_batch_inputs()
 
 	def after_insert(self):
-		if self.acquisition_channel == "Auction":
-			self.try_create_batch()
-		else:
-			self.create_batch()
-
-	def on_update(self):
-		# Retry once the missing Auction data has been filled in
-		if self.acquisition_channel == "Auction" and not self.batch_no and not self.flags.in_insert:
-			self.try_create_batch()
-
-	def try_create_batch(self):
-		"""Auction: create the Batch only when every part of its ID is present;
-		otherwise record why in `batch_error` and leave the Tea Purchase saved."""
-		error = self.get_batch_blockers()
-		if not error:
-			try:
-				self.create_batch()
-			except Exception as e:
-				error = str(e)[:140]
-		self.db_set("batch_error", error or None)
-
-	def get_batch_blockers(self):
-		missing = [
-			_(self.meta.get_label(fieldname))
-			for fieldname in ("invoice_number", "grade", "category", "mark", "season", "sale_no")
-			if not self.get(fieldname)
-		]
-		if missing:
-			return _("Missing: {0}").format(", ".join(missing))
-
-		batch_id = self.get_batch_id()
-		if frappe.db.exists("Batch", batch_id):
-			return _("Batch {0} already exists.").format(batch_id)
+		self.create_batch()
 
 	def get_batch_id(self):
 		parts = [self.invoice_number, self.grade, self.mark, self.season, self.sale_no, self.lot_no]
 		return "-".join(str(p) for p in parts if p)
 
 	def validate_batch_inputs(self):
-		for fieldname in ("invoice_number", "grade", "category", "mark"):
+		required = ["invoice_number", "grade", "category", "mark", "season"]
+		if self.acquisition_channel == "Auction":
+			required.append("sale_no")
+		for fieldname in required:
 			if not self.get(fieldname):
 				frappe.throw(
 					_("{0} is required to create the Batch.").format(_(self.meta.get_label(fieldname)))
