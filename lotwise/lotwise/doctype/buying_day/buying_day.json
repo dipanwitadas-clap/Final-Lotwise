@@ -187,7 +187,7 @@
   {
    "fieldname": "rows_parsed",
    "fieldtype": "Int",
-   "label": "Rows Parsed",
+   "label": "Rows Read",
    "read_only": 1
   },
   {

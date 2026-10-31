@@ -65,9 +65,9 @@ frappe.ui.form.on("Buying Day", {
 		set_status_options(frm);
 		if (frm.is_new()) return;
 
-		frm.add_custom_button(__("Parse File"), () => {
+		frm.add_custom_button(__("Read File"), () => {
 			if (frm.is_dirty()) {
-				frappe.msgprint(__("Please save the document before parsing."));
+				frappe.msgprint(__("Please save the document before reading the file."));
 				return;
 			}
 
@@ -101,7 +101,7 @@ frappe.ui.form.on("Buying Day", {
 			} else {
 				frappe.msgprint(
 					__(
-						"Set Acquisition Channel to Auction and Status to Catalogue Loaded or Deal Book Loaded before parsing."
+						"Set Acquisition Channel to Auction and Status to Catalogue Loaded or Deal Book Loaded before reading the file."
 					)
 				);
 				return;
@@ -111,12 +111,12 @@ frappe.ui.form.on("Buying Day", {
 				doc: frm.doc,
 				method: method,
 				freeze: true,
-				freeze_message: __("Parsing file…"),
+				freeze_message: __("Reading file…"),
 			}).then((r) => {
 				frm.reload_doc();
 				const rows = (r.message && r.message.rows) || 0;
 				frappe.show_alert({
-					message: __("Parsed {0} rows", [rows]),
+					message: __("Read {0} rows", [rows]),
 					indicator: "blue",
 				});
 			});
