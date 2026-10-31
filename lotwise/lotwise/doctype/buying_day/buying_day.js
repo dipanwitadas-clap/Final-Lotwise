@@ -5,12 +5,13 @@ const COMMON_START = ["Draft"];
 const COMMON_END = ["Ordered", "Received", "Invoiced", "Paid", "Closed"];
 const STATUS_OPTIONS = {
 	Auction: [...COMMON_START, "Catalogue Loaded", "Deal Book Loaded", ...COMMON_END],
-	Private: [
+	PrivateInternal: [
 		...COMMON_START,
 		"Purchase list Loaded",
 		"Offer Sample Evaluation Load",
 		...COMMON_END,
 	],
+	PrivateExternal: [...COMMON_START, "Purchase list Loaded", ...COMMON_END],
 };
 const ALL_STATUS_OPTIONS = [
 	...COMMON_START,
@@ -22,7 +23,11 @@ const ALL_STATUS_OPTIONS = [
 ];
 
 function set_status_options(frm) {
-	const options = STATUS_OPTIONS[frm.doc.acquisition_channel] || ALL_STATUS_OPTIONS;
+	let key = frm.doc.acquisition_channel;
+	if (key === "Private") {
+		key = frm.doc.purchase_type === "External" ? "PrivateExternal" : "PrivateInternal";
+	}
+	const options = STATUS_OPTIONS[key] || ALL_STATUS_OPTIONS;
 	frm.set_df_property("status", "options", options.join("\n"));
 	frm.refresh_field("status");
 }
@@ -30,6 +35,16 @@ function set_status_options(frm) {
 frappe.ui.form.on("Buying Day", {
 	acquisition_channel(frm) {
 		set_status_options(frm);
+	},
+
+	purchase_type(frm) {
+		set_status_options(frm);
+		if (
+			frm.doc.purchase_type === "External" &&
+			frm.doc.status === "Offer Sample Evaluation Load"
+		) {
+			frm.set_value("status", "Purchase list Loaded");
+		}
 	},
 
 	status(frm) {
