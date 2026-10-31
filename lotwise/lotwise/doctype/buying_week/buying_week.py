@@ -22,7 +22,6 @@ class BuyingWeek(Document):
 		auction_centre: DF.Link | None
 		buying_days: DF.Table[BuyingWeekDay]
 		company: DF.Link
-		purchase_type: DF.Literal["", "Internal", "External"]
 		sale_no: DF.Int
 		season: DF.Int
 		week_no: DF.Int
@@ -30,10 +29,26 @@ class BuyingWeek(Document):
 
 	def validate(self):
 		if self.acquisition_channel != "Private":
-			self.purchase_type = None
 			self.week_no = None
 		if self.acquisition_channel != "Auction":
 			self.sale_no = None
+		if self.acquisition_channel == "Private":
+			# Internal and External Buying Days share one Buying Week per season/week
+			duplicate = frappe.db.exists(
+				"Buying Week",
+				{
+					"acquisition_channel": "Private",
+					"season": self.season,
+					"week_no": self.week_no,
+					"name": ("!=", self.name),
+				},
+			)
+			if duplicate:
+				frappe.throw(
+					_("Buying Week {0} already exists for Season {1}, Week {2}.").format(
+						duplicate, self.season, self.week_no
+					)
+				)
 
 	def autoname(self):
 		if self.acquisition_channel == "Auction":

@@ -8,7 +8,6 @@
   "acquisition_channel",
   "auction_centre",
   "sale_no",
-  "purchase_type",
   "week_no",
   "column_break_wtjh",
   "season",
@@ -52,14 +51,6 @@
    "in_list_view": 1,
    "label": "Week No",
    "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'"
-  },
-  {
-   "depends_on": "eval:doc.acquisition_channel=='Private'",
-   "fieldname": "purchase_type",
-   "fieldtype": "Select",
-   "label": "Purchase Type",
-   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'",
-   "options": "\nInternal\nExternal"
   },
   {
    "fieldname": "season",

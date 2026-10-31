@@ -336,9 +336,13 @@ class BuyingDay(Document):
 			if not self.season or not self.week_no:
 				frappe.throw(_("Season and Week No are required to generate the Buying Day name."))
 
-			# BD-{season}-{week_no}-{counter}, e.g. BD-2026-43-00008 (season-wise counter continues)
+			if self.purchase_type not in ("Internal", "External"):
+				frappe.throw(_("Purchase Type is required to generate the Buying Day name."))
+
+			# BD-{INT|EXT}-{season}-{week_no}-{counter}, e.g. BD-INT-2026-45-00015 (season-wise counter continues)
+			type_code = "INT" if self.purchase_type == "Internal" else "EXT"
 			counter = make_autoname(f"BD-{self.season}-.#####").rsplit("-", 1)[1]
-			self.name = f"BD-{self.season}-{self.week_no}-{counter}"
+			self.name = f"BD-{type_code}-{self.season}-{self.week_no}-{counter}"
 		else:
 			# Outsourced naming hasn't been specified yet - fall back to a
 			# safe generic series rather than guessing.

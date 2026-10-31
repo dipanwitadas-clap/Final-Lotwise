@@ -141,15 +141,13 @@
   },
   {
    "depends_on": "eval:doc.acquisition_channel=='Private'",
-   "fetch_from": "buying_week.purchase_type",
    "fieldname": "purchase_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Purchase Type",
    "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'",
-   "options": "\nInternal\nExternal",
-   "read_only": 1
+   "options": "\nInternal\nExternal"
   },
   {
    "fetch_from": "buying_week.season",
