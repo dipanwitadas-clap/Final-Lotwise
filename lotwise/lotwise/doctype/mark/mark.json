@@ -11,6 +11,7 @@
   "section_break_g0yl",
   "mark_name",
   "estate",
+  "supplier",
   "column_break_estate",
   "state",
   "region",
@@ -82,12 +83,18 @@
   {
    "fieldname": "section_break_q5dq",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-19 09:54:31.214606",
+ "modified": "2026-10-31 12:33:44.689542",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Mark",
