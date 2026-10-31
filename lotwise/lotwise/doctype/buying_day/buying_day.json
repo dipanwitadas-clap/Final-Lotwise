@@ -16,8 +16,6 @@
   "col_break_1",
   "company",
   "purchase_status",
-  "week_start",
-  "week_end",
   "col_break_1b",
   "auction_centre",
   "sale_no",
@@ -256,16 +254,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "week_start",
-   "fieldtype": "Date",
-   "label": "Week Start"
-  },
-  {
-   "fieldname": "week_end",
-   "fieldtype": "Date",
-   "label": "Week End"
-  },
-  {
    "fieldname": "day",
    "fieldtype": "Int",
    "label": "Day",
@@ -338,7 +326,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-27 11:49:52.138914",
+ "modified": "2026-10-31 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",

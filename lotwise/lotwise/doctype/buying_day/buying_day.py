@@ -290,9 +290,7 @@ class BuyingDay(Document):
 			"Paid",
 			"Closed",
 		]
-		week_end: DF.Date | None
 		week_no: DF.Int
-		week_start: DF.Date | None
 	# end: auto-generated types
 
 	"""Parse a Deal Book / Auction All Catalog XML export -> items table, and
