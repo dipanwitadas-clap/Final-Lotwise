@@ -118,6 +118,47 @@ frappe.ui.form.on("Buying Day", {
 			);
 		}
 
+		const has_errors = (table) =>
+			(frm.doc[table] || []).some(
+				(r) => r.row_status === "Error" || r.eval_status === "Error"
+			);
+		const po_pending = (table) =>
+			!has_errors(table) &&
+			(frm.doc[table] || []).some((r) => r.batch_no && !r.purchase_order);
+
+		// Once Create PO is available it is the only action button on the form
+		const po_method = {
+			Auction: ["deal_book_items", "create_purchase_orders"],
+			Private: ["private_purchase_list", "create_private_purchase_orders"],
+		}[frm.doc.acquisition_channel];
+		if (po_method && po_pending(po_method[0])) {
+			const confirm_message =
+				frm.doc.acquisition_channel === "Auction"
+					? __("Create Purchase Orders (one per Broker) for rows with a Batch?")
+					: __("Create Purchase Orders (one per Seller + Invoice / Bill Mode)?");
+			frm.add_custom_button(__("Create PO"), () => {
+				if (frm.is_dirty()) {
+					frappe.msgprint(__("Please save the document before creating records."));
+					return;
+				}
+				frappe.confirm(confirm_message, () => {
+					frm.call({
+						doc: frm.doc,
+						method: po_method[1],
+						freeze: true,
+						freeze_message: __("Creating Purchase Orders…"),
+					}).then((r) => {
+						frm.reload_doc();
+						const m = r.message || {};
+						frappe.msgprint(
+							__("Created: {0}  ·  Errors: {1}", [m.created || 0, m.errors || 0])
+						);
+					});
+				});
+			}).addClass("btn-primary");
+			return;
+		}
+
 		const deal_book_blocked = catalogue_errors && frm.doc.status !== "Catalogue Loaded";
 		frm.add_custom_button(__("Read File"), () => {
 			if (deal_book_blocked) {
@@ -287,71 +328,6 @@ frappe.ui.form.on("Buying Day", {
 					"btn-primary"
 				);
 			}
-		}
-
-		const has_errors = (table) =>
-			(frm.doc[table] || []).some(
-				(r) => r.row_status === "Error" || r.eval_status === "Error"
-			);
-
-		if (
-			frm.doc.acquisition_channel === "Auction" &&
-			!has_errors("deal_book_items") &&
-			(frm.doc.deal_book_items || []).some((r) => r.batch_no && !r.purchase_order)
-		) {
-			frm.add_custom_button(__("Create PO"), () => {
-				if (frm.is_dirty()) {
-					frappe.msgprint(__("Please save the document before creating records."));
-					return;
-				}
-				frappe.confirm(
-					__("Create Purchase Orders (one per Broker) for rows with a Batch?"),
-					() => {
-						frm.call({
-							doc: frm.doc,
-							method: "create_purchase_orders",
-							freeze: true,
-							freeze_message: __("Creating Purchase Orders…"),
-						}).then((r) => {
-							frm.reload_doc();
-							const m = r.message || {};
-							frappe.msgprint(
-								__("Created: {0}  ·  Errors: {1}", [m.created || 0, m.errors || 0])
-							);
-						});
-					}
-				);
-			}).addClass("btn-primary");
-		}
-
-		if (
-			frm.doc.acquisition_channel === "Private" &&
-			!has_errors("private_purchase_list") &&
-			(frm.doc.private_purchase_list || []).some((r) => r.batch_no && !r.purchase_order)
-		) {
-			frm.add_custom_button(__("Create PO"), () => {
-				if (frm.is_dirty()) {
-					frappe.msgprint(__("Please save the document before creating records."));
-					return;
-				}
-				frappe.confirm(
-					__("Create Purchase Orders (one per Seller + Invoice / Bill Mode)?"),
-					() => {
-						frm.call({
-							doc: frm.doc,
-							method: "create_private_purchase_orders",
-							freeze: true,
-							freeze_message: __("Creating Purchase Orders…"),
-						}).then((r) => {
-							frm.reload_doc();
-							const m = r.message || {};
-							frappe.msgprint(
-								__("Created: {0}  ·  Errors: {1}", [m.created || 0, m.errors || 0])
-							);
-						});
-					}
-				);
-			}).addClass("btn-primary");
 		}
 
 		// Export Errors dropdown - one option per child table that has Error rows
