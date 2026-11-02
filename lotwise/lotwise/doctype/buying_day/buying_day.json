@@ -82,7 +82,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Draft\nCatalogue Loaded\nDeal Book Loaded\nPurchase list Loaded\nOffer Sample Evaluation Load\nOrdered\nReceived\nInvoiced\nPaid\nClosed",
+   "options": "Draft\nCatalogue Loaded\nDeal Book Loaded\nOffer Sample Evaluation Load\nPurchase list Loaded\nOrdered\nReceived\nInvoiced\nPaid\nClosed",
    "reqd": 1
   },
   {
@@ -305,13 +305,13 @@
   },
   {
    "collapsible": 1,
-   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
    "fieldname": "offer_sample_evaluation_section",
    "fieldtype": "Tab Break",
    "label": "Offer Sample Evaluation"
   },
   {
-   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
    "fieldname": "offer_sample_evaluation",
    "fieldtype": "Table",
    "label": "Offer Sample Evaluation",
@@ -331,7 +331,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-11-02 11:09:33.919099",
+ "modified": "2026-11-02 12:24:36.258716",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",

@@ -7,8 +7,8 @@ const STATUS_OPTIONS = {
 	Auction: [...COMMON_START, "Catalogue Loaded", "Deal Book Loaded", ...COMMON_END],
 	PrivateInternal: [
 		...COMMON_START,
-		"Purchase list Loaded",
 		"Offer Sample Evaluation Load",
+		"Purchase list Loaded",
 		...COMMON_END,
 	],
 	PrivateExternal: [...COMMON_START, "Purchase list Loaded", ...COMMON_END],
@@ -17,10 +17,23 @@ const ALL_STATUS_OPTIONS = [
 	...COMMON_START,
 	"Catalogue Loaded",
 	"Deal Book Loaded",
-	"Purchase list Loaded",
 	"Offer Sample Evaluation Load",
+	"Purchase list Loaded",
 	...COMMON_END,
 ];
+
+function catalogue_error_count(frm) {
+	if (frm.doc.acquisition_channel !== "Auction") return 0;
+	return (frm.doc.items || []).filter((r) => r.row_status === "Error").length;
+}
+
+function offer_sample_error_count(frm) {
+	if (frm.doc.acquisition_channel !== "Private" || frm.doc.purchase_type !== "Internal")
+		return 0;
+	return (frm.doc.offer_sample_evaluation || []).filter(
+		(r) => r.row_status === "Error" || r.eval_status === "Error"
+	).length;
+}
 
 function set_status_options(frm) {
 	let key = frm.doc.acquisition_channel;
@@ -48,6 +61,24 @@ frappe.ui.form.on("Buying Day", {
 	},
 
 	status(frm) {
+		if (frm.doc.status === "Deal Book Loaded" && catalogue_error_count(frm)) {
+			frappe.msgprint(
+				__(
+					"Auction Catalogue Items has Error rows. Fix them before moving to Deal Book Loaded."
+				)
+			);
+			frm.set_value("status", "Catalogue Loaded");
+			return;
+		}
+		if (frm.doc.status === "Purchase list Loaded" && offer_sample_error_count(frm)) {
+			frappe.msgprint(
+				__(
+					"Offer Sample Evaluation has Error rows. Fix them before moving to Purchase list Loaded."
+				)
+			);
+			frm.set_value("status", "Offer Sample Evaluation Load");
+			return;
+		}
 		const purchase_status_map = {
 			Draft: "Offer",
 			"Catalogue Loaded": "Offer",
@@ -65,7 +96,34 @@ frappe.ui.form.on("Buying Day", {
 		set_status_options(frm);
 		if (frm.is_new()) return;
 
+		const catalogue_errors = catalogue_error_count(frm);
+		if (catalogue_errors) {
+			frm.dashboard.set_headline_alert(
+				__(
+					"{0} Error row(s) in Auction Catalogue Items. Fix them and run Create Tea Lot again; Deal Book steps are locked.",
+					[catalogue_errors]
+				),
+				"red"
+			);
+		}
+
+		const offer_sample_errors = offer_sample_error_count(frm);
+		if (offer_sample_errors) {
+			frm.dashboard.set_headline_alert(
+				__(
+					"{0} Error row(s) in Offer Sample Evaluation. Fix them and run Create Tea Lot again; Purchase list Loaded is locked.",
+					[offer_sample_errors]
+				),
+				"red"
+			);
+		}
+
+		const deal_book_blocked = catalogue_errors && frm.doc.status !== "Catalogue Loaded";
 		frm.add_custom_button(__("Read File"), () => {
+			if (deal_book_blocked) {
+				frappe.msgprint(__("Fix the Error rows in Auction Catalogue Items first."));
+				return;
+			}
 			if (frm.is_dirty()) {
 				frappe.msgprint(__("Please save the document before reading the file."));
 				return;
@@ -166,44 +224,19 @@ frappe.ui.form.on("Buying Day", {
 			frm.doc.status === "Offer Sample Evaluation Load" &&
 			(frm.doc.offer_sample_evaluation || []).length > 0
 		) {
-			const offer_group = __("Offer Sample Evaluation");
-			frm.add_custom_button(
-				__("Create Tea Lots"),
-				() =>
-					run_create(
-						"create_tea_lots_from_offer_samples",
-						__("Create Tea Lots for all Offer Sample rows?"),
-						__("Creating Tea Lots…")
-					),
-				offer_group
-			);
-
-			if (frm.doc.offer_sample_evaluation.some((r) => r.tea_lot)) {
-				frm.add_custom_button(
-					__("Tea Evaluation"),
-					() =>
-						run_create(
-							"create_tea_evaluations_from_offer_samples",
-							__(
-								"Create Tea Evaluations for all Offer Sample rows that have a Tea Lot?"
-							),
-							__("Creating Tea Evaluations…")
-						),
-					offer_group
-				);
-			}
-
-			frm.page.inner_toolbar
-				.find(
-					`.inner-group-button[data-label="${encodeURIComponent(offer_group)}"] > button`
+			frm.add_custom_button(__("Offer Sample Evaluation"), () =>
+				run_create(
+					"create_tea_lots_and_evaluations_from_offer_samples",
+					__("Create Tea Lots and Tea Evaluations for all Offer Sample rows?"),
+					__("Creating Tea Lots & Evaluations…")
 				)
-				.removeClass("btn-default")
-				.addClass("btn-primary");
+			).addClass("btn-primary");
 		}
 
 		if (
 			frm.doc.acquisition_channel === "Auction" &&
 			frm.doc.status === "Deal Book Loaded" &&
+			!catalogue_errors &&
 			(frm.doc.deal_book_items || []).length > 0
 		) {
 			frm.add_custom_button(__("Create Tea Purchase"), () =>
@@ -228,7 +261,7 @@ frappe.ui.form.on("Buying Day", {
 				);
 
 			if (frm.doc.purchase_type === "External") {
-				const group = __("Private Purchase");
+				const group = __("External Private Purchase");
 				frm.add_custom_button(
 					__("Create Tea Lot"),
 					() =>
@@ -239,7 +272,8 @@ frappe.ui.form.on("Buying Day", {
 						),
 					group
 				);
-				if (frm.doc.private_purchase_list.some((r) => r.tea_lot)) {
+				const rows = frm.doc.private_purchase_list;
+				if (rows.some((r) => r.tea_lot) && !rows.some((r) => r.row_status === "Error")) {
 					frm.add_custom_button(__("Create Tea Purchase"), create_purchase, group);
 				}
 				frm.page.inner_toolbar

@@ -503,3 +503,86 @@ class TestBuyingDayCreateTeaPurchases(FrappeTestCase):
 		# Bidirectional: the Tea Lot's own tea_purchase field points back
 		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "tea_purchase"), row1.tea_purchase)
 		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "purchase_status"), "Test Purchased TPU")
+
+
+class TestOfferSampleLotAndEvaluation(FrappeTestCase):
+	"""create_tea_lots_and_evaluations_from_offer_samples: a Tea Evaluation failure
+	must roll back the row's Tea Lot. DB calls are mocked."""
+
+	def _run(self, evaluation_error=None):
+		from unittest import mock
+
+		doc = frappe.new_doc("Buying Day")
+		doc.acquisition_channel = "Private"
+		doc.purchase_type = "Internal"
+		doc.status = "Offer Sample Evaluation Load"
+		doc.season = "2026"
+		doc.week_no = "45"
+		doc.append(
+			"offer_sample_evaluation",
+			{
+				"garden": "MK",
+				"invoice_no": "INV1",
+				"grade": "BP",
+				"qty": "10",
+				"pckgs": "5",
+				"taster": "T1",
+				"c": "1",
+				"t": "1",
+				"s": "1",
+				"b": "1",
+			},
+		)
+
+		real_get_doc = frappe.get_doc
+		inserted = []
+
+		def fake_get_doc(values, *a, **k):
+			if isinstance(values, dict) and values.get("doctype") in ("Tea Lot", "Tea Evaluation"):
+				m = mock.MagicMock()
+				m.name = values["doctype"] + "-1"
+
+				def insert(**kw):
+					if values["doctype"] == "Tea Evaluation" and evaluation_error:
+						raise frappe.ValidationError(evaluation_error)
+					inserted.append(values["doctype"])
+
+				m.insert.side_effect = insert
+				return m
+			return real_get_doc(values, *a, **k)
+
+		def fake_exists(doctype, name=None):
+			# masters exist; the lot / evaluation do not yet
+			return doctype not in ("Tea Lot", "Tea Evaluation")
+
+		with (
+			mock.patch.object(frappe.db, "exists", side_effect=fake_exists),
+			mock.patch.object(frappe.db, "get_value", return_value=None),
+			mock.patch.object(frappe.db, "savepoint"),
+			mock.patch.object(frappe.db, "rollback") as rollback,
+			mock.patch.object(frappe, "get_doc", side_effect=fake_get_doc),
+			mock.patch.object(frappe, "log_error"),
+			mock.patch.object(frappe, "get_meta", return_value=mock.MagicMock(has_field=lambda f: True)),
+			mock.patch.object(type(doc), "save"),
+			mock.patch(
+				"lotwise.lotwise.doctype.tea_lot.tea_lot.get_private_tea_lot_name",
+				return_value="LOT-1",
+			),
+		):
+			result = doc.create_tea_lots_and_evaluations_from_offer_samples()
+		return doc.offer_sample_evaluation[0], result, rollback, inserted
+
+	def test_evaluation_failure_rolls_back_tea_lot(self):
+		row, result, rollback, _inserted = self._run(evaluation_error="boom")
+		rollback.assert_called_once_with(save_point="offer_sample_row")
+		self.assertEqual(result["errors"], 1)
+		self.assertEqual(row.row_status, "Error")
+		self.assertFalse(row.tea_lot)
+		self.assertIn("Tea Lot not created", row.message)
+
+	def test_both_created_without_rollback(self):
+		row, result, rollback, inserted = self._run()
+		rollback.assert_not_called()
+		self.assertEqual(inserted, ["Tea Lot", "Tea Evaluation"])
+		self.assertEqual(result["created"], 1)
+		self.assertEqual((row.row_status, row.eval_status), ("Created", "Created"))
