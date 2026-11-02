@@ -64,14 +64,16 @@
    "description": "Upload the Auction Catalogue (.xlsx file)",
    "fieldname": "catalogue_file",
    "fieldtype": "Attach",
-   "label": "Auction Catalogue File"
+   "label": "Auction Catalogue File",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction' && doc.status=='Catalogue Loaded'"
   },
   {
    "depends_on": "eval:doc.acquisition_channel=='Auction' && doc.status=='Deal Book Loaded'",
    "description": "Upload the Deal Book (.xlsx file)",
    "fieldname": "deal_book_file",
    "fieldtype": "Attach",
-   "label": "Deal Book File"
+   "label": "Deal Book File",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction' && doc.status=='Deal Book Loaded'"
   },
   {
    "default": "Draft",
@@ -109,7 +111,8 @@
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
-   "options": "Company"
+   "options": "Company",
+   "reqd": 1
   },
   {
    "fieldname": "col_break_1b",
@@ -289,14 +292,16 @@
    "description": "Upload the Private Purchase list File (.xlsx)",
    "fieldname": "purchase_list_file",
    "fieldtype": "Attach",
-   "label": "Private Purchase List File"
+   "label": "Private Purchase List File",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private' && doc.status=='Purchase list Loaded'"
   },
   {
    "depends_on": "eval:doc.acquisition_channel=='Private' && doc.status=='Offer Sample Evaluation Load'",
    "description": "Upload the Offer Sample Evaluation File (.xlsx)",
    "fieldname": "offer_sample_evaluation_file",
    "fieldtype": "Attach",
-   "label": "Offer Sample Evaluation File"
+   "label": "Offer Sample Evaluation File",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private' && doc.status=='Offer Sample Evaluation Load'"
   },
   {
    "collapsible": 1,
@@ -326,7 +331,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-10-31 12:00:00.000000",
+ "modified": "2026-11-02 11:09:33.919099",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",

@@ -255,8 +255,14 @@ frappe.ui.form.on("Buying Day", {
 			}
 		}
 
+		const has_errors = (table) =>
+			(frm.doc[table] || []).some(
+				(r) => r.row_status === "Error" || r.eval_status === "Error"
+			);
+
 		if (
 			frm.doc.acquisition_channel === "Auction" &&
+			!has_errors("deal_book_items") &&
 			(frm.doc.deal_book_items || []).some((r) => r.batch_no && !r.purchase_order)
 		) {
 			frm.add_custom_button(__("Create PO"), () => {
@@ -286,6 +292,7 @@ frappe.ui.form.on("Buying Day", {
 
 		if (
 			frm.doc.acquisition_channel === "Private" &&
+			!has_errors("private_purchase_list") &&
 			(frm.doc.private_purchase_list || []).some((r) => r.batch_no && !r.purchase_order)
 		) {
 			frm.add_custom_button(__("Create PO"), () => {
@@ -314,10 +321,6 @@ frappe.ui.form.on("Buying Day", {
 		}
 
 		// Export Errors dropdown - one option per child table that has Error rows
-		const has_errors = (table) =>
-			(frm.doc[table] || []).some(
-				(r) => r.row_status === "Error" || r.eval_status === "Error"
-			);
 		const export_options = [
 			["items", __("Auction Catalogue Items Errors")],
 			["deal_book_items", __("Deal Book Items Errors")],

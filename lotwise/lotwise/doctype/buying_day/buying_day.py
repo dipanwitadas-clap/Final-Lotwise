@@ -257,7 +257,7 @@ class BuyingDay(Document):
 		auction_centre: DF.Link | None
 		buying_week: DF.Link | None
 		catalogue_file: DF.Attach | None
-		company: DF.Link | None
+		company: DF.Link
 		computed_total_net_weight: DF.Float
 		computed_total_packages: DF.Int
 		day: DF.Int
