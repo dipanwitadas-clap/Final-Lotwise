@@ -686,7 +686,6 @@ class BuyingDay(Document):
 			{
 				"broker_short_name": broker_code,
 				"auction_centre": self.auction_centre,
-				"acquisition_channel": "Auction",
 			},
 			"name",
 		)
