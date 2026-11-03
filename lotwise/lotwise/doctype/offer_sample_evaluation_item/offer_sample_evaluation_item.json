@@ -13,7 +13,6 @@
   "grade",
   "qty",
   "pckgs",
-  "broker_direct",
   "taster",
   "c",
   "t",
@@ -72,11 +71,6 @@
    "fieldname": "pckgs",
    "fieldtype": "Data",
    "label": "Pckgs"
-  },
-  {
-   "fieldname": "broker_direct",
-   "fieldtype": "Data",
-   "label": "Broker/Direct from Garden"
   },
   {
    "fieldname": "taster",

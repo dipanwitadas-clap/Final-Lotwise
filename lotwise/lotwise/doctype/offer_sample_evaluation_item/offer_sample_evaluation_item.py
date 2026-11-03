@@ -14,7 +14,6 @@ class OfferSampleEvaluationItem(Document):
 		from frappe.types import DF
 
 		b: DF.Data | None
-		broker_direct: DF.Data | None
 		c: DF.Data | None
 		date: DF.Date | None
 		eval_message: DF.SmallText | None

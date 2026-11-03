@@ -137,7 +137,6 @@ HEADER_TO_FIELD_OFFER_SAMPLE = {
 	"grade": {"field": "grade", "type": "str"},
 	"qty": {"field": "qty", "type": "str"},
 	"pckgs": {"field": "pckgs", "type": "str"},
-	"broker/direct from garden": {"field": "broker_direct", "type": "str"},
 	"taster": {"field": "taster", "type": "str"},
 	"c": {"field": "c", "type": "str"},
 	"t": {"field": "t", "type": "str"},
@@ -722,24 +721,12 @@ class BuyingDay(Document):
 			except ValueError:
 				frappe.throw(_("Qty / Pckgs must be numbers."))
 
-			broker_text = (row.broker_direct or "").strip()
-			broker = None
-			if broker_text and broker_text.upper() != "DIRECT":
-				broker = frappe.db.get_value(
-					"Broker",
-					{"broker_name": broker_text, "acquisition_channel": "Private"},
-					"name",
-				)
-				if not broker:
-					frappe.throw(_("Private Broker '{0}' not found.").format(broker_text))
-
 			p.update(
 				mark=mark_name,
 				invoice=invoice,
 				grade=grade_code,
 				net_wt=net_wt,
 				packages=packages,
-				broker=broker,
 			)
 
 		taster = (row.taster or "").strip()
@@ -838,7 +825,6 @@ class BuyingDay(Document):
 							"net_wtpkg": p["net_wt"],
 							"net_weight_total": p["net_wt"] * p["packages"],
 							"offer_date": row.date,
-							"broker": p["broker"],
 							"purchase_type": self.purchase_type,
 							"region": (row.region or "").strip() or None,
 							"source_doctype": self.doctype,
@@ -1031,14 +1017,12 @@ class BuyingDay(Document):
 					error += 1
 					continue
 
-				warehouse = frappe.db.exists("Warehouse", warehouse_raw) or frappe.db.get_value(
-					"Warehouse", {"warehouse_name": warehouse_raw}, "name"
-				)
+				warehouse = self._resolve_warehouse(warehouse_raw)
 				if not warehouse:
 					row.row_status = "Error"
-					row.message = _("Warehouse '{0}' not found. Please create it first.").format(
-						warehouse_raw
-					)
+					row.message = _(
+						"Warehouse '{0}' not found for company '{1}'. Please create it first."
+					).format(warehouse_raw, self.company or "")
 					error += 1
 					continue
 
@@ -1207,9 +1191,17 @@ class BuyingDay(Document):
 					continue
 
 				matched_tea_lot = computed_name
-				warehouse, category = frappe.db.get_value(
+				lot_warehouse, category = frappe.db.get_value(
 					"Tea Lot", matched_tea_lot, ["warehouse", "category"]
 				)
+				warehouse = self._warehouse_for_company(lot_warehouse)
+				if lot_warehouse and not warehouse:
+					row.row_status = "Error"
+					row.message = _(
+						"Warehouse '{0}' of Tea Lot '{1}' does not belong to company '{2}' and no matching warehouse was found."
+					).format(lot_warehouse, matched_tea_lot, self.company)
+					error += 1
+					continue
 
 				values = {
 					"doctype": "Tea Purchase",
@@ -1305,7 +1297,28 @@ class BuyingDay(Document):
 		filters = {"warehouse_name": raw}
 		if self.company:
 			filters["company"] = self.company
-		return frappe.db.get_value("Warehouse", filters, "name") or frappe.db.exists("Warehouse", raw)
+		warehouse = frappe.db.get_value("Warehouse", filters, "name")
+		if warehouse:
+			return warehouse
+		# Full record name is fine too, but never from another company.
+		full_name = frappe.db.get_value("Warehouse", raw, ["name", "company"], as_dict=True)
+		if full_name and (not self.company or full_name.company == self.company):
+			return full_name.name
+		return None
+
+	def _warehouse_for_company(self, warehouse):
+		"""Return `warehouse` if it belongs to this day's company; otherwise the
+		same-named warehouse of this company, or None."""
+		if not warehouse or not self.company:
+			return warehouse
+		wh = frappe.db.get_value("Warehouse", warehouse, ["company", "warehouse_name"], as_dict=True)
+		if not wh:
+			return None
+		if wh.company == self.company:
+			return warehouse
+		return frappe.db.get_value(
+			"Warehouse", {"warehouse_name": wh.warehouse_name, "company": self.company}, "name"
+		)
 
 	@frappe.whitelist()
 	def create_tea_lots_from_private_purchase_list(self):
@@ -1400,7 +1413,6 @@ class BuyingDay(Document):
 					"net_weight_total": flt(row.net_kg),
 					"rate": flt(row.rate_per_kg),
 					"warehouse": warehouse,
-					"broker": row.broker,
 					"source_doctype": self.doctype,
 					"source_doctype_id": self.name,
 				}
@@ -1539,7 +1551,6 @@ class BuyingDay(Document):
 					"week_no": self.week_no,
 					"tea_lot": computed_name,
 					"warehouse": warehouse,
-					"broker": row.broker,
 					"source_doctype": self.doctype,
 					"source_doctype_id": self.name,
 				}
@@ -1610,6 +1621,16 @@ class BuyingDay(Document):
 					raise frappe.ValidationError(_("Broker '{0}' has no Supplier.").format(broker))
 
 				deal_date = self._deal_date(rows[0].deal_time)
+
+				for r in rows:
+					fixed_warehouse = self._warehouse_for_company(r.warehouse)
+					if r.warehouse and not fixed_warehouse:
+						frappe.throw(
+							_("Warehouse '{0}' (Tea Lot {1}) does not belong to company '{2}'.").format(
+								r.warehouse, r.tea_lot, self.company
+							)
+						)
+					r.warehouse = fixed_warehouse
 
 				po = frappe.get_doc(
 					{
