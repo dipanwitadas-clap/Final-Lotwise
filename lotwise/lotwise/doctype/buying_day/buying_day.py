@@ -1705,10 +1705,6 @@ class BuyingDay(Document):
 					mark_name = (r.mark_raw or "").strip()
 					if not mark_name or not frappe.db.exists("Mark", mark_name):
 						raise frappe.ValidationError(_("Mark '{0}' not found.").format(mark_name))
-					if frappe.db.get_value("Mark", mark_name, "supplier") != supplier:
-						raise frappe.ValidationError(
-							_("Supplier '{0}' is not set in Mark '{1}'.").format(supplier, mark_name)
-						)
 
 				list_date = rows[0].list_date or nowdate()
 
