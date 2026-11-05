@@ -6,21 +6,23 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "lot_section",
   "lot_no",
   "mark_raw",
   "grade_raw",
   "packages",
   "invoice_number",
+  "col_basic_2",
   "broker_code",
   "tea_type",
   "base_price",
   "auction_valuation",
+  "col_break_source",
   "gross_weight",
   "net_weight",
   "sample_qty",
   "season",
   "sale_no",
-  "col_break_source",
   "source_row_type",
   "auction_catalog_section",
   "auction_date",
@@ -42,6 +44,7 @@
   "col_break_status",
   "row_status",
   "message",
+  "col_status_2",
   "tea_lot",
   "tea_purchase"
  ],
@@ -232,7 +235,8 @@
   },
   {
    "fieldname": "col_break_status",
-   "fieldtype": "Column Break"
+   "fieldtype": "Section Break",
+   "label": "Status & References"
   },
   {
    "columns": 1,
@@ -270,6 +274,19 @@
    "label": "Tea Purchase",
    "options": "Tea Purchase",
    "read_only": 1
+  },
+  {
+   "fieldname": "lot_section",
+   "fieldtype": "Section Break",
+   "label": "Lot Details"
+  },
+  {
+   "fieldname": "col_basic_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_status_2",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,

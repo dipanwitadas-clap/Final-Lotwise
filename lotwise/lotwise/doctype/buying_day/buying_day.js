@@ -44,6 +44,11 @@ function offer_sample_all_done(frm) {
 	);
 }
 
+function catalogue_all_done(frm) {
+	const rows = frm.doc.items || [];
+	return rows.length > 0 && rows.every((r) => ["Created", "Duplicate"].includes(r.row_status));
+}
+
 function set_status_options(frm) {
 	let key = frm.doc.acquisition_channel;
 	if (key === "Private") {
@@ -176,7 +181,11 @@ frappe.ui.form.on("Buying Day", {
 		const after_order = ["Ordered", "Received", "Invoiced", "Paid", "Closed"].includes(
 			frm.doc.status
 		);
-		if (!os_done && !after_order)
+		const cat_done =
+			frm.doc.acquisition_channel === "Auction" &&
+			frm.doc.status === "Catalogue Loaded" &&
+			catalogue_all_done(frm);
+		if (!os_done && !cat_done && !after_order)
 			frm.add_custom_button(__("Read File"), () => {
 				if (deal_book_blocked) {
 					frappe.msgprint(__("Fix the Error rows in Auction Catalogue Items first."));
@@ -268,6 +277,7 @@ frappe.ui.form.on("Buying Day", {
 		if (
 			frm.doc.acquisition_channel === "Auction" &&
 			frm.doc.status === "Catalogue Loaded" &&
+			!cat_done &&
 			(frm.doc.items || []).length > 0
 		) {
 			frm.add_custom_button(__("Create Tea Lot"), () =>
