@@ -173,7 +173,10 @@ frappe.ui.form.on("Buying Day", {
 			frm.doc.acquisition_channel === "Private" &&
 			frm.doc.status === "Offer Sample Evaluation Load" &&
 			offer_sample_all_done(frm);
-		if (!os_done)
+		const after_order = ["Ordered", "Received", "Invoiced", "Paid", "Closed"].includes(
+			frm.doc.status
+		);
+		if (!os_done && !after_order)
 			frm.add_custom_button(__("Read File"), () => {
 				if (deal_book_blocked) {
 					frappe.msgprint(__("Fix the Error rows in Auction Catalogue Items first."));

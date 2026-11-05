@@ -5,37 +5,54 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "list_section",
   "list_no",
   "list_date",
   "broker",
+  "col_list_2",
   "seller",
   "seller_gstin",
+  "col_list_3",
   "tax_invoice_no",
   "tax_invoice_date",
+  "delivery_section",
   "warehouse",
   "delivery",
+  "col_delivery_2",
   "transporter",
   "bilty_lr_no",
+  "lot_section",
   "lot_invoice_no",
   "mark_raw",
   "grade_raw",
+  "col_lot_2",
   "packages",
   "net_kg_per_package",
   "short_packages",
+  "col_lot_3",
   "kg_short_per_package",
   "net_kg",
+  "pricing_section",
   "rate_per_kg",
   "value",
+  "col_pricing_2",
   "brokerage_percent",
   "brokerage",
+  "col_pricing_3",
   "bill_mode",
+  "quality_section",
   "overall_rating",
+  "col_quality_2",
   "density",
+  "col_quality_3",
   "for_blend",
+  "status_section",
   "row_status",
   "message",
+  "col_status_2",
   "tea_lot",
   "tea_purchase",
+  "col_status_3",
   "item_code",
   "batch_no",
   "purchase_order"
@@ -242,6 +259,80 @@
    "label": "Purchase Order",
    "options": "Purchase Order",
    "read_only": 1
+  },
+  {
+   "fieldname": "list_section",
+   "fieldtype": "Section Break",
+   "label": "List Details"
+  },
+  {
+   "fieldname": "col_list_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_list_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "delivery_section",
+   "fieldtype": "Section Break",
+   "label": "Delivery"
+  },
+  {
+   "fieldname": "col_delivery_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lot_section",
+   "fieldtype": "Section Break",
+   "label": "Lot Details"
+  },
+  {
+   "fieldname": "col_lot_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_lot_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pricing_section",
+   "fieldtype": "Section Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "col_pricing_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_pricing_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quality_section",
+   "fieldtype": "Section Break",
+   "label": "Quality"
+  },
+  {
+   "fieldname": "col_quality_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_quality_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status & References"
+  },
+  {
+   "fieldname": "col_status_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_status_3",
+   "fieldtype": "Column Break"
   }
  ],
  "istable": 1,
