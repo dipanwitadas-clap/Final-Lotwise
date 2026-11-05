@@ -8,6 +8,7 @@
   "buying_week",
   "source_section",
   "acquisition_channel",
+  "purchase_type",
   "status",
   "catalogue_file",
   "deal_book_file",
@@ -19,7 +20,6 @@
   "col_break_1b",
   "auction_centre",
   "sale_no",
-  "purchase_type",
   "week_no",
   "season",
   "day",
@@ -331,7 +331,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-11-02 12:24:36.258716",
+ "modified": "2026-11-05 11:23:22.433093",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",
