@@ -35,6 +35,15 @@ function offer_sample_error_count(frm) {
 	).length;
 }
 
+function offer_sample_all_done(frm) {
+	const rows = frm.doc.offer_sample_evaluation || [];
+	const ok = ["Created", "Duplicate"];
+	return (
+		rows.length > 0 &&
+		rows.every((r) => ok.includes(r.row_status) && ok.includes(r.eval_status))
+	);
+}
+
 function set_status_options(frm) {
 	let key = frm.doc.acquisition_channel;
 	if (key === "Private") {
@@ -160,66 +169,73 @@ frappe.ui.form.on("Buying Day", {
 		}
 
 		const deal_book_blocked = catalogue_errors && frm.doc.status !== "Catalogue Loaded";
-		frm.add_custom_button(__("Read File"), () => {
-			if (deal_book_blocked) {
-				frappe.msgprint(__("Fix the Error rows in Auction Catalogue Items first."));
-				return;
-			}
-			if (frm.is_dirty()) {
-				frappe.msgprint(__("Please save the document before reading the file."));
-				return;
-			}
-
-			let method;
-			if (frm.doc.acquisition_channel === "Private") {
-				if (frm.doc.status === "Offer Sample Evaluation Load") {
-					if (!frm.doc.offer_sample_evaluation_file) {
-						frappe.msgprint(
-							__("Please attach the Offer Sample Evaluation File first.")
-						);
-						return;
-					}
-					method = "parse_offer_sample_evaluation";
-				} else {
-					if (!frm.doc.purchase_list_file) {
-						frappe.msgprint(__("Please attach the Private Purchase List File first."));
-						return;
-					}
-					method = "parse_private_purchase_list";
+		const os_done =
+			frm.doc.acquisition_channel === "Private" &&
+			frm.doc.status === "Offer Sample Evaluation Load" &&
+			offer_sample_all_done(frm);
+		if (!os_done)
+			frm.add_custom_button(__("Read File"), () => {
+				if (deal_book_blocked) {
+					frappe.msgprint(__("Fix the Error rows in Auction Catalogue Items first."));
+					return;
 				}
-			} else if (
-				frm.doc.acquisition_channel === "Auction" &&
-				frm.doc.status === "Catalogue Loaded"
-			) {
-				method = "parse_auction_catalog";
-			} else if (
-				frm.doc.acquisition_channel === "Auction" &&
-				frm.doc.status === "Deal Book Loaded"
-			) {
-				method = "parse_deal_book";
-			} else {
-				frappe.msgprint(
-					__(
-						"Set Acquisition Channel to Auction and Status to Catalogue Loaded or Deal Book Loaded before reading the file."
-					)
-				);
-				return;
-			}
+				if (frm.is_dirty()) {
+					frappe.msgprint(__("Please save the document before reading the file."));
+					return;
+				}
 
-			frm.call({
-				doc: frm.doc,
-				method: method,
-				freeze: true,
-				freeze_message: __("Reading file…"),
-			}).then((r) => {
-				frm.reload_doc();
-				const rows = (r.message && r.message.rows) || 0;
-				frappe.show_alert({
-					message: __("Read {0} rows", [rows]),
-					indicator: "blue",
+				let method;
+				if (frm.doc.acquisition_channel === "Private") {
+					if (frm.doc.status === "Offer Sample Evaluation Load") {
+						if (!frm.doc.offer_sample_evaluation_file) {
+							frappe.msgprint(
+								__("Please attach the Offer Sample Evaluation File first.")
+							);
+							return;
+						}
+						method = "parse_offer_sample_evaluation";
+					} else {
+						if (!frm.doc.purchase_list_file) {
+							frappe.msgprint(
+								__("Please attach the Private Purchase List File first.")
+							);
+							return;
+						}
+						method = "parse_private_purchase_list";
+					}
+				} else if (
+					frm.doc.acquisition_channel === "Auction" &&
+					frm.doc.status === "Catalogue Loaded"
+				) {
+					method = "parse_auction_catalog";
+				} else if (
+					frm.doc.acquisition_channel === "Auction" &&
+					frm.doc.status === "Deal Book Loaded"
+				) {
+					method = "parse_deal_book";
+				} else {
+					frappe.msgprint(
+						__(
+							"Set Acquisition Channel to Auction and Status to Catalogue Loaded or Deal Book Loaded before reading the file."
+						)
+					);
+					return;
+				}
+
+				frm.call({
+					doc: frm.doc,
+					method: method,
+					freeze: true,
+					freeze_message: __("Reading file…"),
+				}).then((r) => {
+					frm.reload_doc();
+					const rows = (r.message && r.message.rows) || 0;
+					frappe.show_alert({
+						message: __("Read {0} rows", [rows]),
+						indicator: "blue",
+					});
 				});
 			});
-		});
 
 		const run_create = (method, confirm_message, freeze_message) => {
 			if (frm.is_dirty()) {
@@ -263,6 +279,7 @@ frappe.ui.form.on("Buying Day", {
 		if (
 			frm.doc.acquisition_channel === "Private" &&
 			frm.doc.status === "Offer Sample Evaluation Load" &&
+			!os_done &&
 			(frm.doc.offer_sample_evaluation || []).length > 0
 		) {
 			frm.add_custom_button(__("Offer Sample Evaluation"), () =>

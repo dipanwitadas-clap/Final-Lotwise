@@ -5,26 +5,34 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "lot_section",
   "sl_no",
   "date",
   "garden",
+  "col_lot_2",
   "region",
   "invoice_no",
   "grade",
+  "col_lot_3",
   "qty",
   "pckgs",
+  "evaluation_section",
   "taster",
+  "overall_rating",
+  "col_eval_2",
   "c",
   "t",
   "s",
   "b",
-  "overall_rating",
+  "col_eval_3",
   "remark",
+  "status_section",
   "row_status",
-  "message",
   "tea_lot",
-  "evaluation",
+  "message",
+  "col_status_2",
   "eval_status",
+  "evaluation",
   "eval_message"
  ],
  "fields": [
@@ -159,18 +167,53 @@
    "fieldtype": "Small Text",
    "label": "Evaluation Message",
    "read_only": 1
+  },
+  {
+   "fieldname": "lot_section",
+   "fieldtype": "Section Break",
+   "label": "Lot Details"
+  },
+  {
+   "fieldname": "col_lot_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_lot_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "evaluation_section",
+   "fieldtype": "Section Break",
+   "label": "Evaluation"
+  },
+  {
+   "fieldname": "col_eval_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_eval_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status & References"
+  },
+  {
+   "fieldname": "col_status_2",
+   "fieldtype": "Column Break"
   }
  ],
  "istable": 1,
- "rows_threshold_for_grid_search": 1,
  "links": [],
- "modified": "2026-10-28 13:05:07.356335",
+ "modified": "2026-11-05 11:02:11.871025",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Offer Sample Evaluation Item",
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 1,
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": []
