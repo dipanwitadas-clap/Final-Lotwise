@@ -388,6 +388,25 @@ class TestBuyingDayCreateTeaLots(FrappeTestCase):
 		self.assertRaises(frappe.ValidationError, doc.export_error_rows, "deal_book_items")
 		self.assertRaises(frappe.ValidationError, doc.export_error_rows, "bogus")
 
+	def test_export_error_rows_private_purchase_list(self):
+		import base64
+		import io
+
+		from openpyxl import load_workbook
+
+		doc = self._make_doc(sale_no=782)
+		doc.append(
+			"private_purchase_list",
+			{"mark_raw": "X", "row_status": "Error", "message": "Mark not found"},
+		)
+
+		result = doc.export_error_rows("private_purchase_list")
+
+		self.assertTrue(result["filename"].endswith("_private_purchase_list_errors.xlsx"))
+		ws = load_workbook(io.BytesIO(base64.b64decode(result["content"]))).active
+		self.assertEqual(ws.max_row, 2)
+		self.assertEqual(ws.cell(row=2, column=ws.max_column).value, "Mark not found")
+
 
 class TestBuyingDayCreateTeaPurchases(FrappeTestCase):
 	"""create_tea_purchases(): Deal Book rows -> Tea Purchase, linked back to a

@@ -371,6 +371,7 @@ frappe.ui.form.on("Buying Day", {
 			["items", __("Auction Catalogue Items Errors")],
 			["deal_book_items", __("Deal Book Items Errors")],
 			["offer_sample_evaluation", __("Offer Sample Errors")],
+			["private_purchase_list", __("Private Purchase List Errors")],
 		].filter(([table]) => has_errors(table));
 
 		export_options.forEach(([table, label]) => {

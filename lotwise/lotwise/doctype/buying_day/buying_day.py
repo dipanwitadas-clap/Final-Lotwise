@@ -426,6 +426,7 @@ class BuyingDay(Document):
 			"items": ("Buying Week Tea", "auction_catalogue_errors"),
 			"deal_book_items": ("Buying Week Deal Book Tea", "deal_book_errors"),
 			"offer_sample_evaluation": ("Offer Sample Evaluation Item", "offer_sample_errors"),
+			"private_purchase_list": ("Private Purchase List", "private_purchase_list_errors"),
 		}
 		if table not in config:
 			frappe.throw(_("Invalid table: {0}").format(table))
