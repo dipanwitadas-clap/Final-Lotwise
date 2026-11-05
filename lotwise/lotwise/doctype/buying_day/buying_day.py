@@ -1712,7 +1712,7 @@ class BuyingDay(Document):
 		if self.acquisition_channel != "Private":
 			frappe.throw(_("This Purchase Order creation is only available for the Private channel."))
 		if not self.private_purchase_list:
-			frappe.throw(_("There are no Private Purchase List rows to create Purchase Orders from."))
+			frappe.throw(_("There are no Private Purchase  rows to create Purchase Orders from."))
 		if not self.company:
 			frappe.throw(_("Company is required to create Purchase Orders."))
 
