@@ -323,18 +323,24 @@ frappe.ui.form.on("Buying Day", {
 
 			if (frm.doc.purchase_type === "External") {
 				const group = __("External Private Purchase");
-				frm.add_custom_button(
-					__("Create Tea Lot"),
-					() =>
-						run_create(
-							"create_tea_lots_from_private_purchase_list",
-							__("Create Tea Lots for all rows in the table?"),
-							__("Creating Tea Lots…")
-						),
-					group
-				);
-				const rows = frm.doc.private_purchase_list;
-				if (rows.some((r) => r.tea_lot) && !rows.some((r) => r.row_status === "Error")) {
+				const lots_done =
+					frm.doc.private_purchase_list.length > 0 &&
+					frm.doc.private_purchase_list.every((r) =>
+						["Created", "Duplicate"].includes(r.row_status)
+					);
+				if (!lots_done) {
+					frm.add_custom_button(
+						__("Create Tea Lot"),
+						() =>
+							run_create(
+								"create_tea_lots_from_private_purchase_list",
+								__("Create Tea Lots for all rows in the table?"),
+								__("Creating Tea Lots…")
+							),
+						group
+					);
+				}
+				if (lots_done) {
 					frm.add_custom_button(__("Create Tea Purchase"), create_purchase, group);
 				}
 				frm.page.inner_toolbar

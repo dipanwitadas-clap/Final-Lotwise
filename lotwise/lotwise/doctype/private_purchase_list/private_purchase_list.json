@@ -216,7 +216,9 @@
    "fieldname": "row_status",
    "fieldtype": "Select",
    "label": "Row Status",
-   "options": "Pending\nCreated\nError\nDuplicate"
+   "options": "Pending\nCreated\nError\nDuplicate",
+   "in_list_view": 1,
+   "columns": 1
   },
   {
    "fieldname": "message",
@@ -346,5 +348,6 @@
  "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "rows_threshold_for_grid_search": 1
 }
