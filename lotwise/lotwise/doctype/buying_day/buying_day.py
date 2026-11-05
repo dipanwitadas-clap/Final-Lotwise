@@ -121,9 +121,18 @@ HEADER_TO_FIELD_PRIVATE_PURCHASE = {
 	"rate per kg": {"field": "rate_per_kg", "type": "float"},
 	"brokerage %": {"field": "brokerage_percent", "type": "float"},
 	"bill mode": {"field": "bill_mode", "type": "str"},
-	"liquor mark": {"field": "overall_rating", "type": "str"},
+	"overall rating": {"field": "overall_rating", "type": "str"},
+	"liquor mark": {"field": "overall_rating", "type": "str"},  # old name, optional
 	"density": {"field": "density", "type": "float"},
 	"for blend": {"field": "for_blend", "type": "str"},
+}
+
+# Every header of the template must be in the file: the mapped ones except the old
+# "liquor mark" alias, plus the formula columns (present in the template, not stored).
+REQUIRED_HEADERS_PRIVATE_PURCHASE = {h for h in HEADER_TO_FIELD_PRIVATE_PURCHASE if h != "liquor mark"} | {
+	"net kg",
+	"value",
+	"brokerage",
 }
 
 # Offer Sample Evaluation sheet (first sheet; row 1 is a title, header on row 2).
@@ -520,14 +529,15 @@ class BuyingDay(Document):
 			frappe.throw(_("The uploaded file has no rows."))
 
 		column_map = {}
+		file_headers = set()
 		for idx, cell in enumerate(rows[0]):
-			cfg = HEADER_TO_FIELD_PRIVATE_PURCHASE.get(str(cell or "").strip().lower())
+			header = str(cell or "").strip().lower()
+			file_headers.add(header)
+			cfg = HEADER_TO_FIELD_PRIVATE_PURCHASE.get(header)
 			if cfg:
 				column_map[idx] = cfg
-		if not column_map:
-			frappe.throw(
-				_("None of the expected Private Purchase List columns were found. Check the file format.")
-			)
+		if not REQUIRED_HEADERS_PRIVATE_PURCHASE <= file_headers:
+			frappe.throw(_("This is not a valid Private Purchase List file. Check the file format."))
 
 		self.set("private_purchase_list", [])
 		for raw_row in rows[1:]:
@@ -632,6 +642,12 @@ class BuyingDay(Document):
 					"None of the expected {0} columns were found in the uploaded file. Check the file format."
 				).format(source_label)
 			)
+
+		# Every expected header must be present, otherwise this is the wrong file
+		# (e.g. a Deal Book uploaded as the Catalogue shares a header or two).
+		file_headers = {_normalize_header(c) for c in header_row}
+		if any(h not in file_headers for h in header_map):
+			frappe.throw(_("This is not a valid {0} file. Check the file format.").format(source_label))
 
 		self.set(target_field, [])
 		total_packages = 0

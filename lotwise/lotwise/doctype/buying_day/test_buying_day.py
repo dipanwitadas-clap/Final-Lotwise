@@ -76,6 +76,16 @@ class TestBuyingDayHelpers(FrappeTestCase):
 			os.remove(path)
 
 
+def _pad_headers(header_map, rows):
+	"""Append every expected header missing from rows[0] (blank cells) - the parser
+	requires the full header set."""
+	from lotwise.lotwise.doctype.buying_day.buying_day import _normalize_header
+
+	have = {_normalize_header(h) for h in rows[0]}
+	extra = [h for h in header_map if h not in have]
+	return [rows[0] + extra] + [r + [None] * len(extra) for r in rows[1:]]
+
+
 class TestBuyingDayParseFile(FrappeTestCase):
 	"""End-to-end: attach a small SpreadsheetML file and run parse_auction_catalog()/parse_deal_book()."""
 
@@ -111,38 +121,41 @@ class TestBuyingDayParseFile(FrappeTestCase):
 		doc.insert(ignore_permissions=True, ignore_mandatory=True)
 
 		xml = _make_spreadsheetml(
-			[
+			_pad_headers(
+				mod.HEADER_TO_FIELD_DEAL_BOOK,
 				[
-					"LotNo",
-					"Mark",
-					"Grade",
-					"Qty (Pkgs)",
-					"Invoice No",
-					"Price/Kg",
-					"Auct. Val",
-					"BasePrice",
-					"Total GrossWt",
-					"NtWt",
-					"Total NtWt",
-					"Type",
-					"DealNo",
+					[
+						"LotNo",
+						"Mark",
+						"Grade",
+						"Qty (Pkgs)",
+						"Invoice No",
+						"Price/Kg",
+						"Auct. Val",
+						"BasePrice",
+						"Total GrossWt",
+						"NtWt",
+						"Total NtWt",
+						"Type",
+						"DealNo",
+					],
+					[
+						"JT0059",
+						"BINAGURI",
+						"OF",
+						25,
+						"C955",
+						304,
+						355,
+						1,
+						955.5,
+						950,
+						941.4,
+						"Leaf",
+						"27703301",
+					],
 				],
-				[
-					"JT0059",
-					"BINAGURI",
-					"OF",
-					25,
-					"C955",
-					304,
-					355,
-					1,
-					955.5,
-					950,
-					941.4,
-					"Leaf",
-					"27703301",
-				],
-			]
+			)
 		)
 		self._attach(doc, xml, "deal_book_test.xls", "deal_book_file")
 
@@ -172,36 +185,39 @@ class TestBuyingDayParseFile(FrappeTestCase):
 		doc.insert(ignore_permissions=True, ignore_mandatory=True)
 
 		xml = _make_spreadsheetml(
-			[
+			_pad_headers(
+				mod.HEADER_TO_FIELD_AUCTION_CATALOG,
 				[
-					"Season",
-					"Sale No",
-					"LOT NO",
-					"Auctioneer",
-					"MarkCode",
-					"GradeCode",
-					"NoOfPacks",
-					"GrossWeight",
-					"NetWeight",
-					"Lot Type",
-					"InvoiceNo",
-					"Warehouse Name",
+					[
+						"Season",
+						"Sale No",
+						"LOT NO",
+						"Auctioneer",
+						"MarkCode",
+						"GradeCode",
+						"NoOfPacks",
+						"GrossWeight",
+						"NetWeight",
+						"Lot Type",
+						"InvoiceNo",
+						"Warehouse Name",
+					],
+					[
+						2026,
+						36,
+						"JT0001",
+						"JT",
+						"GHATIAROYAL",
+						"BP",
+						30,
+						40.47,
+						40.00,
+						"Sold",
+						"UK1019",
+						"KTTWPL - UNIT - 1",
+					],
 				],
-				[
-					2026,
-					36,
-					"JT0001",
-					"JT",
-					"GHATIAROYAL",
-					"BP",
-					30,
-					40.47,
-					40.00,
-					"Sold",
-					"UK1019",
-					"KTTWPL - UNIT - 1",
-				],
-			]
+			)
 		)
 		self._attach(doc, xml, "auction_catalog_test.xls", "catalogue_file")
 
@@ -219,6 +235,31 @@ class TestBuyingDayParseFile(FrappeTestCase):
 		# No total_net_weight column in this format - falls back to net_weight
 		self.assertEqual(doc.computed_total_net_weight, 40.00)
 		self.assertEqual(doc.status, "Catalogue Loaded")
+
+	def test_wrong_file_is_rejected(self):
+		"""A Deal Book attached as the Catalogue (and vice versa) shares a header or
+		two with the other format; it must not be read."""
+		doc = frappe.get_doc(
+			{
+				"doctype": "Buying Day",
+				"acquisition_channel": "Outsourced",
+				"purchase_status": "Test Purchased",
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		deal_book = _make_spreadsheetml(
+			_pad_headers(mod.HEADER_TO_FIELD_DEAL_BOOK, [["LotNo", "BasePrice"], ["JT0059", 1]])
+		)
+		self._attach(doc, deal_book, "wrong_deal_book.xls", "catalogue_file")
+		self.assertRaises(frappe.ValidationError, doc.parse_auction_catalog)
+		self.assertEqual(len(doc.items), 0)
+		self.assertNotEqual(doc.status, "Catalogue Loaded")
+
+		catalogue = _make_spreadsheetml([["Season", "Sale No", "LOT NO"], [2026, 36, "JT0001"]])
+		self._attach(doc, catalogue, "wrong_catalogue.xls", "deal_book_file")
+		self.assertRaises(frappe.ValidationError, doc.parse_deal_book)
+		self.assertEqual(len(doc.deal_book_items), 0)
 
 
 class TestBuyingDayCreateTeaLots(FrappeTestCase):
