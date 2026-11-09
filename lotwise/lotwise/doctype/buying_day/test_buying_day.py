@@ -565,6 +565,36 @@ class TestBuyingDayCreateTeaPurchases(FrappeTestCase):
 		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "purchase_status"), "Test Purchased TPU")
 
 
+class TestBuyingDayStatusSyncToWeek(FrappeTestCase):
+	"""A Buying Day's status/day must be mirrored on its Buying Week Day row."""
+
+	def test_status_change_updates_week_child_row(self):
+		week = frappe.get_doc({"doctype": "Buying Week", "acquisition_channel": "Outsourced"})
+		week.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		day = frappe.get_doc(
+			{"doctype": "Buying Day", "buying_week": week.name, "acquisition_channel": "Outsourced", "day": 1}
+		)
+		day.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		def row_values():
+			return frappe.db.get_value(
+				"Buying Week Day",
+				{"parent": week.name, "buying_day": day.name},
+				["status", "day"],
+				as_dict=True,
+			)
+
+		self.assertEqual(row_values().status, "Draft")
+
+		day.status = "Catalogue Loaded"
+		day.day = 2
+		day.save(ignore_permissions=True)
+
+		self.assertEqual(row_values().status, "Catalogue Loaded")
+		self.assertEqual(row_values().day, 2)
+
+
 class TestOfferSampleLotAndEvaluation(FrappeTestCase):
 	"""create_tea_lots_and_evaluations_from_offer_samples: a Tea Evaluation failure
 	must roll back the row's Tea Lot. DB calls are mocked."""

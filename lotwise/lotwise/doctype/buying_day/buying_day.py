@@ -417,6 +417,20 @@ class BuyingDay(Document):
 			week.append("buying_days", {"buying_day": self.name})
 			week.save(ignore_permissions=True)
 
+	def on_change(self):
+		self._sync_status_to_week()
+
+	def _sync_status_to_week(self):
+		"""Keep the Buying Week Day child row in sync with this day's status/day."""
+		if not self.buying_week:
+			return
+		frappe.db.set_value(
+			"Buying Week Day",
+			{"parent": self.buying_week, "parenttype": "Buying Week", "buying_day": self.name},
+			{"status": self.status, "day": cint(self.day)},
+			update_modified=False,
+		)
+
 	def on_trash(self):
 		frappe.db.delete("Buying Week Day", {"parent": self.buying_week, "buying_day": self.name})
 
