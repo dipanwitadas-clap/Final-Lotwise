@@ -9,7 +9,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
-from frappe.utils import cint, flt, nowdate, strip_html_tags
+from frappe.utils import cint, flt, get_link_to_form, nowdate, strip_html_tags
 
 
 def _clean_error(e):
@@ -346,7 +346,13 @@ class BuyingDay(Document):
 			if not self.day:
 				frappe.throw(_("Day is required to generate the Buying Day name."))
 
-			self.name = f"BD-{auction_centre_code}-{self.season}-{self.sale_no}-{self.day}"
+			# Checked here too (autoname runs before validate) so a rejected duplicate
+			# doesn't burn a counter number.
+			self._validate_unique_day()
+
+			# BD-{centre}-{season}-{sale_no}-{01,02,...}: running counter per Buying Week,
+			# independent of the Day field (which is only unique-checked, not part of the name).
+			self.name = make_autoname(f"BD-{auction_centre_code}-{self.season}-{self.sale_no}-.##")
 		elif self.acquisition_channel == "Private":
 			if not self.season or not self.week_no:
 				frappe.throw(_("Season and Week No are required to generate the Buying Day name."))
@@ -363,8 +369,25 @@ class BuyingDay(Document):
 			# safe generic series rather than guessing.
 			self.name = make_autoname("BD-.YYYY.-.#####")
 
+	def _validate_unique_day(self):
+		"""Auction only: a Day number can be used by one Buying Day per Buying Week."""
+		if self.acquisition_channel != "Auction" or not self.buying_week or not self.day:
+			return
+		duplicate = frappe.db.exists(
+			"Buying Day",
+			{"buying_week": self.buying_week, "day": self.day, "name": ("!=", self.name or "")},
+		)
+		if duplicate:
+			frappe.throw(
+				_(
+					"Day {0} already exists for Buying Week {1}: {2}. Change the Day on that Buying Day first, then continue."
+				).format(self.day, self.buying_week, get_link_to_form("Buying Day", duplicate)),
+				title=_("Duplicate Day"),
+			)
+
 	def validate(self):
 		self._copy_from_week()
+		self._validate_unique_day()
 		self._compute_private_purchase_list()
 		if self.has_value_changed("status") and self.status in POST_CATALOGUE_STATUSES:
 			self._block_if_catalogue_errors()
