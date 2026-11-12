@@ -136,9 +136,36 @@ frappe.ui.form.on("Buying Day", {
 			(frm.doc[table] || []).some(
 				(r) => r.row_status === "Error" || r.eval_status === "Error"
 			);
+		// Error rows that already have a Batch failed at the PO step - they must not
+		// block a retry of Create PO. Only earlier-stage errors (no batch) block it.
 		const po_pending = (table) =>
-			!has_errors(table) &&
-			(frm.doc[table] || []).some((r) => r.batch_no && !r.purchase_order);
+			!(frm.doc[table] || []).some(
+				(r) => (r.row_status === "Error" || r.eval_status === "Error") && !r.batch_no
+			) && (frm.doc[table] || []).some((r) => r.batch_no && !r.purchase_order);
+
+		// Export Errors dropdown - one option per child table that has Error rows
+		const add_export_errors_button = () => {
+			const export_options = [
+				["items", __("Auction Catalogue Items Errors")],
+				["deal_book_items", __("Deal Book Items Errors")],
+				["offer_sample_evaluation", __("Offer Sample Errors")],
+				["private_purchase_list", __("Private Purchase List Errors")],
+			].filter(([table]) => has_errors(table));
+
+			export_options.forEach(([table, label]) => {
+				frm.add_custom_button(label, () => export_errors(frm, table), __("Export Errors"));
+			});
+			if (export_options.length) {
+				frm.page.inner_toolbar
+					.find(
+						`.inner-group-button[data-label="${encodeURIComponent(
+							__("Export Errors")
+						)}"] > button`
+					)
+					.removeClass("btn-default")
+					.addClass("btn-danger");
+			}
+		};
 
 		// Once Create PO is available it is the only action button on the form
 		const po_method = {
@@ -170,6 +197,7 @@ frappe.ui.form.on("Buying Day", {
 					});
 				});
 			}).addClass("btn-primary");
+			add_export_errors_button();
 			return;
 		}
 
@@ -366,27 +394,7 @@ frappe.ui.form.on("Buying Day", {
 			}
 		}
 
-		// Export Errors dropdown - one option per child table that has Error rows
-		const export_options = [
-			["items", __("Auction Catalogue Items Errors")],
-			["deal_book_items", __("Deal Book Items Errors")],
-			["offer_sample_evaluation", __("Offer Sample Errors")],
-			["private_purchase_list", __("Private Purchase List Errors")],
-		].filter(([table]) => has_errors(table));
-
-		export_options.forEach(([table, label]) => {
-			frm.add_custom_button(label, () => export_errors(frm, table), __("Export Errors"));
-		});
-		if (export_options.length) {
-			frm.page.inner_toolbar
-				.find(
-					`.inner-group-button[data-label="${encodeURIComponent(
-						__("Export Errors")
-					)}"] > button`
-				)
-				.removeClass("btn-default")
-				.addClass("btn-danger");
-		}
+		add_export_errors_button();
 	},
 });
 

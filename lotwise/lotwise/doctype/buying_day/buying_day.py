@@ -1656,16 +1656,17 @@ class BuyingDay(Document):
 		if not self.company:
 			frappe.throw(_("Company is required to create Purchase Orders."))
 
+		created = error = 0
 		groups = {}
 		for row in self.deal_book_items:
 			if not row.batch_no or row.purchase_order:
 				continue
 			if not row.broker:
+				row.row_status = "Error"
 				row.message = _("Broker is missing on this row.")
+				error += 1
 				continue
 			groups.setdefault(row.broker, []).append(row)
-
-		created = error = 0
 
 		for broker, rows in groups.items():
 			try:
@@ -1711,6 +1712,7 @@ class BuyingDay(Document):
 					if r.tea_purchase:
 						frappe.db.set_value("Tea Purchase", r.tea_purchase, "purchase_order", po.name)
 					r.purchase_order = po.name
+					r.row_status = "Created"
 					r.message = _("PO {0}").format(po.name)
 				self.append(
 					"purchase_orders",
@@ -1725,6 +1727,7 @@ class BuyingDay(Document):
 
 			except Exception as e:
 				for r in rows:
+					r.row_status = "Error"
 					r.message = _clean_error(e)
 				error += 1
 				frappe.log_error(frappe.get_traceback(), "Buying Day: create_purchase_orders failed")
@@ -1753,19 +1756,20 @@ class BuyingDay(Document):
 		if not self.company:
 			frappe.throw(_("Company is required to create Purchase Orders."))
 
+		created = error = 0
 		groups = {}
 		for row in self.private_purchase_list:
 			if not row.batch_no or row.purchase_order:
 				continue
 			seller = (row.seller or "").strip()
 			if not seller:
+				row.row_status = "Error"
 				row.message = _("Seller is missing on this row.")
+				error += 1
 				continue
 			invoice = (row.tax_invoice_no or "").strip()
 			key = (seller, invoice) if invoice else (seller, (row.bill_mode or "").strip())
 			groups.setdefault(key, []).append(row)
-
-		created = error = 0
 
 		for (seller, _ref), rows in groups.items():
 			try:
@@ -1822,6 +1826,7 @@ class BuyingDay(Document):
 					if r.tea_purchase:
 						frappe.db.set_value("Tea Purchase", r.tea_purchase, "purchase_order", po.name)
 					r.purchase_order = po.name
+					r.row_status = "Created"
 					r.message = _("PO {0}").format(po.name)
 				self.append(
 					"purchase_orders",
@@ -1831,6 +1836,7 @@ class BuyingDay(Document):
 
 			except Exception as e:
 				for r in rows:
+					r.row_status = "Error"
 					r.message = _clean_error(e)
 				error += 1
 				frappe.clear_last_message()
