@@ -1746,9 +1746,9 @@ class BuyingDay(Document):
 	def create_private_purchase_orders(self):
 		"""Create draft Purchase Orders from Private Purchase List rows that already
 		have a Batch. One PO per Seller + Tax Invoice No; when there is no invoice
-		number yet, one PO per Seller + Bill Mode; only for these (no invoice no) POs the
-		Bill Mode text is looked up as a Payment Terms Template name and set on the PO
-		(error if not found). Rows already carrying a
+		number yet, one PO per Seller + Bill Mode. For every PO the Bill Mode text is
+		looked up as a Payment Terms Template name and set on the PO (error if not
+		found, or if rows of one invoice have different Bill Modes). Rows already carrying a
 		`purchase_order` are skipped. The supplier is matched on the seller name and
 		the PO date is the row's List Date. Returns {created, errors}."""
 		if self.acquisition_channel != "Private":
@@ -1786,12 +1786,18 @@ class BuyingDay(Document):
 					if not mark_name or not frappe.db.exists("Mark", mark_name):
 						raise frappe.ValidationError(_("Mark '{0}' not found.").format(mark_name))
 
-				# Payment Terms Template applies only to (seller + bill_mode) groups,
-				# i.e. rows without a Tax Invoice No.
+				# Bill Mode text == Payment Terms Template name; applies to every group
+				# (both Seller + Invoice and Seller + Bill Mode).
+				bill_modes = {(r.bill_mode or "").strip() for r in rows} - {""}
+				if len(bill_modes) > 1:
+					raise frappe.ValidationError(
+						_("Rows for Seller '{0}' have different Bill Modes: {1}.").format(
+							seller, ", ".join(sorted(bill_modes))
+						)
+					)
 				payment_terms_template = None
-				has_invoice = bool((rows[0].tax_invoice_no or "").strip())
-				bill_mode = (rows[0].bill_mode or "").strip()
-				if not has_invoice and bill_mode:
+				if bill_modes:
+					bill_mode = next(iter(bill_modes))
 					payment_terms_template = frappe.db.get_value("Payment Terms Template", bill_mode, "name")
 					if not payment_terms_template:
 						raise frappe.ValidationError(
