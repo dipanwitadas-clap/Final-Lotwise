@@ -84,6 +84,9 @@ function TeaEvaluationEntry(wrapper) {
 	this.filter_values = {};
 	this.filter_fields = {};
 	this.sort_order = "desc";
+	this.saved_rows = {};
+	this.load_token = 0;
+	this.clearing = false;
 
 	// Default values
 	this.default_taster = "";
@@ -110,7 +113,7 @@ function TeaEvaluationEntry(wrapper) {
 		{ key: "mark", label: "Mark", width: 80 },
 		{ key: "grade", label: "Grade", width: 80 },
 		{ key: "invoice_number", label: "Invoice No", width: 100 },
-		{ key: "auction_centre", label: "Action Centre", width: 100 },
+		{ key: "auction_centre", label: "Auction Centre", width: 100 },
 	];
 
 	this.editable_cols = [
@@ -489,6 +492,7 @@ TeaEvaluationEntry.prototype = {
 				fieldtype: cfg.fieldtype,
 				options: cfg.options,
 				change: function () {
+					if (me.clearing) return;
 					me.collect_filters();
 					me.current_start = 0;
 					me.load_data();
@@ -517,9 +521,11 @@ TeaEvaluationEntry.prototype = {
 
 		// Clear filters
 		$("#ws_clear_filters_btn").on("click", function () {
+			me.clearing = true;
 			Object.keys(me.filter_fields).forEach(function (key) {
 				me.filter_fields[key].set_value("");
 			});
+			me.clearing = false;
 			me.filter_values = {};
 			me.current_start = 0;
 			me.load_data();
@@ -546,7 +552,7 @@ TeaEvaluationEntry.prototype = {
 			});
 			d.show();
 		});
-		$("#ws_default_taster").on("change input", function () {
+		$("#ws_default_taster").on("change", function () {
 			me.default_taster = $(this).val();
 			me.apply_default_taster();
 		});
@@ -654,19 +660,22 @@ TeaEvaluationEntry.prototype = {
 	// DEFAULT VALUES
 	// -------------------------------------------------------------------------
 
-	apply_default_taster: function () {
+	apply_default_taster: function (mark_edited) {
 		var me = this;
 		if (!this.default_taster) return;
+		mark_edited = mark_edited !== false;
 		var $container = this.$table_container;
 		$container.find('.ws-cell[data-col="taster"]').each(function () {
 			var $cell = $(this);
+			if (!mark_edited && $cell.val()) return;
 			$cell.val(me.default_taster);
 			var row_key = $cell.data("row-key");
-			if (row_key) {
+			if (mark_edited && row_key) {
 				if (!me.edited_rows[row_key]) me.edited_rows[row_key] = {};
 				me.edited_rows[row_key]["taster"] = me.default_taster;
 			}
 		});
+		if (!mark_edited) return;
 		// Enable save buttons
 		$container.find(".ws-save-row-btn").each(function () {
 			var $btn = $(this);
@@ -710,7 +719,7 @@ TeaEvaluationEntry.prototype = {
 			});
 		}
 
-		if (this.default_stage !== undefined) {
+		if (this.default_stage) {
 			$container.find('.ws-cell[data-col="evaluation_stage"]').each(function () {
 				var $cell = $(this);
 				var key = $cell.data("row-key");
@@ -742,7 +751,7 @@ TeaEvaluationEntry.prototype = {
 		Object.keys(this.filter_fields).forEach(function (key) {
 			var val = me.filter_fields[key].get_value();
 			if (val && String(val).trim() !== "") {
-				me.filter_values[key] = me.convert_date_to_iso(String(val).trim());
+				me.filter_values[key] = String(val).trim();
 			}
 		});
 	},
@@ -784,7 +793,7 @@ TeaEvaluationEntry.prototype = {
 
 	bulk_update_dialog: function (field) {
 		var me = this;
-		var $checked = $(".ws-select-checkbox:checked");
+		var $checked = $(".ws-select-checkbox[data-row-key]:checked");
 		if (!$checked.length) {
 			frappe.msgprint(__("Please select at least one row."));
 			return;
@@ -848,7 +857,7 @@ TeaEvaluationEntry.prototype = {
 
 	apply_bulk_update: function (field, value) {
 		var me = this;
-		var $checked = $(".ws-select-checkbox:checked");
+		var $checked = $(".ws-select-checkbox[data-row-key]:checked");
 		var display_val = value;
 		if (field === "evaluation_date" && value) {
 			display_val = this.convert_iso_to_display(value);
@@ -891,6 +900,7 @@ TeaEvaluationEntry.prototype = {
 				"<div>Loading data...</div></div>"
 		);
 
+		var token = ++this.load_token;
 		this.api_call(
 			"get_workspace_data",
 			{
@@ -901,6 +911,7 @@ TeaEvaluationEntry.prototype = {
 				sort_order: this.sort_order,
 			},
 			function (result) {
+				if (token !== me.load_token) return; // stale response
 				if (result) {
 					me.records = result.records || [];
 					me.total_count = result.total_count || 0;
@@ -928,11 +939,12 @@ TeaEvaluationEntry.prototype = {
 					me.update_pagination();
 
 					// Auto-fill taster if logged-in user is linked to a Taster record
-					if (result.default_taster) {
+					if (result.default_taster && !me.default_taster) {
 						me.default_taster = result.default_taster;
 						$("#ws_default_taster").val(result.default_taster);
-						me.apply_default_taster();
 					}
+					// Fill empty taster cells without marking rows as edited
+					me.apply_default_taster(false);
 				} else {
 					me.$table_container.html(
 						'<div class="alert alert-info m-3">No data available.</div>'
@@ -1309,6 +1321,7 @@ TeaEvaluationEntry.prototype = {
 				$btn.html(get_ws_icon("save", "12px"));
 				if (r.message && r.message.success) {
 					me.set_save_btn_state($btn, "saved");
+					me.saved_rows[row_key] = true;
 					delete me.edited_rows[row_key];
 					me.update_save_all_count();
 					var $row = me.$table_container.find('tr[data-row-key="' + row_key + '"]');
@@ -1390,20 +1403,40 @@ TeaEvaluationEntry.prototype = {
 				me.$save_all_count = $("#ws_save_all_count");
 				me.update_save_all_count();
 
-				if (r.message && r.message.success) {
-					row_keys.forEach(function (key) {
-						// Keep edited_rows intact so export can still read the data
-						// Only update button state to show saved
+				if (r.message && r.message.results) {
+					var failed = [];
+					(r.message.results || []).forEach(function (res) {
+						var key = res.tea_lot;
 						var $sbtn = me.$table_container.find(
 							'.ws-save-row-btn[data-row-key="' + key + '"]'
 						);
-						if ($sbtn.length) {
-							$sbtn.html(get_ws_icon("save", "12px"));
-							me.set_save_btn_state($sbtn, "saved");
+						if (res.ok) {
+							me.saved_rows[key] = true;
+							delete me.edited_rows[key];
+							if ($sbtn.length) {
+								$sbtn.html(get_ws_icon("save", "12px"));
+								me.set_save_btn_state($sbtn, "saved");
+							}
+							me.$table_container
+								.find('tr[data-row-key="' + key + '"]')
+								.removeClass("row-edited");
+						} else {
+							failed.push(me.esc(key) + ": " + me.esc(res.error));
+							if ($sbtn.length) me.set_save_btn_state($sbtn, "error");
 						}
 					});
 					me.update_save_all_count();
-					frappe.show_alert({ message: r.message.message, indicator: "green" });
+					frappe.show_alert({
+						message: r.message.message,
+						indicator: failed.length ? "orange" : "green",
+					});
+					if (failed.length) {
+						frappe.msgprint({
+							title: __("Some rows were not saved"),
+							indicator: "red",
+							message: failed.join("<br>"),
+						});
+					}
 				} else {
 					frappe.show_alert({
 						message: r.message ? r.message.message : "Bulk save failed.",
@@ -1444,12 +1477,9 @@ TeaEvaluationEntry.prototype = {
 
 		// Collect only saved rows: use me.records for readonly data + me.edited_rows for editable data
 		var table_data = [];
-		var edited_keys = Object.keys(this.edited_rows);
+		var edited_keys = Object.keys(Object.assign({}, this.saved_rows, this.edited_rows));
 		if (!edited_keys.length) {
-			frappe.msgprint(
-				__("No saved evaluations to export. Please use Save All first."),
-				"No Data"
-			);
+			frappe.msgprint(__("Nothing to export. Edit or save some rows first."), "No Data");
 			$btn.prop("disabled", false).html(orig);
 			return;
 		}
@@ -1461,6 +1491,7 @@ TeaEvaluationEntry.prototype = {
 			});
 			if (!rec) return;
 
+			var vals = me.build_row_data(row_key);
 			var row = {
 				name: rec.name || "",
 				lot_no: rec.lot_no || "",
@@ -1469,19 +1500,19 @@ TeaEvaluationEntry.prototype = {
 				grade: rec.grade || "",
 				invoice_number: rec.invoice_number || "",
 				auction_centre: rec.auction_centre || "",
-				taster: me.edited_rows[row_key].taster || "",
-				evaluation_stage: me.edited_rows[row_key].evaluation_stage || "",
-				liquor_mark: me.edited_rows[row_key].liquor_mark || "",
-				evaluation_date: me.edited_rows[row_key].evaluation_date || "",
-				suggested_valuation: me.edited_rows[row_key].suggested_valuation || "",
-				actual_valuation: me.edited_rows[row_key].actual_valuation || "",
-				colour: me.edited_rows[row_key].colour || "",
-				strength: me.edited_rows[row_key].strength || "",
-				taste: me.edited_rows[row_key].taste || "",
-				briskness: me.edited_rows[row_key].briskness || "",
-				quality_grade: me.edited_rows[row_key].quality_grade || "",
-				density: me.edited_rows[row_key].density || "",
-				remarks: me.edited_rows[row_key].remarks || "",
+				taster: vals.taster || "",
+				evaluation_stage: vals.evaluation_stage || "",
+				liquor_mark: vals.liquor_mark || "",
+				evaluation_date: vals.evaluation_date || "",
+				suggested_valuation: vals.suggested_valuation || "",
+				actual_valuation: vals.actual_valuation || "",
+				colour: vals.colour || "",
+				strength: vals.strength || "",
+				taste: vals.taste || "",
+				briskness: vals.briskness || "",
+				quality_grade: vals.quality_grade || "",
+				density: vals.density || "",
+				remarks: vals.remarks || "",
 			};
 
 			table_data.push(row);

@@ -7,7 +7,7 @@ import json
 
 import frappe
 from frappe import _
-from frappe.utils import flt, nowdate
+from frappe.utils import cint, flt, nowdate
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -154,28 +154,49 @@ def get_workspace_data(
 		fields=TEA_LOT_FIELDS,
 		filters=lot_filters,
 		order_by=f"creation {sort_order}",
-		start=start,
-		page_length=page_length,
+		start=cint(start),
+		page_length=cint(page_length) or 20,
 	)
 	result["records"] = lots
 
 	return result
 
 
-@frappe.whitelist()
-def create_evaluation() -> dict:
-	"""Create a new Tea Evaluation from workspace row data."""
-	data = frappe.local.form_dict
+SCORE_FIELDS = ["colour", "strength", "taste", "briskness"]
+REQUIRED_FIELDS = ["tea_lot", "taster", "evaluation_stage", "evaluation_date"]
 
-	required = ["tea_lot", "taster", "evaluation_stage", "evaluation_date"]
-	missing = [f for f in required if not data.get(f)]
+
+def _create_evaluation(data) -> str:
+	"""Validate and insert one Tea Evaluation. Raises on any problem."""
+	missing = [f for f in REQUIRED_FIELDS if not data.get(f)]
 	if missing:
 		frappe.throw(_("Missing required fields: {0}").format(", ".join(missing)))
+
+	for field in SCORE_FIELDS:
+		val = flt(data.get(field))
+		if val < 0 or val > 100:
+			frappe.throw(_("{0} must be between 0 and 100.").format(field.title()))
+
+	tea_lot = data.get("tea_lot")
+	lot = frappe.db.get_value("Tea Lot", tea_lot, ["lot_no", "mark", "invoice_number"], as_dict=True)
+	if not lot:
+		frappe.throw(_("Tea Lot {0} not found.").format(tea_lot))
+
+	if frappe.db.exists(
+		"Tea Evaluation",
+		{
+			"tea_lot": tea_lot,
+			"taster": data.get("taster"),
+			"evaluation_stage": data.get("evaluation_stage"),
+			"evaluation_date": data.get("evaluation_date"),
+		},
+	):
+		frappe.throw(_("An evaluation for this lot, taster, stage and date already exists."))
 
 	eval_doc = frappe.get_doc(
 		{
 			"doctype": "Tea Evaluation",
-			"tea_lot": data.get("tea_lot"),
+			"tea_lot": tea_lot,
 			"taster": data.get("taster"),
 			"evaluation_stage": data.get("evaluation_stage"),
 			"liquor_mark": data.get("liquor_mark"),
@@ -187,9 +208,9 @@ def create_evaluation() -> dict:
 			"taste": flt(data.get("taste")),
 			"briskness": flt(data.get("briskness")),
 			"quality_grade": data.get("quality_grade"),
-			"invoice_number": data.get("invoice_number"),
-			"lot_no": data.get("lot_no"),
-			"mark": data.get("mark"),
+			"invoice_number": lot.invoice_number,
+			"lot_no": lot.lot_no,
+			"mark": lot.mark,
 			"density": flt(data.get("density")),
 			"remarks": data.get("remarks"),
 		}
@@ -197,61 +218,37 @@ def create_evaluation() -> dict:
 	eval_doc.insert()
 
 	# Update Tea Lot evaluation_status to Evaluated
-	frappe.db.set_value("Tea Lot", data.get("tea_lot"), "evaluation_status", "Evaluated")
+	frappe.db.set_value("Tea Lot", tea_lot, "evaluation_status", "Evaluated")
+	return eval_doc.name
 
-	return {"success": True, "name": eval_doc.name, "message": _("Evaluation created successfully.")}
+
+@frappe.whitelist()
+def create_evaluation() -> dict:
+	"""Create a new Tea Evaluation from workspace row data."""
+	name = _create_evaluation(frappe.local.form_dict)
+	return {"success": True, "name": name, "message": _("Evaluation created successfully.")}
 
 
 @frappe.whitelist()
 def bulk_save(records: str) -> dict:
-	"""Bulk save multiple evaluations (create only)."""
+	"""Bulk save multiple evaluations (create only). Returns per-row results."""
 	try:
 		data_list = json.loads(records)
-		created_count = 0
-		errors = []
+		results = []
 
 		for row in data_list:
+			tea_lot = row.get("tea_lot")
+			savepoint = "tea_eval_row"
+			frappe.db.savepoint(savepoint)
 			try:
-				# Create new evaluation
-				required = ["tea_lot", "taster", "evaluation_stage", "evaluation_date"]
-				missing = [f for f in required if not row.get(f)]
-				if missing:
-					errors.append(
-						_("Row {0}: Missing required fields: {1}").format(
-							row.get("tea_lot", "?"), ", ".join(missing)
-						)
-					)
-					continue
-
-				eval_doc = frappe.get_doc(
-					{
-						"doctype": "Tea Evaluation",
-						"tea_lot": row.get("tea_lot"),
-						"taster": row.get("taster"),
-						"evaluation_stage": row.get("evaluation_stage"),
-						"liquor_mark": row.get("liquor_mark"),
-						"evaluation_date": row.get("evaluation_date"),
-						"suggested_valuation": flt(row.get("suggested_valuation")),
-						"actual_valuation": flt(row.get("actual_valuation")),
-						"colour": flt(row.get("colour")),
-						"strength": flt(row.get("strength")),
-						"taste": flt(row.get("taste")),
-						"briskness": flt(row.get("briskness")),
-						"quality_grade": row.get("quality_grade"),
-						"invoice_number": row.get("invoice_number"),
-						"lot_no": row.get("lot_no"),
-						"mark": row.get("mark"),
-						"density": flt(row.get("density")),
-						"remarks": row.get("remarks"),
-					}
-				)
-				eval_doc.insert()
-				frappe.db.set_value("Tea Lot", row.get("tea_lot"), "evaluation_status", "Evaluated")
-				created_count += 1
-
+				name = _create_evaluation(row)
+				results.append({"tea_lot": tea_lot, "ok": True, "name": name})
 			except Exception as e:
-				errors.append(str(e))
-				continue
+				frappe.db.rollback(save_point=savepoint)
+				results.append({"tea_lot": tea_lot, "ok": False, "error": frappe.utils.strip_html(str(e))})
+
+		created_count = sum(1 for r in results if r["ok"])
+		errors = [f"{r['tea_lot']}: {r['error']}" for r in results if not r["ok"]]
 
 		message_parts = []
 		if created_count:
@@ -260,10 +257,11 @@ def bulk_save(records: str) -> dict:
 			message_parts.append(_("{0} error(s).").format(len(errors)))
 
 		return {
-			"success": True,
+			"success": created_count > 0 or not errors,
 			"message": " ".join(message_parts),
 			"created_count": created_count,
-			"errors": errors[:5],  # Return first 5 errors
+			"results": results,
+			"errors": errors[:5],
 		}
 	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), "Tea Evaluation Entry Bulk Save failed")
@@ -321,7 +319,7 @@ def export_data(filters: str | None = None, table_data: str | None = None) -> di
 				ws.cell(row=row_idx, column=6, value=r.get("auction_centre", ""))
 				ws.cell(row=row_idx, column=7, value=r.get("invoice_number", ""))
 				ws.cell(row=row_idx, column=8, value=r.get("taster", ""))
-				ws.cell(row=row_idx, column=9, value=r.get("stage", ""))
+				ws.cell(row=row_idx, column=9, value=r.get("evaluation_stage") or r.get("stage", ""))
 				ws.cell(row=row_idx, column=10, value=r.get("liquor_mark", ""))
 				ws.cell(row=row_idx, column=11, value=r.get("evaluation_date", ""))
 				ws.cell(row=row_idx, column=12, value=r.get("suggested_valuation", ""))
