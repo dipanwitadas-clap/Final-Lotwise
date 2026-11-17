@@ -221,7 +221,8 @@
    ============================================================================= */
 
 #ws_table_container .table-responsive {
-	max-height: calc(100vh - 300px);
+	max-height: none;
+	height: 100%;
 	overflow-y: auto;
 	overflow-x: auto;
 	background: var(--card-bg);
@@ -870,4 +871,54 @@ select.ws-cell:focus {
 
 .ws-save-row-btn.saving {
 	animation: wsPulse 1.5s ease-in-out infinite;
+}
+
+/* =============================================================================
+   PAGE SCROLL LOCK - only the tea lot table scrolls
+   ============================================================================= */
+
+body.tea-eval-lock {
+	overflow: hidden;
+}
+
+.tea-eval-entry-page .page-head {
+	z-index: 100;
+}
+
+.tea-eval-entry-page .ws-page {
+	display: flex;
+	flex-direction: column;
+}
+
+.tea-eval-entry-page .ws-page > .card:last-child {
+	flex: 1;
+	min-height: 360px;
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 0 !important;
+}
+
+.tea-eval-entry-page .ws-page > .card:last-child > .card-body {
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.tea-eval-entry-page #ws_table_container {
+	height: 100%;
+}
+
+/* Compact top cards so the table gets more room */
+.tea-eval-entry-page .ws-page > .card .card-header {
+	padding-top: 4px !important;
+	padding-bottom: 4px !important;
+}
+
+.tea-eval-entry-page .ws-page > .card .card-body {
+	padding-top: 4px !important;
+	padding-bottom: 4px !important;
+}
+
+.tea-eval-entry-page .ws-page > .mb-2 > .d-flex.flex-wrap .btn-sm {
+	padding: 2px 8px;
 }

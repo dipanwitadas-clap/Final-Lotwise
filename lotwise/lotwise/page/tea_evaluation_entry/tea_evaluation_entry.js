@@ -216,6 +216,25 @@ TeaEvaluationEntry.prototype = {
 	// INIT
 	// -------------------------------------------------------------------------
 
+	fit_height: function () {
+		var $page = $(".ws-page");
+		if (!$page.length || !$page.is(":visible")) return;
+		var MIN_TABLE_CARD = 360;
+		var top = $page[0].getBoundingClientRect().top + window.pageYOffset;
+		// Height needed above the table card (filters, defaults, toolbar)
+		var $card = $page.children(".card").last();
+		var above = $card.length ? $card[0].offsetTop - $page[0].offsetTop : 0;
+		var avail = window.innerHeight - (top - window.pageYOffset) - 12;
+		var fits = avail - above >= MIN_TABLE_CARD;
+		$("body").toggleClass("tea-eval-lock", fits);
+		if (fits) {
+			$page.css("height", avail + "px");
+		} else {
+			// Too small a window: let the page scroll, keep the table usable
+			$page.css("height", above + MIN_TABLE_CARD + "px");
+		}
+	},
+
 	init: function () {
 		this.page = frappe.ui.make_app_page({
 			parent: this.wrapper,
@@ -223,9 +242,28 @@ TeaEvaluationEntry.prototype = {
 			single_column: true,
 		});
 
+		// Lock outer page scroll; only the table scrolls (see CSS .tea-eval-lock)
+		$(this.wrapper).addClass("tea-eval-entry-page");
+		var me = this;
+		$(document)
+			.off("page-change.tea_eval")
+			.on("page-change.tea_eval", function () {
+				var on_page =
+					(frappe.get_route()[0] || "").toLowerCase() === "tea-evaluation-entry";
+				if (on_page) me.fit_height();
+				else $("body").removeClass("tea-eval-lock");
+			});
+
 		this.build_page();
 		this.create_filter_fields();
 		this.bind_events();
+
+		$(window)
+			.off("resize.tea_eval")
+			.on("resize.tea_eval", function () {
+				me.fit_height();
+			});
+		this.fit_height();
 
 		this.load_data();
 
@@ -937,6 +975,7 @@ TeaEvaluationEntry.prototype = {
 					me.update_save_all_count();
 					me.render_table();
 					me.update_pagination();
+					me.fit_height();
 
 					// Auto-fill taster if logged-in user is linked to a Taster record
 					if (result.default_taster && !me.default_taster) {
