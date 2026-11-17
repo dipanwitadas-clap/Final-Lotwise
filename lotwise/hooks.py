@@ -245,7 +245,7 @@ fixtures = [
 	{
 		"doctype": "Custom Field",
 		"filters": [
-			["dt", "=", "Purchase Order Item"],
+			["dt", "in", ["Purchase Order Item", "Purchase Order"]],
 			["module", "=", "Lotwise"],
 		],
 	},
