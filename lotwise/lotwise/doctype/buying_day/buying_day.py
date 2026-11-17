@@ -1745,8 +1745,10 @@ class BuyingDay(Document):
 	@frappe.whitelist()
 	def create_private_purchase_orders(self):
 		"""Create draft Purchase Orders from Private Purchase List rows that already
-		have a Batch. One PO per Seller + Tax Invoice No; when there is no invoice
-		number yet, one PO per Seller + Bill Mode. For every PO the Bill Mode text is
+		have a Batch. One PO per Seller + Tax Invoice No. Tax Invoice No is
+		mandatory on every row (row is marked Error otherwise) and is set on the PO as
+		Supplier Invoice No (bill_no). Tax Invoice Date is optional: if given it is set as
+		Supplier Invoice Date (bill_date), else left blank. For every PO the Bill Mode text is
 		looked up as a Payment Terms Template name and set on the PO (error if not
 		found, or if rows of one invoice have different Bill Modes). Rows already carrying a
 		`purchase_order` are skipped. The supplier is matched on the seller name and
@@ -1770,10 +1772,14 @@ class BuyingDay(Document):
 				error += 1
 				continue
 			invoice = (row.tax_invoice_no or "").strip()
-			key = (seller, invoice) if invoice else (seller, (row.bill_mode or "").strip())
-			groups.setdefault(key, []).append(row)
+			if not invoice:
+				row.row_status = "Error"
+				row.message = _("Tax Invoice No is missing on this row.")
+				error += 1
+				continue
+			groups.setdefault((seller, invoice), []).append(row)
 
-		for (seller, _ref), rows in groups.items():
+		for (seller, invoice), rows in groups.items():
 			try:
 				supplier = frappe.db.get_value(
 					"Supplier", {"supplier_name": seller}, "name"
@@ -1786,8 +1792,14 @@ class BuyingDay(Document):
 					if not mark_name or not frappe.db.exists("Mark", mark_name):
 						raise frappe.ValidationError(_("Mark '{0}' not found.").format(mark_name))
 
-				# Bill Mode text == Payment Terms Template name; applies to every group
-				# (both Seller + Invoice and Seller + Bill Mode).
+				invoice_dates = {r.tax_invoice_date for r in rows if r.tax_invoice_date}
+				if len(invoice_dates) > 1:
+					raise frappe.ValidationError(
+						_("Rows for Tax Invoice '{0}' have different Tax Invoice Dates.").format(invoice)
+					)
+				bill_date = next(iter(invoice_dates), None)
+
+				# Bill Mode text == Payment Terms Template name; applies to every group.
 				bill_modes = {(r.bill_mode or "").strip() for r in rows} - {""}
 				if len(bill_modes) > 1:
 					raise frappe.ValidationError(
@@ -1836,8 +1848,11 @@ class BuyingDay(Document):
 					"company": self.company,
 					"transaction_date": list_date,
 					"schedule_date": list_date,
+					"bill_no": invoice,
 					"items": items,
 				}
+				if bill_date:
+					po_data["bill_date"] = bill_date
 				if payment_terms_template:
 					po_data["payment_terms_template"] = payment_terms_template
 				po = frappe.get_doc(po_data)

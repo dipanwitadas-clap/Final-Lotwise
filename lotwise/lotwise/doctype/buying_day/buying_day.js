@@ -176,7 +176,7 @@ frappe.ui.form.on("Buying Day", {
 			const confirm_message =
 				frm.doc.acquisition_channel === "Auction"
 					? __("Create Purchase Orders (one per Broker) for rows with a Batch?")
-					: __("Create Purchase Orders (one per Seller + Invoice / Bill Mode)?");
+					: __("Create Purchase Orders (one per Seller + Tax Invoice No)?");
 			frm.add_custom_button(__("Create PO"), () => {
 				if (frm.is_dirty()) {
 					frappe.msgprint(__("Please save the document before creating records."));
