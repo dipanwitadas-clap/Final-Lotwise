@@ -33,7 +33,7 @@ def get_summary_stats() -> dict:
 			AS unique_grades
 
 
-		FROM `tabTea Lot`
+		FROM `tabTea Purchase`
 
 		""",
 		as_dict=True,
@@ -353,7 +353,7 @@ def get_purchase_status_distribution() -> list:
 			COUNT(*) AS value
 
 
-		FROM `tabTea Lot`
+		FROM `tabTea Purchase`
 
 
 		GROUP BY purchase_status

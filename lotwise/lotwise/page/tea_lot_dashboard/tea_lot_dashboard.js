@@ -459,60 +459,6 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	var filter_timeout = null;
 	var current_page = 0;
 	var page_size = 10;
-	var flt_from_date_field = null;
-	var flt_to_date_field = null;
-
-	function get_date_filter_args() {
-		var args = {};
-		var from_date = flt_from_date_field ? flt_from_date_field.get_value() : "";
-		var to_date = flt_to_date_field ? flt_to_date_field.get_value() : "";
-		if (from_date) args.from_date = from_date;
-		if (to_date) args.to_date = to_date;
-		return args;
-	}
-
-	function create_date_filter_controls() {
-		if (flt_from_date_field) return; // already created
-
-		flt_from_date_field = frappe.ui.form.make_control({
-			parent: $("#flt_from_date_wrapper"),
-			df: {
-				fieldname: "flt_from_date",
-				fieldtype: "Date",
-				label: "",
-				placeholder: "dd/mm/yyyy",
-				onchange: function () {
-					load_all_lots();
-				},
-			},
-			render_input: true,
-		});
-		flt_from_date_field.refresh();
-		flt_from_date_field.$input.addClass("input-xs");
-		flt_from_date_field.$input.on("change", function () {
-			load_all_lots();
-		});
-
-		flt_to_date_field = frappe.ui.form.make_control({
-			parent: $("#flt_to_date_wrapper"),
-			df: {
-				fieldname: "flt_to_date",
-				fieldtype: "Date",
-				label: "",
-				placeholder: "dd/mm/yyyy",
-				onchange: function () {
-					load_all_lots();
-				},
-			},
-			render_input: true,
-		});
-		flt_to_date_field.refresh();
-		flt_to_date_field.$input.addClass("input-xs");
-		flt_to_date_field.$input.on("change", function () {
-			load_all_lots();
-		});
-	}
-
 	function load_all_lots() {
 		if (!$("#tea_lot_all").length) return;
 		if (!$("#tea_lot_all_heading").length) {
@@ -526,16 +472,11 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 							<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
 								<i class="fa fa-download"></i> Download
 							</button>
-							<span style="font-size:12px;font-weight:600;color:#4b5563;">Purchase Date :</span>
-							<div id="flt_from_date_wrapper" style="display:inline-block;width:160px;"></div>
-							<span style="font-size:12px;color:#6b7280;">to</span>
-							<div id="flt_to_date_wrapper" style="display:inline-block;width:160px;"></div>
 						</div>
 					</div>
 					<div id="tea_lot_all_container"></div>
 				</div>
 			`);
-			create_date_filter_controls();
 			$("#tea_lot_all")
 				.off("click", "#download_all_lots_btn")
 				.on("click", "#download_all_lots_btn", function (e) {
@@ -547,7 +488,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		$("#tea_lot_all_container").html(
 			`<div class="text-center text-muted" style="padding:20px;"><i class="fa fa-spinner fa-spin"></i> Loading all tea lots...</div>`
 		);
-		var args = get_date_filter_args();
+		var args = {};
 		api_from("tea_lot_dashboard_all_lots", "get_all_lots", args, function (data) {
 			all_lots_data = (data && data.lots) || [];
 			current_page = 0;
@@ -580,20 +521,18 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		var columns = [
 			{ key: "sno", label: "S.No" },
 			{ key: "name", label: "Tea Lot ID", clickable: true },
+			{ key: "tea_purchase", label: "Tea Purchase ID" },
 			{ key: "lot_no", label: "Lot No" },
 			{ key: "mark", label: "Mark" },
 			{ key: "grade", label: "Grade" },
-			{ key: "seller", label: "Seller" },
 			{ key: "invoice_number", label: "Invoice No" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
 			{ key: "acquisition_channel", label: "Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
 			{ key: "packages", label: "Packages", numeric: true },
 			{ key: "net_weight_total", label: "Net Wt Kg", numeric: true },
-			{ key: "rate", label: "Rate", numeric: true },
-			{ key: "status", label: "Status" },
+			{ key: "rate", label: "Purchase Rate", numeric: true },
 			{ key: "purchase_status", label: "Purchase Status" },
 			{ key: "warehouse", label: "Warehouse" },
+			{ key: "sale_no", label: "Sale No" },
 		];
 
 		var filters = {};

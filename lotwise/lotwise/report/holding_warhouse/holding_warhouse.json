@@ -11,7 +11,7 @@
   {
    "fieldname": "name",
    "fieldtype": "Link",
-   "label": "Lot ID",
+   "label": "Tea Lot",
    "options": "Tea Lot",
    "width": 160
   },
@@ -36,13 +36,6 @@
    "width": 110
   },
   {
-   "fieldname": "evaluation_status",
-   "fieldtype": "Link",
-   "label": "Evaluation Status",
-   "options": "Evaluation Status",
-   "width": 150
-  },
-  {
    "fieldname": "purchase_status",
    "fieldtype": "Link",
    "label": "Purchase Status",
@@ -64,16 +57,11 @@
    "width": 90
   },
   {
-   "fieldname": "from_date",
-   "fieldtype": "Date",
-   "label": "From Date",
-   "width": 115
-  },
-  {
-   "fieldname": "to_date",
-   "fieldtype": "Date",
-   "label": "To Date",
-   "width": 115
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "width": 150
   },
   {
    "fieldname": "sale_no_from",
@@ -97,7 +85,7 @@
  "name": "Holding Warhouse",
  "owner": "Administrator",
  "prepared_report": 0,
- "ref_doctype": "Tea Lot",
+ "ref_doctype": "Tea Purchase",
  "report_name": "Holding Warhouse",
  "report_type": "Script Report",
  "roles": [

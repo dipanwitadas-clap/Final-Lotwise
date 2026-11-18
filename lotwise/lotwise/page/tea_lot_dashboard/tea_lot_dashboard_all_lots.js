@@ -54,60 +54,6 @@ frappe.provide("lotwise.tea_lot_dashboard");
 	// LOAD ALL LOTS
 	// ============================================================
 
-	var flt_from_date_field = null;
-	var flt_to_date_field = null;
-
-	function get_date_filter_args() {
-		var args = {};
-		var from_date = flt_from_date_field ? flt_from_date_field.get_value() : "";
-		var to_date = flt_to_date_field ? flt_to_date_field.get_value() : "";
-		if (from_date) args.from_date = from_date;
-		if (to_date) args.to_date = to_date;
-		return args;
-	}
-
-	function create_date_filter_controls() {
-		if (flt_from_date_field) return; // already created
-
-		flt_from_date_field = frappe.ui.form.make_control({
-			parent: $("#flt_from_date_wrapper"),
-			df: {
-				fieldname: "flt_from_date",
-				fieldtype: "Date",
-				label: "",
-				placeholder: "dd/mm/yyyy",
-				onchange: function () {
-					load_all_lots();
-				},
-			},
-			render_input: true,
-		});
-		flt_from_date_field.refresh();
-		flt_from_date_field.$input.addClass("input-xs");
-		flt_from_date_field.$input.on("change", function () {
-			load_all_lots();
-		});
-
-		flt_to_date_field = frappe.ui.form.make_control({
-			parent: $("#flt_to_date_wrapper"),
-			df: {
-				fieldname: "flt_to_date",
-				fieldtype: "Date",
-				label: "",
-				placeholder: "dd/mm/yyyy",
-				onchange: function () {
-					load_all_lots();
-				},
-			},
-			render_input: true,
-		});
-		flt_to_date_field.refresh();
-		flt_to_date_field.$input.addClass("input-xs");
-		flt_to_date_field.$input.on("change", function () {
-			load_all_lots();
-		});
-	}
-
 	function load_all_lots() {
 		// Build the wrapper with persistent heading row (only once)
 		if (!$("#tea_lot_all").length) return;
@@ -119,16 +65,11 @@ frappe.provide("lotwise.tea_lot_dashboard");
 							<h4>All Tea Lots</h4>
 							<span class="lot-count-badge" id="total_lot_count">0 Total</span>
 							<span class="lot-badge" id="filtered_lot_count" style="background:#fef3c7;color:#92400e;display:none;">0 Filtered</span>
-							<span style="font-size:12px;font-weight:600;color:#4b5563;">Purchase Date :</span>
-							<div id="flt_from_date_wrapper" style="display:inline-block;width:160px;"></div>
-							<span style="font-size:12px;color:#6b7280;">to</span>
-							<div id="flt_to_date_wrapper" style="display:inline-block;width:160px;"></div>
 						</div>
 					</div>
 					<div id="tea_lot_all_container"></div>
 				</div>
 			`);
-			create_date_filter_controls();
 		}
 
 		$("#tea_lot_all_container").html(`
@@ -138,7 +79,7 @@ frappe.provide("lotwise.tea_lot_dashboard");
 			</div>
 		`);
 
-		var args = get_date_filter_args();
+		var args = {};
 		api("tea_lot_dashboard_all_lots.get_all_lots", args, function (data) {
 			all_lots_data = (data && data.lots) || [];
 			render_all_lots_table();
@@ -175,21 +116,19 @@ frappe.provide("lotwise.tea_lot_dashboard");
 		var columns = [
 			{ key: "sno", label: "S.No" },
 			{ key: "name", label: "Tea Lot ID", clickable: true },
+			{ key: "tea_purchase", label: "Tea Purchase ID" },
 			{ key: "lot_no", label: "Lot No" },
 			{ key: "mark", label: "Mark" },
 			{ key: "grade", label: "Grade" },
-			{ key: "seller", label: "Seller" },
 			{ key: "invoice_number", label: "Invoice No" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
 			{ key: "acquisition_channel", label: "Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
 			{ key: "packages", label: "Packages", numeric: true },
 			{ key: "net_weight_total", label: "Net Wt Kg", numeric: true },
-			{ key: "rate", label: "Rate", numeric: true },
-			{ key: "status", label: "Status" },
+			{ key: "rate", label: "Purchase Rate", numeric: true },
 			{ key: "purchase_status", label: "Purchase Status" },
 			{ key: "warehouse", label: "Warehouse" },
 			{ key: "auction_centre", label: "Auction Centre" },
+			{ key: "sale_no", label: "Sale No" },
 		];
 
 		// Read current filter values

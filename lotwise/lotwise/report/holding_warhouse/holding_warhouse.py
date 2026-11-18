@@ -18,22 +18,31 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"label": _("Lot ID"), "fieldname": "name", "fieldtype": "Link", "options": "Tea Lot", "width": 160},
+		{
+			"label": _("Purchase ID"),
+			"fieldname": "name",
+			"fieldtype": "Link",
+			"options": "Tea Purchase",
+			"width": 160,
+		},
+		{
+			"label": _("Tea Lot"),
+			"fieldname": "tea_lot",
+			"fieldtype": "Link",
+			"options": "Tea Lot",
+			"width": 160,
+		},
 		{"label": _("Lot No"), "fieldname": "lot_no", "fieldtype": "Data", "width": 110},
+		{"label": _("Season"), "fieldname": "season", "fieldtype": "Int", "width": 80},
 		{"label": _("Sale No"), "fieldname": "sale_no", "fieldtype": "Int", "width": 90},
+		{"label": _("Week No"), "fieldname": "week_no", "fieldtype": "Int", "width": 80},
+		{"label": _("Deal No"), "fieldname": "deal_no", "fieldtype": "Data", "width": 110},
 		{"label": _("Channel"), "fieldname": "acquisition_channel", "fieldtype": "Data", "width": 120},
 		{
 			"label": _("Auction Centre"),
 			"fieldname": "auction_centre",
 			"fieldtype": "Link",
 			"options": "Auction Centre",
-			"width": 150,
-		},
-		{
-			"label": _("Evaluation Status"),
-			"fieldname": "evaluation_status",
-			"fieldtype": "Link",
-			"options": "Evaluation Status",
 			"width": 150,
 		},
 		{
@@ -53,32 +62,22 @@ def get_columns():
 			"precision": 2,
 			"width": 100,
 		},
-		{"label": _("Rate"), "fieldname": "rate", "fieldtype": "Currency", "width": 95},
-		{"label": _("Warehouse"), "fieldname": "warehouselocation", "fieldtype": "Data", "width": 150},
-		{"label": _("Purchase Date"), "fieldname": "purchase_date", "fieldtype": "Date", "width": 115},
-		{"label": _("Invoice No"), "fieldname": "invoice_number", "fieldtype": "Data", "width": 120},
-		{"label": _("GP No"), "fieldname": "gp_no", "fieldtype": "Data", "width": 95},
-		{"label": _("Purchase From"), "fieldname": "purchase_from", "fieldtype": "Data", "width": 130},
-		{
-			"label": _("Purchase Invoice No"),
-			"fieldname": "purchase_invoice_no",
-			"fieldtype": "Data",
-			"width": 150,
-		},
+		{"label": _("Purchase Rate"), "fieldname": "rate", "fieldtype": "Currency", "width": 110},
 		{
 			"label": _("Total Amount"),
-			"fieldname": "total_amount_as_per_to_tax_invoice",
+			"fieldname": "total_amount",
 			"fieldtype": "Currency",
-			"width": 140,
-		},
-		{"label": _("Density"), "fieldname": "density", "fieldtype": "Float", "precision": 2, "width": 95},
-		{
-			"label": _("Liquor Mark"),
-			"fieldname": "liquor_mark",
-			"fieldtype": "Link",
-			"options": "Liquor Mark",
 			"width": 130,
 		},
+		{
+			"label": _("Warehouse"),
+			"fieldname": "warehouse",
+			"fieldtype": "Link",
+			"options": "Warehouse",
+			"width": 170,
+		},
+		{"label": _("Invoice No"), "fieldname": "invoice_number", "fieldtype": "Data", "width": 120},
+		{"label": _("Broker"), "fieldname": "broker", "fieldtype": "Link", "options": "Broker", "width": 130},
 	]
 
 
@@ -88,28 +87,20 @@ def get_conditions(filters, table_alias=None):
 	values = {}
 
 	filter_map = {
-		"name": "name",
+		"name": "tea_lot",
 		"acquisition_channel": "acquisition_channel",
 		"auction_centre": "auction_centre",
 		"lot_no": "lot_no",
-		"evaluation_status": "evaluation_status",
 		"purchase_status": "purchase_status",
 		"mark": "mark",
 		"grade": "grade",
+		"warehouse": "warehouse",
 	}
 
 	for key, field in filter_map.items():
 		if filters.get(key):
 			conditions.append(f"{prefix}{field} = %({key})s")
 			values[key] = filters[key]
-
-	if filters.get("from_date"):
-		conditions.append(f"{prefix}purchase_date >= %(from_date)s")
-		values["from_date"] = filters["from_date"]
-
-	if filters.get("to_date"):
-		conditions.append(f"{prefix}purchase_date <= %(to_date)s")
-		values["to_date"] = filters["to_date"]
 
 	if filters.get("sale_no_from"):
 		conditions.append(f"{prefix}sale_no >= %(sale_no_from)s")
@@ -123,37 +114,35 @@ def get_conditions(filters, table_alias=None):
 
 
 def get_data(filters):
-	conditions, values = get_conditions(filters, "tl")
+	conditions, values = get_conditions(filters, "tp")
 
-	where_clause = " AND ".join(conditions) if conditions else "1=1"
+	where_clause = " AND ".join(conditions)
 
 	data = frappe.db.sql(
 		f"""
 		SELECT
-			tl.name,
-			tl.lot_no,
-			tl.sale_no,
-			tl.acquisition_channel,
-			tl.auction_centre,
-			tl.evaluation_status,
-			tl.purchase_status,
-			tl.mark,
-			tl.grade,
-			tl.packages,
-			tl.net_weight_total,
-			tl.rate,
-			tl.warehouselocation,
-			tl.purchase_date,
-			tl.invoice_number,
-			tl.gp_no,
-			tl.purchase_from,
-			tl.purchase_invoice_no,
-			tl.total_amount_as_per_to_tax_invoice,
-			tl.density,
-			tl.liquor_mark
-		FROM `tabTea Lot` tl
+			tp.name,
+			tp.tea_lot,
+			tp.lot_no,
+			tp.season,
+			tp.sale_no,
+			tp.week_no,
+			tp.deal_no,
+			tp.acquisition_channel,
+			tp.auction_centre,
+			tp.purchase_status,
+			tp.mark,
+			tp.grade,
+			tp.packages,
+			tp.net_weight_total,
+			tp.rate,
+			tp.net_weight_total * tp.rate AS total_amount,
+			tp.warehouse,
+			tp.invoice_number,
+			tp.broker
+		FROM `tabTea Purchase` tp
 		WHERE {where_clause}
-		ORDER BY tl.creation DESC
+		ORDER BY tp.creation DESC
 		""",
 		values,
 		as_dict=True,
@@ -161,50 +150,34 @@ def get_data(filters):
 
 	# Add custom total row - sum numeric fields
 	if data:
-		total_row = {
-			"name": "Total",
-			"lot_no": None,
-			"sale_no": None,
-			"acquisition_channel": None,
-			"auction_centre": None,
-			"evaluation_status": None,
-			"purchase_status": None,
-			"mark": None,
-			"grade": None,
-			"packages": sum(row.get("packages") or 0 for row in data),
-			"net_weight_total": sum(row.get("net_weight_total") or 0 for row in data),
-			"rate": None,
-			"warehouselocation": None,
-			"purchase_date": None,
-			"invoice_number": None,
-			"gp_no": None,
-			"purchase_from": None,
-			"purchase_invoice_no": None,
-			"total_amount_as_per_to_tax_invoice": sum(
-				row.get("total_amount_as_per_to_tax_invoice") or 0 for row in data
-			),
-			"density": None,
-			"liquor_mark": None,
-		}
+		total_row = {column["fieldname"]: None for column in get_columns()}
+		total_row.update(
+			{
+				"name": "Total",
+				"packages": sum(row.get("packages") or 0 for row in data),
+				"net_weight_total": sum(row.get("net_weight_total") or 0 for row in data),
+				"total_amount": sum(row.get("total_amount") or 0 for row in data),
+			}
+		)
 		data.append(total_row)
 
 	return data
 
 
 def get_report_summary(filters):
-	conditions, values = get_conditions(filters)
+	conditions, values = get_conditions(filters, "tp")
 
-	where_clause = " AND ".join(conditions) if conditions else "1=1"
+	where_clause = " AND ".join(conditions)
 
 	result = frappe.db.sql(
 		f"""
 		SELECT
-			count(name) as total_lots,
-			sum(packages) as total_packages,
-			sum(net_weight_total) as total_weight,
-			count(distinct mark) as total_marks,
-			COALESCE(SUM(net_weight_total * rate) / NULLIF(SUM(net_weight_total),0), 0) AS avg_rate
-		FROM `tabTea Lot`
+			count(tp.name) as total_lots,
+			sum(tp.packages) as total_packages,
+			sum(tp.net_weight_total) as total_weight,
+			count(distinct tp.mark) as total_marks,
+			COALESCE(SUM(tp.net_weight_total * tp.rate) / NULLIF(SUM(tp.net_weight_total),0), 0) AS avg_rate
+		FROM `tabTea Purchase` tp
 		WHERE {where_clause}
 		""",
 		values,

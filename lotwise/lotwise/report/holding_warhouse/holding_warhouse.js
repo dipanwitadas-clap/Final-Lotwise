@@ -6,10 +6,6 @@ const BADGE_STYLES = {
 		Received: ["#dbeafe", "#1e40af"],
 		"In Stock": ["#fef3c7", "#92400e"],
 	},
-	evaluation_status: {
-		Offered: ["#f3e8ff", "#6b21a8"],
-		Evaluated: ["#fce7f3", "#9d174d"],
-	},
 	acquisition_channel: {
 		Auction: ["#e0e7ff", "#3730a3"],
 		Private: ["#fef3c7", "#92400e"],
@@ -17,13 +13,8 @@ const BADGE_STYLES = {
 	},
 };
 
-const NUMERIC_COLUMNS = new Set(["packages", "net_weight_total", "rate"]);
-const CENTER_COLUMNS = new Set([
-	"acquisition_channel",
-	"evaluation_status",
-	"purchase_status",
-	"purchase_date",
-]);
+const NUMERIC_COLUMNS = new Set(["packages", "net_weight_total", "rate", "total_amount"]);
+const CENTER_COLUMNS = new Set(["acquisition_channel", "purchase_status"]);
 
 function badge(value, colors) {
 	const [background, color] = colors;
@@ -35,7 +26,7 @@ frappe.query_reports["Holding Warhouse"] = {
 	filters: [
 		{
 			fieldname: "name",
-			label: __("Lot ID"),
+			label: __("Tea Lot"),
 			fieldtype: "Link",
 			options: "Tea Lot",
 		},
@@ -51,26 +42,16 @@ frappe.query_reports["Holding Warhouse"] = {
 			fieldtype: "Data",
 		},
 		{
-			fieldname: "from_date",
-			label: __("From Date"),
-			fieldtype: "Date",
-		},
-		{
-			fieldname: "to_date",
-			label: __("To Date"),
-			fieldtype: "Date",
-		},
-		{
 			fieldname: "purchase_status",
 			label: __("Purchase Status"),
 			fieldtype: "Link",
 			options: "Purchase Status",
 		},
 		{
-			fieldname: "evaluation_status",
-			label: __("Evaluation Status"),
+			fieldname: "warehouse",
+			label: __("Warehouse"),
 			fieldtype: "Link",
-			options: "Evaluation Status",
+			options: "Warehouse",
 		},
 		{
 			fieldname: "mark",
