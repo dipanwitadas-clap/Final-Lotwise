@@ -12,9 +12,9 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// BUTTONS
 	// --------------------------------------------------
 
-	page.add_inner_button(__("New Tea Lot"), () => frappe.new_doc("Tea Lot"));
-	page.add_inner_button(__("New Evaluation"), () => frappe.new_doc("Tea Evaluation"));
-	page.add_inner_button(__("Tea Lot Data Import"), () => frappe.new_doc("Tea Lot Import"));
+	page.add_inner_button(__("Tea Evaluation Comparison"), () => {
+		frappe.set_route("query-report", "Tea Evaluation Comparison");
+	});
 	page.add_inner_button(__("Holding Warehouse"), () => {
 		frappe.set_route("query-report", "Holding Warhouse");
 	});
@@ -305,18 +305,58 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	padding: 2px 6px !important;
 }
 
+
+.main-tab-panel{display:none}
+.main-tab-panel.active{display:block}
+.main-tab-list .main-tab-btn{font-size:14px}
+.buy-filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.buy-filters select{width:auto;min-width:140px}
+#buying-tab .detail-box{margin-bottom:14px;padding:12px}
+#buying-tab .detail-box h5{margin:0 0 8px;font-weight:600}
+.buy-tbl-wrap{max-height:380px;overflow:auto}
+.buy-tbl-wrap a{cursor:pointer}
 </style>
 
 
 
 <div class="tea-dashboard">
 
-<div class="row" id="cards"></div>
-
 <div class="dashboard-tabs">
+
+<div class="dashboard-tab-list main-tab-list">
+<button class="main-tab-btn dashboard-tab-btn active" data-main="buying-tab">Buying Week Overview</button>
+<button class="main-tab-btn dashboard-tab-btn" data-main="other-tab">Other</button>
+</div>
+
+<div class="main-tab-panel active" id="buying-tab">
+<div class="buy-filters" id="buy_filters">
+<select id="bf_season" class="form-control input-sm"></select>
+<select id="bf_week" class="form-control input-sm"></select>
+<select id="bf_day" class="form-control input-sm"></select>
+<select id="bf_channel" class="form-control input-sm">
+<option value="">All Channels</option><option>Auction</option><option>Private</option><option>Outsourced</option></select>
+<select id="bf_pstatus" class="form-control input-sm"></select>
+<select id="bf_postatus" class="form-control input-sm"></select>
+<button class="btn btn-default btn-sm" id="bf_reset">Reset</button>
+</div>
+<div class="row" id="buy_kpis"></div>
+<div class="row">
+<div class="col-md-7"><div class="detail-box"><h5>Buying Week wise (Net Kg)</h5><div id="buy_chart_week"></div></div></div>
+<div class="col-md-5"><div class="detail-box"><h5>Acquisition Channel (Lots)</h5><div id="buy_chart_channel"></div></div></div>
+</div>
+<div class="detail-box"><h5>Buying Week</h5><div id="buy_week_tbl"></div></div>
+<div class="detail-box"><h5>Buying Day</h5><div id="buy_day_tbl"></div></div>
+<div class="detail-box"><h5>Purchase Orders</h5><div id="buy_po_tbl"></div></div>
+<div class="detail-box"><h5>Tea Lot / Purchase / Evaluation</h5><div id="buy_lot_tbl"></div></div>
+</div>
+
+<div class="main-tab-panel" id="other-tab">
+
+<div class="row" id="cards"></div>
 
 <div class="dashboard-tab-list">
 <button class="dashboard-tab-btn active" data-tab="tea-lot-tab">Tea Lot</button>
+<button class="dashboard-tab-btn" data-tab="tea-purchase-tab">Tea Purchase</button>
 <button class="dashboard-tab-btn" data-tab="lot-details-tab">Tea Lot Details</button>
 <button class="dashboard-tab-btn" data-tab="mark-tab">Mark</button>
 <button class="dashboard-tab-btn" data-tab="grade-tab">Grade</button>
@@ -325,6 +365,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 <div class="dashboard-tab-panel active" id="tea-lot-tab">
 <div id="tea_lot_all"></div>
+</div>
+
+<div class="dashboard-tab-panel" id="tea-purchase-tab">
+<div id="tea_purchase_all"></div>
 </div>
 
 <div class="dashboard-tab-panel" id="lot-details-tab">
@@ -365,6 +409,8 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 </div>
 <div id="evaluation_results"></div>
 </div>
+</div>
+
 </div>
 
 </div>
@@ -1568,16 +1614,633 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	}
 
 	// --------------------------------------------------
+	// BUYING OVERVIEW TAB
+	// --------------------------------------------------
+
+	var buy_charts = {};
+
+	function buy_filters() {
+		return {
+			season: $("#bf_season").val() || "",
+			buying_week: $("#bf_week").val() || "",
+			buying_day: $("#bf_day").val() || "",
+			acquisition_channel: $("#bf_channel").val() || "",
+			purchase_status: $("#bf_pstatus").val() || "",
+			po_status: $("#bf_postatus").val() || "",
+		};
+	}
+
+	function fill_select(sel, first, items) {
+		var h = `<option value="">${esc(first)}</option>`;
+		items.forEach(function (i) {
+			h += `<option value="${esc(i.v)}">${esc(i.l)}</option>`;
+		});
+		$(sel).html(h);
+	}
+
+	function load_buying_options(keep) {
+		var wk = $("#bf_week").val() || "";
+		api_from(
+			"tea_lot_dashboard_buying",
+			"get_filter_options",
+			{ buying_week: wk },
+			function (o) {
+				if (!o) return;
+				var cur = buy_filters();
+				if (!keep) {
+					fill_select(
+						"#bf_season",
+						"All Seasons",
+						o.seasons.map((x) => ({ v: x, l: "Season " + x }))
+					);
+					fill_select(
+						"#bf_week",
+						"All Buying Weeks",
+						o.weeks.map((x) => ({
+							v: x.name,
+							l: "Week " + (x.week_no || "") + " (" + x.name + ")",
+						}))
+					);
+					fill_select(
+						"#bf_pstatus",
+						"All Purchase Status",
+						o.purchase_statuses.map((x) => ({ v: x, l: x }))
+					);
+					fill_select(
+						"#bf_postatus",
+						"All PO Status",
+						o.po_statuses.map((x) => ({ v: x, l: x }))
+					);
+				}
+				fill_select(
+					"#bf_day",
+					"All Buying Days",
+					o.days.map((x) => ({
+						v: x.name,
+						l: "Day " + (x.day || "") + " (" + x.name + ")",
+					}))
+				);
+				if (keep) $("#bf_day").val(cur.buying_day);
+			}
+		);
+	}
+
+	function link(doctype, name) {
+		if (!name) return "-";
+		return `<a data-dt="${esc(doctype)}" data-name="${esc(name)}" class="buy-link">${esc(
+			name
+		)}</a>`;
+	}
+
+	function buy_table(cols, rows, limit) {
+		if (!rows || !rows.length)
+			return `<div class="alert alert-info">No data for selected filters</div>`;
+		var total = rows.length;
+		if (limit && total > limit) rows = rows.slice(0, limit);
+		var h = `<div class="buy-tbl-wrap"><table class="table table-bordered table-sm"><thead><tr>`;
+		cols.forEach(function (c) {
+			h += `<th>${esc(c[0])}</th>`;
+		});
+		h += `</tr></thead><tbody>`;
+		rows.forEach(function (r) {
+			h += "<tr>";
+			cols.forEach(function (c) {
+				h += `<td>${c[1](r)}</td>`;
+			});
+			h += "</tr>";
+		});
+		h += `</tbody></table></div>`;
+		if (total > rows.length)
+			h += `<div class="text-muted" style="font-size:12px;margin-top:6px">Showing first ${fmt(
+				rows.length
+			)} of ${fmt(total)} rows. Use the filters above to narrow down.</div>`;
+		return h;
+	}
+
+	function draw_chart(sel, cfg) {
+		if (buy_charts[sel]) {
+			try {
+				buy_charts[sel].destroy && buy_charts[sel].destroy();
+			} catch (e) {
+				// ignore: chart may already be destroyed or detached from the DOM
+			}
+		}
+		$(sel).empty();
+		if (!cfg.data.labels.length) {
+			$(sel).html(`<div class="text-muted">No data</div>`);
+			return;
+		}
+		buy_charts[sel] = new frappe.Chart(sel, cfg);
+	}
+
+	function load_buying() {
+		var f = JSON.stringify(buy_filters());
+
+		api_from("tea_lot_dashboard_buying", "get_kpis", { filters: f }, function (d) {
+			if (!d) return;
+			var cards = [
+				["Buying Weeks", d.buying_weeks, "fa-calendar", "#2563eb", "#eff6ff"],
+				["Buying Days", d.buying_days, "fa-calendar-o", "#7c3aed", "#f5f3ff"],
+				["Tea Lots", fmt(d.lots), "fa-cubes", "#16a34a", "#f0fdf4"],
+				["Net Kg", fmt(d.net_weight), "fa-balance-scale", "#ea580c", "#fff7ed"],
+				[
+					"Purchased Lots",
+					fmt(d.purchased_lots) + " / " + fmt(d.lots),
+					"fa-shopping-cart",
+					"#0d9488",
+					"#f0fdfa",
+				],
+				["Purchase Value", money(d.value), "fa-inr", "#ca8a04", "#fefce8"],
+				["Avg Purchase Rate/kg", money(d.avg_rate), "fa-line-chart", "#0891b2", "#ecfeff"],
+				[
+					"Purchase Orders",
+					d.po_count + " / " + money(d.po_total),
+					"fa-file-text-o",
+					"#db2777",
+					"#fdf2f8",
+				],
+				[
+					"Evaluated",
+					fmt(d.evaluated) +
+						" / " +
+						fmt(d.lots) +
+						" (" +
+						fmt(d.not_evaluated) +
+						" pending)",
+					"fa-check-square-o",
+					"#dc2626",
+					"#fef2f2",
+				],
+			];
+			var html = "";
+			cards.forEach(function (c) {
+				html += `<div class="col-md-3" style="padding:5px;"><div class="dashboard-card" style="--card-accent:${
+					c[3]
+				};--card-bg:${c[4]};">
+				<div class="dashboard-card-icon"><i class="fa ${c[2]}"></i></div><div><h3 style="font-size:18px">${
+					c[1] == null ? 0 : c[1]
+				}</h3><small>${c[0]}</small></div></div></div>`;
+			});
+			$("#buy_kpis").html(html);
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_week_summary", { filters: f }, function (rows) {
+			rows = rows || [];
+			draw_chart("#buy_chart_week", {
+				type: "bar",
+				height: 240,
+				colors: ["#2563eb"],
+				data: {
+					labels: rows
+						.slice()
+						.reverse()
+						.map((r) => "W" + (r.week_no || r.buying_week)),
+					datasets: [
+						{
+							name: "Net Kg",
+							values: rows
+								.slice()
+								.reverse()
+								.map((r) => Math.round(r.net_weight)),
+						},
+					],
+				},
+			});
+			$("#buy_week_tbl").html(
+				buy_table(
+					[
+						["Buying Week", (r) => link("Buying Week", r.buying_week)],
+						["Week", (r) => vd(r.week_no)],
+						["Season", (r) => vd(r.season)],
+						["Days", (r) => fmt(r.days)],
+						["Catalogue Rows", (r) => fmt(r.catalogue_rows)],
+						["Lots", (r) => fmt(r.lots)],
+						["Purchased", (r) => fmt(r.purchased_lots)],
+						["Net Kg", (r) => fmt(r.net_weight)],
+						["Purchase Value", (r) => money(r.value)],
+						["POs", (r) => fmt(r.pos)],
+					],
+					rows
+				)
+			);
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_day_summary", { filters: f }, function (rows) {
+			$("#buy_day_tbl").html(
+				buy_table(
+					[
+						["Buying Day", (r) => link("Buying Day", r.buying_day)],
+						["Week", (r) => link("Buying Week", r.buying_week)],
+						["Day", (r) => vd(r.day)],
+						["Channel", (r) => vd(r.acquisition_channel)],
+						["Status", (r) => `<span class="lot-badge">${vd(r.status)}</span>`],
+						["Catalogue Rows", (r) => fmt(r.catalogue_rows)],
+						["Lots", (r) => fmt(r.lots)],
+						["Purchased", (r) => fmt(r.purchased_lots)],
+						["Net Kg", (r) => fmt(r.net_weight)],
+						["Purchase Value", (r) => money(r.value)],
+						["POs", (r) => fmt(r.pos)],
+						["Evaluated", (r) => fmt(r.evaluated) + " / " + fmt(r.lots)],
+					],
+					rows
+				)
+			);
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_channel_split", { filters: f }, function (rows) {
+			rows = rows || [];
+			draw_chart("#buy_chart_channel", {
+				type: "donut",
+				height: 240,
+				data: {
+					labels: rows.map((r) => r.channel),
+					datasets: [{ values: rows.map((r) => r.lots) }],
+				},
+			});
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_po_summary", { filters: f }, function (rows) {
+			$("#buy_po_tbl").html(
+				buy_table(
+					[
+						["PO", (r) => link("Purchase Order", r.purchase_order)],
+						["Supplier", (r) => vd(r.supplier)],
+						["Buying Day", (r) => link("Buying Day", r.buying_day)],
+						["Date", (r) => vd(r.transaction_date)],
+						["Status", (r) => vd(r.status)],
+						["Lots", (r) => fmt(r.lots)],
+						["Net Kg", (r) => fmt(r.net_weight)],
+						["Amount", (r) => money(r.grand_total)],
+						["Received %", (r) => fmt(r.per_received)],
+						["Billed %", (r) => fmt(r.per_billed)],
+					],
+					rows
+				)
+			);
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_lot_rows", { filters: f }, function (rows) {
+			$("#buy_lot_tbl").html(
+				buy_table(
+					[
+						[
+							"Lot No",
+							(r) =>
+								link("Tea Lot", r.tea_lot) +
+								(r.lot_no ? " (" + esc(r.lot_no) + ")" : ""),
+						],
+						["Purchase", (r) => link("Tea Purchase", r.tea_purchase)],
+						["Mark", (r) => vd(r.mark)],
+						["Grade", (r) => vd(r.grade)],
+						["Channel", (r) => vd(r.acquisition_channel)],
+						["Buying Day", (r) => link("Buying Day", r.buying_day)],
+						["Net Kg", (r) => fmt(r.net_weight_total)],
+						["Rate", (r) => money(r.rate)],
+						["Purchase Status", (r) => vd(r.purchase_status)],
+						["PO", (r) => link("Purchase Order", r.purchase_order)],
+						["PO Status", (r) => vd(r.po_status)],
+						[
+							"Evaluation",
+							(r) =>
+								r.eval_count
+									? `${esc(r.eval_count)} (${vd(r.eval_stage)})`
+									: `<span class="text-danger">Pending</span>`,
+						],
+						[
+							"Suggested Val.",
+							(r) => (r.suggested_valuation ? money(r.suggested_valuation) : "-"),
+						],
+					],
+					rows,
+					300
+				)
+			);
+		});
+	}
+
+	$(page.main).on("click", ".buy-link", function () {
+		frappe.set_route("Form", $(this).attr("data-dt"), $(this).attr("data-name"));
+	});
+	$(page.main).on("change", "#buy_filters select", function () {
+		if (this.id === "bf_week") {
+			$("#bf_day").val("");
+			load_buying_options(true);
+		}
+		load_buying();
+	});
+	$(page.main).on("click", "#bf_reset", function () {
+		$("#buy_filters select").val("");
+		load_buying_options(false);
+		load_buying();
+	});
+
+	// --------------------------------------------------
+	// TEA PURCHASE TAB (generic filter-box table)
+	// --------------------------------------------------
+
+	function make_data_table(cfg) {
+		var P = cfg.prefix;
+		var st = { data: [], filtered: [], page: 0, size: 10, timer: null };
+		var $root = $(cfg.container);
+
+		function build_shell() {
+			$root.html(`
+				<div class="detail-box">
+					<div class="section-heading">
+						<div class="section-title-wrap">
+							<h4>${esc(cfg.title)}</h4>
+							<span class="lot-count-badge" id="${P}total">0 Total</span>
+							<span class="lot-badge" id="${P}filtered" style="background:#fef3c7;color:#92400e;display:none;">0 Filtered</span>
+							<button class="btn btn-default btn-sm" id="${P}download" title="Download Excel">
+								<i class="fa fa-download"></i> Download
+							</button>
+						</div>
+					</div>
+					<div id="${P}container"></div>
+				</div>`);
+			$root
+				.off("click", "#" + P + "download")
+				.on("click", "#" + P + "download", function (e) {
+					e.preventDefault();
+					download();
+				});
+		}
+
+		function numeric_filter(rowValue, fv) {
+			if (/^\s*([><]=?|={1,2})\s*$/.test(fv)) return true;
+			var m = fv.match(/^\s*([><]=?|={1,2})\s*([\d.]+)\s*$/);
+			if (!m) return null;
+			var num = parseFloat(m[2]),
+				rv = parseFloat(rowValue);
+			if (isNaN(num)) return null;
+			if (isNaN(rv)) return false;
+			switch (m[1]) {
+				case ">=":
+					return rv >= num;
+				case "<=":
+					return rv <= num;
+				case ">":
+					return rv > num;
+				case "<":
+					return rv < num;
+				default:
+					return rv === num;
+			}
+		}
+
+		function cell(col, row, idx) {
+			var val = row[col.key];
+			if (col.key === "sno") return "<td>" + (idx + 1) + "</td>";
+			if (col.lot_link && val)
+				return `<td><a href="#" class="lot-detail-link" data-lot="${esc(
+					val
+				)}" style="color:#1f5eff;font-weight:600;text-decoration:none;">${esc(
+					val
+				)}</a></td>`;
+			if (col.doctype && val)
+				return `<td><a href="#" class="${P}doc-link" data-dt="${esc(
+					col.doctype
+				)}" data-name="${esc(
+					val
+				)}" style="color:#1f5eff;font-weight:600;text-decoration:none;">${esc(
+					val
+				)}</a></td>`;
+			if (col.numeric) return "<td>" + (val == null ? "-" : fmt(val)) + "</td>";
+			if (col.money) return "<td>" + money(val) + "</td>";
+			return "<td>" + vd(val) + "</td>";
+		}
+
+		function render() {
+			var focus_id = null,
+				cs = 0,
+				ce = 0,
+				a = document.activeElement;
+			if (a && a.id && a.id.indexOf(P + "flt_") === 0) {
+				focus_id = a.id;
+				cs = a.selectionStart || 0;
+				ce = a.selectionEnd || 0;
+			}
+			var $c = $("#" + P + "container");
+			if (!st.data.length) {
+				$("#" + P + "total").text("0 Total");
+				$("#" + P + "filtered").hide();
+				$c.html(
+					`<div class="text-center text-muted" style="padding:20px;">No records found.</div>`
+				);
+				return;
+			}
+			var filters = {};
+			cfg.columns.forEach(function (col) {
+				filters[col.key] = ($("#" + P + "flt_" + col.key).val() || "").toLowerCase();
+			});
+			var indexed = [];
+			st.data.forEach(function (row, i) {
+				var ok = cfg.columns.every(function (col) {
+					var fv = filters[col.key];
+					if (!fv) return true;
+					if (col.key === "sno") return String(i + 1).indexOf(fv) !== -1;
+					if (col.numeric) {
+						var r = numeric_filter(row[col.key], fv);
+						if (r !== null) return r;
+					}
+					return (
+						(row[col.key] == null ? "" : String(row[col.key]))
+							.toLowerCase()
+							.indexOf(fv) !== -1
+					);
+				});
+				if (ok) indexed.push({ row: row, i: i });
+			});
+			st.filtered = indexed;
+			var pages = Math.max(1, Math.ceil(indexed.length / st.size));
+			if (st.page >= pages) st.page = pages - 1;
+			var start = st.page * st.size;
+			var slice = indexed.slice(start, start + st.size);
+
+			$("#" + P + "total").text(fmt(st.data.length) + " Total");
+			if (indexed.length !== st.data.length)
+				$("#" + P + "filtered")
+					.text(fmt(indexed.length) + " Filtered")
+					.show();
+			else $("#" + P + "filtered").hide();
+
+			var h = `<div class="section-body" style="padding:0;"><div class="all-lots-wrap"><table class="table table-bordered"><thead><tr>`;
+			cfg.columns.forEach(function (col) {
+				h += `<th><span class="col-head">${esc(
+					col.label
+				)}</span><input class="col-filter ${P}flt" id="${P}flt_${
+					col.key
+				}" type="text" value="${esc(
+					filters[col.key]
+				)}" placeholder="filter" autocomplete="off" /></th>`;
+			});
+			h += `</tr></thead><tbody>`;
+			if (!slice.length) {
+				h += `<tr><td colspan="${cfg.columns.length}" class="text-center text-muted" style="padding:20px;">No matching records found.</td></tr>`;
+			} else {
+				slice.forEach(function (it) {
+					h += "<tr>";
+					cfg.columns.forEach(function (col) {
+						h += cell(col, it.row, it.i);
+					});
+					h += "</tr>";
+				});
+			}
+			var from = indexed.length ? start + 1 : 0,
+				to = Math.min(start + st.size, indexed.length);
+			h += `</tbody></table></div></div>
+			<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #edf0f4;background:#fbfcfe;">
+				<span style="font-size:12px;color:#6b7280;">Showing ${from}-${to} of ${indexed.length}</span>
+				<div style="display:flex;gap:6px;">
+					<button class="btn btn-default btn-sm" id="${P}prev" ${
+				st.page === 0 ? "disabled" : ""
+			}>Previous</button>
+					<button class="btn btn-default btn-sm" id="${P}next" ${
+				st.page >= pages - 1 ? "disabled" : ""
+			}>Next</button>
+				</div></div>`;
+			$c.html(h);
+
+			if (focus_id) {
+				var el = $("#" + focus_id)[0];
+				if (el) {
+					el.focus();
+					if (el.setSelectionRange) el.setSelectionRange(cs, ce);
+				}
+			}
+			$c.off("input", "." + P + "flt").on("input", "." + P + "flt", function () {
+				clearTimeout(st.timer);
+				st.timer = setTimeout(function () {
+					st.page = 0;
+					render();
+				}, 200);
+			});
+			$c.off("click", "#" + P + "prev").on("click", "#" + P + "prev", function () {
+				if (st.page > 0) {
+					st.page--;
+					render();
+				}
+			});
+			$c.off("click", "#" + P + "next").on("click", "#" + P + "next", function () {
+				if (st.page < pages - 1) {
+					st.page++;
+					render();
+				}
+			});
+			$c.off("click", "." + P + "doc-link").on("click", "." + P + "doc-link", function (e) {
+				e.preventDefault();
+				frappe.set_route("Form", $(this).attr("data-dt"), $(this).attr("data-name"));
+			});
+			$c.off("click", ".lot-detail-link").on("click", ".lot-detail-link", function (e) {
+				e.preventDefault();
+				show_lot_detail_modal($(this).attr("data-lot"));
+			});
+		}
+
+		function load() {
+			if (!$root.length) return;
+			if (!$("#" + P + "container").length) build_shell();
+			$("#" + P + "container").html(
+				`<div class="text-center text-muted" style="padding:20px;"><i class="fa fa-spinner fa-spin"></i> Loading...</div>`
+			);
+			api_from(cfg.module, cfg.method, {}, function (d) {
+				st.data = (d && d.lots) || [];
+				st.page = 0;
+				render();
+			});
+		}
+
+		function download() {
+			frappe.call({
+				method: "lotwise.lotwise.page.tea_lot_dashboard." + cfg.module + "." + cfg.xlsx,
+				callback: function (r) {
+					var d = r.message;
+					if (!d || !d.content) {
+						frappe.msgprint({
+							title: __("Error"),
+							indicator: "red",
+							message: __("Failed to generate Excel."),
+						});
+						return;
+					}
+					var bin = atob(d.content),
+						arr = new Uint8Array(bin.length);
+					for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+					var url = URL.createObjectURL(
+						new Blob([arr], {
+							type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+						})
+					);
+					var a = document.createElement("a");
+					a.href = url;
+					a.download = d.filename || "export.xlsx";
+					document.body.appendChild(a);
+					a.click();
+					setTimeout(function () {
+						document.body.removeChild(a);
+						URL.revokeObjectURL(url);
+					}, 100);
+				},
+			});
+		}
+
+		return { load: load };
+	}
+
+	var tea_purchase_table = make_data_table({
+		container: "#tea_purchase_all",
+		prefix: "tp_",
+		title: "All Tea Purchases",
+		module: "tea_lot_dashboard_purchase",
+		method: "get_all_purchases",
+		xlsx: "download_purchases_xlsx",
+		columns: [
+			{ key: "sno", label: "S.No" },
+			{ key: "tea_purchase", label: "Tea Purchase ID", doctype: "Tea Purchase" },
+			{ key: "tea_lot", label: "Tea Lot ID", lot_link: true },
+			{ key: "lot_no", label: "Lot No" },
+			{ key: "mark", label: "Mark" },
+			{ key: "grade", label: "Grade" },
+			{ key: "acquisition_channel", label: "Channel" },
+			{ key: "packages", label: "Packages", numeric: true },
+			{ key: "net_weight_total", label: "Net Wt Kg", numeric: true },
+			{ key: "rate", label: "Purchase Rate", numeric: true, money: true },
+			{ key: "purchase_status", label: "Purchase Status" },
+			{ key: "purchase_order", label: "PO", doctype: "Purchase Order" },
+			{ key: "po_status", label: "PO Status" },
+			{ key: "broker", label: "Broker" },
+			{ key: "sale_no", label: "Sale No" },
+		],
+	});
+
+	// --------------------------------------------------
 	// TAB CLICK HANDLER
 	// --------------------------------------------------
 
-	$(page.main).on("click", ".dashboard-tab-btn", function () {
-		let tab = $(this).attr("data-tab");
-		$(".dashboard-tab-btn").removeClass("active");
+	$(page.main).on("click", ".main-tab-btn", function () {
+		let main = $(this).attr("data-main");
+		$(".main-tab-btn").removeClass("active");
 		$(this).addClass("active");
-		$(".dashboard-tab-panel").removeClass("active");
+		$(".main-tab-panel").removeClass("active");
+		$("#" + main).addClass("active");
+		if (main === "buying-tab") {
+			load_buying();
+		} else if ($("#tea-lot-tab").hasClass("active")) {
+			load_all_lots();
+		} else if ($("#tea-purchase-tab").hasClass("active")) {
+			tea_purchase_table.load();
+		}
+	});
+
+	$(page.main).on("click", ".dashboard-tab-btn:not(.main-tab-btn)", function () {
+		let tab = $(this).attr("data-tab");
+		$("#other-tab .dashboard-tab-btn").removeClass("active");
+		$(this).addClass("active");
+		$("#other-tab .dashboard-tab-panel").removeClass("active");
 		$("#" + tab).addClass("active");
-		if (tab === "tea-lot-tab") {
+		if (tab === "tea-purchase-tab") {
+			tea_purchase_table.load();
+		} else if (tab === "tea-lot-tab") {
 			load_all_lots();
 		} else if (tab === "evaluation-tab") {
 			load_evaluations();
@@ -1599,6 +2262,8 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	load_cards();
+	load_buying_options(false);
+	load_buying();
 	load_all_lots();
 	create_lot_search();
 	create_mark_search();

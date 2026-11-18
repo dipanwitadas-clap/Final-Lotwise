@@ -31,6 +31,12 @@ frappe.query_reports["Holding Warhouse"] = {
 			options: "Tea Lot",
 		},
 		{
+			fieldname: "tea_purchase",
+			label: __("Tea Purchase"),
+			fieldtype: "Link",
+			options: "Tea Purchase",
+		},
+		{
 			fieldname: "acquisition_channel",
 			label: __("Acquisition Channel"),
 			fieldtype: "Select",

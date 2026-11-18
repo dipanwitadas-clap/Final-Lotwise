@@ -8,13 +8,13 @@ import frappe
 import openpyxl
 
 
-def _purchase_rows() -> list:
-	"""All Tea Purchases (the data source for the Tea Lot tab)."""
+def _lot_rows() -> list:
+	"""All Tea Lots (the data source for the Tea Lot tab)."""
 	return frappe.db.sql(
 		"""
 		SELECT
-			tea_lot AS name,
-			name AS tea_purchase,
+			name,
+			tea_purchase,
 			lot_no,
 			mark,
 			grade,
@@ -27,7 +27,7 @@ def _purchase_rows() -> list:
 			warehouse,
 			auction_centre,
 			sale_no
-		FROM `tabTea Purchase`
+		FROM `tabTea Lot`
 		WHERE docstatus < 2
 		ORDER BY creation DESC
 		""",
@@ -38,17 +38,17 @@ def _purchase_rows() -> list:
 @frappe.whitelist()
 def get_all_lots() -> dict:
 	"""
-	Fetch all Tea Purchases for the main Tea Lot tab.
+	Fetch all Tea Lots for the main Tea Lot tab.
 	"""
-	return {"lots": _purchase_rows()}
+	return {"lots": _lot_rows()}
 
 
 @frappe.whitelist()
 def download_all_lots_xlsx():
 	"""
-	Generate .xlsx with all Tea Purchases and return as base64
+	Generate .xlsx with all Tea Lots and return as base64
 	"""
-	lots = _purchase_rows()
+	lots = _lot_rows()
 
 	columns = [
 		("Tea Lot ID", "name"),
@@ -69,7 +69,7 @@ def download_all_lots_xlsx():
 
 	wb = openpyxl.Workbook()
 	ws = wb.active
-	ws.title = "Tea Purchases"
+	ws.title = "Tea Lots"
 
 	for col_idx, (header, _fieldname) in enumerate(columns, 1):
 		ws.cell(row=1, column=col_idx, value=header)
@@ -84,4 +84,4 @@ def download_all_lots_xlsx():
 
 	encoded = base64.b64encode(output.getvalue()).decode("utf-8")
 
-	return {"content": encoded, "filename": "Tea_Purchases.xlsx"}
+	return {"content": encoded, "filename": "Tea_Lots.xlsx"}

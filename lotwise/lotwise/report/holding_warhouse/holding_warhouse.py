@@ -88,6 +88,7 @@ def get_conditions(filters, table_alias=None):
 
 	filter_map = {
 		"name": "tea_lot",
+		"tea_purchase": "name",
 		"acquisition_channel": "acquisition_channel",
 		"auction_centre": "auction_centre",
 		"lot_no": "lot_no",
