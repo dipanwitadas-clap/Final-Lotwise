@@ -275,24 +275,60 @@ class BuyingDay(Document):
 		buying_week: DF.Link | None
 		catalogue_file: DF.Attach | None
 		company: DF.Link
-		computed_total_net_weight: DF.Float
-		computed_total_packages: DF.Int
 		day: DF.Int
 		deal_book_file: DF.Attach | None
 		deal_book_items: DF.Table[BuyingWeekDealBookTea]
+		deal_book_po_total_net_wt: DF.Float
+		deal_book_po_total_pkgs: DF.Int
+		deal_book_purchase_total_net_wt: DF.Float
+		deal_book_purchase_total_pkgs: DF.Int
+		deal_book_rows_created_po: DF.Int
+		deal_book_rows_created_purchase: DF.Int
+		deal_book_rows_duplicate: DF.Int
+		deal_book_rows_error: DF.Int
+		deal_book_rows_read: DF.Int
+		deal_book_rows_updated: DF.Int
 		items: DF.Table[BuyingWeekTea]
+		items_rows_created: DF.Int
+		items_rows_duplicate: DF.Int
+		items_rows_error: DF.Int
+		items_rows_read: DF.Int
+		items_rows_updated: DF.Int
+		items_total_net_wt: DF.Float
+		items_total_pkgs: DF.Int
+		job_action: DF.Data | None
+		job_message: DF.SmallText | None
+		job_processed: DF.Int
+		job_status: DF.Literal["", "Queued", "Processing", "Done", "Error"]
+		job_total: DF.Int
+		job_updated: DF.Datetime | None
 		offer_sample_evaluation: DF.Table[OfferSampleEvaluationItem]
 		offer_sample_evaluation_file: DF.Attach | None
+		offer_sample_rows_created: DF.Int
+		offer_sample_rows_duplicate: DF.Int
+		offer_sample_rows_error: DF.Int
+		offer_sample_rows_read: DF.Int
+		offer_sample_rows_updated: DF.Int
+		offer_sample_total_net_wt: DF.Float
+		offer_sample_total_pkgs: DF.Int
+		private_list_lot_total_net_wt: DF.Float
+		private_list_lot_total_pkgs: DF.Int
+		private_list_po_total_net_wt: DF.Float
+		private_list_po_total_pkgs: DF.Int
+		private_list_purchase_total_net_wt: DF.Float
+		private_list_purchase_total_pkgs: DF.Int
+		private_list_rows_created_lot: DF.Int
+		private_list_rows_created_po: DF.Int
+		private_list_rows_created_purchase: DF.Int
+		private_list_rows_duplicate: DF.Int
+		private_list_rows_error: DF.Int
+		private_list_rows_read: DF.Int
+		private_list_rows_updated: DF.Int
 		private_purchase_list: DF.Table[PrivatePurchaseList]
 		purchase_list_file: DF.Attach | None
 		purchase_orders: DF.Table[BuyingWeekPurchaseOrder]
 		purchase_status: DF.Link | None
 		purchase_type: DF.Literal["", "Internal", "External"]
-		rows_created: DF.Int
-		rows_duplicate: DF.Int
-		rows_error: DF.Int
-		rows_parsed: DF.Int
-		rows_updated: DF.Int
 		sale_no: DF.Int
 		season: DF.Int
 		status: DF.Literal[
@@ -389,6 +425,7 @@ class BuyingDay(Document):
 		self._copy_from_week()
 		self._validate_unique_day()
 		self._compute_private_purchase_list()
+		self._set_tab_totals()
 		if self.has_value_changed("status") and self.status in POST_CATALOGUE_STATUSES:
 			self._block_if_catalogue_errors()
 		if self.has_value_changed("status") and self.status == "Purchase list Loaded":
@@ -423,6 +460,37 @@ class BuyingDay(Document):
 					"Offer Sample Evaluation has {0} Error row(s). Fix them (see Export Errors) and run Create Tea Lot again before moving to Purchase list Loaded."
 				).format(errors)
 			)
+
+	def _tab_totals(self):
+		"""Per tab: Reconciliation (Pkgs / Nett. Wt. (Kgs)) and Import Summary row counts.
+		A tab used by several create steps (Deal Book, Private) is reconciled per step,
+		using the link each step writes on the row; single-step tabs use row_status."""
+		out = {}
+		for table, (prefix, row_fn, steps) in TAB_CONFIG.items():
+			rows = self.get(table) or []
+			for key, is_done, *applies in steps:
+				mid = f"{key}_" if key else ""
+				# A step that does not apply to this day (e.g. Tea Lot from the Private list
+				# on an Internal day, where lots come from the Offer Sample tab) counts 0.
+				done = [r for r in rows if is_done(r)] if not applies or applies[0](self) else []
+				pkgs = wt = 0
+				for r in done:
+					row_pkgs, row_wt = row_fn(r)
+					pkgs += row_pkgs
+					wt += row_wt
+				out[f"{prefix}_{mid}total_pkgs"] = pkgs
+				out[f"{prefix}_{mid}total_net_wt"] = flt(wt, 3)
+				out[f"{prefix}_rows_created_{key}" if key else f"{prefix}_rows_created"] = len(done)
+			# Import Summary per tab, derived from the rows themselves.
+			out[f"{prefix}_rows_read"] = len(rows)
+			out[f"{prefix}_rows_error"] = sum(1 for r in rows if r.row_status == "Error")
+			out[f"{prefix}_rows_duplicate"] = sum(1 for r in rows if r.row_status == "Duplicate")
+			out[f"{prefix}_rows_updated"] = 0
+		return out
+
+	def _set_tab_totals(self):
+		for field, value in self._tab_totals().items():
+			self.set(field, value)
 
 	def _compute_private_purchase_list(self):
 		for row in self.get("private_purchase_list") or []:
@@ -689,8 +757,6 @@ class BuyingDay(Document):
 			frappe.throw(_("This is not a valid {0} file. Check the file format.").format(source_label))
 
 		self.set(target_field, [])
-		total_packages = 0
-		total_net_weight = 0.0
 
 		for row_no, raw_row in enumerate(rows[1:]):
 			self._progress(row_no, len(rows) - 1, commit=False)
@@ -710,17 +776,8 @@ class BuyingDay(Document):
 				continue
 
 			self.append(target_field, values)
-			total_packages += cint(values.get("packages") or 0)
-			total_net_weight += flt(values.get("total_net_weight") or values.get("net_weight") or 0)
 
 		rows_list = self.get(target_field)
-		self.computed_total_packages = total_packages
-		self.computed_total_net_weight = total_net_weight
-		self.rows_parsed = len(rows_list)
-		self.rows_created = 0
-		self.rows_error = 0
-		self.rows_duplicate = 0
-		self.rows_updated = 0
 		self.status = status_after
 		self.save()
 
@@ -1136,9 +1193,6 @@ class BuyingDay(Document):
 				error += 1
 				frappe.log_error(frappe.get_traceback(), "Buying Day: create_tea_lots row failed")
 
-		self.rows_created = sum(1 for item in self.items if item.row_status == "Created")
-		self.rows_error = sum(1 for item in self.items if item.row_status == "Error")
-		self.rows_duplicate = sum(1 for item in self.items if item.row_status == "Duplicate")
 		self.save()
 
 		return {"created": created, "errors": error, "duplicates": duplicate}
@@ -1315,9 +1369,6 @@ class BuyingDay(Document):
 				frappe.clear_last_message()
 				frappe.log_error(frappe.get_traceback(), "Buying Day: create_tea_purchases row failed")
 
-		self.rows_created = sum(1 for item in self.deal_book_items if item.row_status == "Created")
-		self.rows_error = sum(1 for item in self.deal_book_items if item.row_status == "Error")
-		self.rows_duplicate = sum(1 for item in self.deal_book_items if item.row_status == "Duplicate")
 		self.save()
 
 		return {"created": created, "errors": error, "duplicates": duplicate}
@@ -2006,6 +2057,47 @@ def run_buying_day_job(name, action):
 		background.finish_job("Buying Day", name, status, message)
 
 
+def _num(value):
+	return flt(str(value or "0").replace(",", ""))
+
+
+def _created(r):
+	return r.row_status == "Created"
+
+
+# Reconciliation / Import Summary per tab:
+# table -> (field prefix, row -> (pkgs, net wt), [(step key or None, row -> created?, optional doc -> applies?)]).
+# Net weight mirrors what the create steps put on the Tea Lot / Tea Purchase.
+TAB_CONFIG = {
+	"items": (
+		"items",
+		lambda r: (cint(r.packages), flt(r.net_weight) * cint(r.packages)),
+		[(None, _created)],
+	),
+	"deal_book_items": (
+		"deal_book",
+		lambda r: (cint(r.packages), flt(r.total_net_weight or r.net_weight)),
+		[("purchase", lambda r: bool(r.tea_purchase)), ("po", lambda r: bool(r.purchase_order))],
+	),
+	"private_purchase_list": (
+		"private_list",
+		lambda r: (cint(r.packages), flt(r.net_kg)),
+		[
+			# Only External days create lots from this list; on Internal days the
+			# purchase step also sets row.tea_lot, which must not count as a lot step.
+			("lot", lambda r: bool(r.tea_lot), lambda doc: doc.purchase_type == "External"),
+			("purchase", lambda r: bool(r.tea_purchase)),
+			("po", lambda r: bool(r.purchase_order)),
+		],
+	),
+	"offer_sample_evaluation": (
+		"offer_sample",
+		lambda r: (cint(_num(r.pckgs)), _num(r.qty) * cint(_num(r.pckgs))),
+		[(None, _created)],
+	),
+}
+
+
 # Child table each create action works on (used to recount after a crash).
 ACTION_TABLE = {
 	"create_tea_lots": "items",
@@ -2019,7 +2111,7 @@ ACTION_TABLE = {
 
 
 def _recount_rows(name, action):
-	"""Recompute rows_created / rows_error / rows_duplicate from the child rows that
+	"""Recompute the per-tab Reconciliation / Import Summary from the child rows that
 	were already persisted (the in-memory totals are lost if the job dies)."""
 	table = ACTION_TABLE.get(action)
 	if not table:
@@ -2029,14 +2121,11 @@ def _recount_rows(name, action):
 		status: frappe.db.count(child, {"parent": name, "parentfield": table, "row_status": status})
 		for status in ("Created", "Error", "Duplicate")
 	}
+	doc = frappe.get_doc("Buying Day", name)
 	frappe.db.set_value(
 		"Buying Day",
 		name,
-		{
-			"rows_created": counts["Created"],
-			"rows_error": counts["Error"],
-			"rows_duplicate": counts["Duplicate"],
-		},
+		doc._tab_totals(),
 		update_modified=False,
 	)
 	return counts

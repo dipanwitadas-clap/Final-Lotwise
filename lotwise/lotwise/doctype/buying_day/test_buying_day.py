@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.tests.utils import FrappeTestCase
+from frappe.utils import flt
 
 from lotwise.lotwise.doctype.buying_day import buying_day as mod
 
@@ -162,7 +163,8 @@ class TestBuyingDayParseFile(FrappeTestCase):
 		result = doc.parse_deal_book()
 
 		self.assertEqual(result["rows"], 1)
-		self.assertEqual(doc.rows_parsed, 1)
+		self.assertEqual(doc._tab_totals()["deal_book_rows_read"], 1)
+		self.assertEqual(doc._tab_totals()["deal_book_rows_created_purchase"], 0)
 		row = doc.deal_book_items[0]
 		self.assertEqual(row.lot_no, "JT0059")
 		self.assertEqual(row.mark_raw, "BINAGURI")
@@ -170,8 +172,18 @@ class TestBuyingDayParseFile(FrappeTestCase):
 		self.assertEqual(row.deal_no, "27703301")
 		self.assertEqual(row.source_row_type, "Deal Book")
 		self.assertEqual(row.row_status, "Pending")
-		self.assertEqual(doc.computed_total_packages, 25)
-		self.assertEqual(doc.computed_total_net_weight, 941.4)
+		self.assertEqual(doc._tab_totals()["deal_book_purchase_total_pkgs"], 0)
+		row.tea_purchase = "TP-1"
+		totals = doc._tab_totals()
+		self.assertEqual(totals["deal_book_rows_created_purchase"], 1)
+		self.assertEqual(totals["deal_book_purchase_total_pkgs"], 25)
+		self.assertEqual(totals["deal_book_purchase_total_net_wt"], 941.4)
+		self.assertEqual(totals["deal_book_rows_created_po"], 0)
+		self.assertEqual(totals["deal_book_po_total_pkgs"], 0)
+		row.purchase_order = "PO-1"
+		totals = doc._tab_totals()
+		self.assertEqual(totals["deal_book_rows_created_po"], 1)
+		self.assertEqual(totals["deal_book_po_total_pkgs"], 25)
 		self.assertEqual(doc.status, "Deal Book Loaded")
 
 	def test_parse_auction_catalog(self):
@@ -231,9 +243,12 @@ class TestBuyingDayParseFile(FrappeTestCase):
 		self.assertEqual(row.lot_type, "Sold")
 		self.assertEqual(row.warehouse_name, "KTTWPL - UNIT - 1")
 		self.assertEqual(row.source_row_type, "Auction Catalog")
-		self.assertEqual(doc.computed_total_packages, 30)
-		# No total_net_weight column in this format - falls back to net_weight
-		self.assertEqual(doc.computed_total_net_weight, 40.00)
+		# Reconciliation counts created rows only: nothing is created at parse time.
+		self.assertEqual(doc._tab_totals()["items_total_pkgs"], 0)
+		row.row_status = "Created"
+		totals = doc._tab_totals()
+		self.assertEqual(totals["items_total_pkgs"], 30)
+		self.assertEqual(totals["items_total_net_wt"], flt(row.net_weight * 30, 3))
 		self.assertEqual(doc.status, "Catalogue Loaded")
 
 	def test_wrong_file_is_rejected(self):
@@ -733,3 +748,25 @@ class TestBuyingDayBackground(FrappeTestCase):
 
 	def test_action_table_covers_create_actions_only(self):
 		self.assertTrue(set(mod.ACTION_TABLE) <= set(mod.BACKGROUND_ACTIONS))
+
+
+class TestBuyingDayTabTotals(FrappeTestCase):
+	def _private_doc(self, purchase_type):
+		doc = frappe.new_doc("Buying Day")
+		doc.acquisition_channel = "Private"
+		doc.purchase_type = purchase_type
+		doc.append(
+			"private_purchase_list", {"packages": 3, "net_kg": 150, "tea_lot": "L1", "tea_purchase": "TP1"}
+		)
+		return doc
+
+	def test_internal_private_has_no_tea_lot_step(self):
+		totals = self._private_doc("Internal")._tab_totals()
+		self.assertEqual(totals["private_list_rows_created_lot"], 0)
+		self.assertEqual(totals["private_list_lot_total_pkgs"], 0)
+		self.assertEqual(totals["private_list_rows_created_purchase"], 1)
+
+	def test_external_private_counts_tea_lot_step(self):
+		totals = self._private_doc("External")._tab_totals()
+		self.assertEqual(totals["private_list_rows_created_lot"], 1)
+		self.assertEqual(totals["private_list_lot_total_pkgs"], 3)

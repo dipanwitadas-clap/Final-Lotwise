@@ -31,33 +31,75 @@
   "week_no",
   "season",
   "day",
-  "recon_section",
-  "computed_total_packages",
-  "col_break_2",
-  "computed_total_net_weight",
-  "summary_section",
-  "rows_parsed",
-  "rows_created",
-  "col_break_3",
-  "rows_error",
-  "rows_duplicate",
-  "rows_updated",
   "items_section",
   "items",
+  "items_recon_section",
+  "items_total_pkgs",
+  "items_recon_col",
+  "items_total_net_wt",
+  "items_summary_section",
+  "items_rows_read",
+  "items_rows_created",
+  "items_summary_col",
+  "items_rows_error",
+  "items_rows_duplicate",
+  "items_rows_updated",
   "deal_book_items_section",
   "deal_book_items",
+  "deal_book_recon_section",
+  "deal_book_purchase_total_pkgs",
+  "deal_book_po_total_pkgs",
+  "deal_book_purchase_recon_col",
+  "deal_book_po_total_net_wt",
+  "deal_book_purchase_total_net_wt",
+  "deal_book_summary_section",
+  "deal_book_rows_read",
+  "deal_book_rows_created_purchase",
+  "deal_book_rows_created_po",
+  "deal_book_summary_col",
+  "deal_book_rows_error",
+  "deal_book_rows_duplicate",
+  "deal_book_rows_updated",
   "offer_sample_evaluation_section",
   "offer_sample_evaluation",
+  "offer_sample_recon_section",
+  "offer_sample_total_pkgs",
+  "offer_sample_recon_col",
+  "offer_sample_total_net_wt",
+  "offer_sample_summary_section",
+  "offer_sample_rows_read",
+  "offer_sample_rows_created",
+  "offer_sample_summary_col",
+  "offer_sample_rows_error",
+  "offer_sample_rows_duplicate",
+  "offer_sample_rows_updated",
   "private_purchase_list_section",
   "private_purchase_list",
+  "private_list_recon_section",
+  "private_list_lot_total_pkgs",
+  "private_list_purchase_total_pkgs",
+  "private_list_po_total_pkgs",
+  "private_list_lot_recon_col",
+  "private_list_lot_total_net_wt",
+  "private_list_purchase_total_net_wt",
+  "private_list_po_total_net_wt",
+  "private_list_summary_section",
+  "private_list_rows_read",
+  "private_list_rows_created_lot",
+  "private_list_rows_created_purchase",
+  "private_list_rows_created_po",
+  "private_list_summary_col",
+  "private_list_rows_error",
+  "private_list_rows_duplicate",
+  "private_list_rows_updated",
   "purchase_orders_section",
   "purchase_orders"
  ],
  "fields": [
   {
+   "depends_on": "eval:doc.job_status",
    "fieldname": "job_section",
-   "fieldtype": "Section Break",
-   "depends_on": "eval:doc.job_status"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "progress_bar_html",
@@ -68,51 +110,51 @@
   {
    "fieldname": "job_status",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Job Status",
-   "options": "\nQueued\nProcessing\nDone\nError",
-   "read_only": 1,
    "no_copy": 1,
-   "hidden": 1
+   "options": "\nQueued\nProcessing\nDone\nError",
+   "read_only": 1
   },
   {
    "fieldname": "job_action",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Job Action",
-   "read_only": 1,
    "no_copy": 1,
-   "hidden": 1
+   "read_only": 1
   },
   {
    "fieldname": "job_processed",
    "fieldtype": "Int",
+   "hidden": 1,
    "label": "Job Processed",
-   "read_only": 1,
    "no_copy": 1,
-   "hidden": 1
+   "read_only": 1
   },
   {
    "fieldname": "job_total",
    "fieldtype": "Int",
+   "hidden": 1,
    "label": "Job Total",
-   "read_only": 1,
    "no_copy": 1,
-   "hidden": 1
+   "read_only": 1
   },
   {
    "fieldname": "job_updated",
    "fieldtype": "Datetime",
+   "hidden": 1,
    "label": "Job Updated",
-   "read_only": 1,
    "no_copy": 1,
-   "hidden": 1
+   "read_only": 1
   },
   {
+   "depends_on": "eval:doc.job_status=='Error'",
    "fieldname": "job_message",
    "fieldtype": "Small Text",
    "label": "Job Message",
-   "read_only": 1,
    "no_copy": 1,
-   "depends_on": "eval:doc.job_status=='Error'"
+   "read_only": 1
   },
   {
    "fieldname": "buying_week",
@@ -228,67 +270,6 @@
   },
   {
    "collapsible": 1,
-   "fieldname": "recon_section",
-   "fieldtype": "Section Break",
-   "label": "Reconciliation"
-  },
-  {
-   "fieldname": "computed_total_packages",
-   "fieldtype": "Int",
-   "label": "Computed Total Pkgs",
-   "read_only": 1
-  },
-  {
-   "fieldname": "col_break_2",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "computed_total_net_weight",
-   "fieldtype": "Float",
-   "label": "Computed Total Nett. Wt. (Kgs)",
-   "read_only": 1
-  },
-  {
-   "fieldname": "summary_section",
-   "fieldtype": "Section Break",
-   "label": "Import Summary"
-  },
-  {
-   "fieldname": "rows_parsed",
-   "fieldtype": "Int",
-   "label": "Rows Read",
-   "read_only": 1
-  },
-  {
-   "fieldname": "rows_created",
-   "fieldtype": "Int",
-   "label": "Rows Created",
-   "read_only": 1
-  },
-  {
-   "fieldname": "col_break_3",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "rows_error",
-   "fieldtype": "Int",
-   "label": "Rows with Error",
-   "read_only": 1
-  },
-  {
-   "fieldname": "rows_duplicate",
-   "fieldtype": "Int",
-   "label": "Rows Duplicate",
-   "read_only": 1
-  },
-  {
-   "fieldname": "rows_updated",
-   "fieldtype": "Int",
-   "label": "Rows Updated",
-   "read_only": 1
-  },
-  {
-   "collapsible": 1,
    "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fieldname": "items_section",
    "fieldtype": "Tab Break",
@@ -304,6 +285,79 @@
   {
    "collapsible": 1,
    "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_recon_section",
+   "fieldtype": "Section Break",
+   "label": "Reconciliation"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_total_pkgs",
+   "fieldtype": "Int",
+   "label": "Total Pkgs",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_recon_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_total_net_wt",
+   "fieldtype": "Float",
+   "label": "Total Nett. Wt. (Kgs)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_summary_section",
+   "fieldtype": "Section Break",
+   "label": "Import Summary"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_rows_read",
+   "fieldtype": "Int",
+   "label": "Rows Read",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_rows_created",
+   "fieldtype": "Int",
+   "label": "Rows Created",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_summary_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_rows_error",
+   "fieldtype": "Int",
+   "label": "Rows with Error",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_rows_duplicate",
+   "fieldtype": "Int",
+   "label": "Rows Duplicate",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "items_rows_updated",
+   "fieldtype": "Int",
+   "label": "Rows Updated",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
    "fieldname": "deal_book_items_section",
    "fieldtype": "Tab Break",
    "label": "Deal Book Items"
@@ -314,6 +368,100 @@
    "fieldtype": "Table",
    "label": "Deal Book Items",
    "options": "Buying Week Deal Book Tea"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_recon_section",
+   "fieldtype": "Section Break",
+   "label": "Reconciliation"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_purchase_total_pkgs",
+   "fieldtype": "Int",
+   "label": "Total Pkgs (Tea Purchase)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_purchase_recon_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_purchase_total_net_wt",
+   "fieldtype": "Float",
+   "label": "Total Nett. Wt. (Kgs) (Tea Purchase)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_po_total_pkgs",
+   "fieldtype": "Int",
+   "label": "Total Pkgs (PO)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_po_total_net_wt",
+   "fieldtype": "Float",
+   "label": "Total Nett. Wt. (Kgs) (PO)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_summary_section",
+   "fieldtype": "Section Break",
+   "label": "Import Summary"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_rows_read",
+   "fieldtype": "Int",
+   "label": "Rows Read",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_rows_created_purchase",
+   "fieldtype": "Int",
+   "label": "Rows Created (Tea Purchase)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_rows_created_po",
+   "fieldtype": "Int",
+   "label": "Rows Created (PO)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_summary_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_rows_error",
+   "fieldtype": "Int",
+   "label": "Rows with Error",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_rows_duplicate",
+   "fieldtype": "Int",
+   "label": "Rows Duplicate",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "deal_book_rows_updated",
+   "fieldtype": "Int",
+   "label": "Rows Updated",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.acquisition_channel=='Private'",
@@ -356,6 +504,120 @@
    "options": "Private Purchase List"
   },
   {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_recon_section",
+   "fieldtype": "Section Break",
+   "label": "Reconciliation"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='External'",
+   "fieldname": "private_list_lot_total_pkgs",
+   "fieldtype": "Int",
+   "label": "Total Pkgs (Tea Lot)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='External'",
+   "fieldname": "private_list_lot_recon_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='External'",
+   "fieldname": "private_list_lot_total_net_wt",
+   "fieldtype": "Float",
+   "label": "Total Nett. Wt. (Kgs) (Tea Lot)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_purchase_total_pkgs",
+   "fieldtype": "Int",
+   "label": "Total Pkgs (Tea Purchase)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_purchase_total_net_wt",
+   "fieldtype": "Float",
+   "label": "Total Nett. Wt. (Kgs) (Tea Purchase)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_po_total_pkgs",
+   "fieldtype": "Int",
+   "label": "Total Pkgs (PO)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_po_total_net_wt",
+   "fieldtype": "Float",
+   "label": "Total Nett. Wt. (Kgs) (PO)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_summary_section",
+   "fieldtype": "Section Break",
+   "label": "Import Summary"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_rows_read",
+   "fieldtype": "Int",
+   "label": "Rows Read",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='External'",
+   "fieldname": "private_list_rows_created_lot",
+   "fieldtype": "Int",
+   "label": "Rows Created (Tea Lot)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_rows_created_purchase",
+   "fieldtype": "Int",
+   "label": "Rows Created (Tea Purchase)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_rows_created_po",
+   "fieldtype": "Int",
+   "label": "Rows Created (PO)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_summary_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_rows_error",
+   "fieldtype": "Int",
+   "label": "Rows with Error",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_rows_duplicate",
+   "fieldtype": "Int",
+   "label": "Rows Duplicate",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "private_list_rows_updated",
+   "fieldtype": "Int",
+   "label": "Rows Updated",
+   "read_only": 1
+  },
+  {
    "depends_on": "eval:doc.acquisition_channel=='Private' && doc.status=='Purchase list Loaded'",
    "description": "Upload the Private Purchase list File (.xlsx)",
    "fieldname": "purchase_list_file",
@@ -384,6 +646,79 @@
    "fieldtype": "Table",
    "label": "Offer Sample Evaluation",
    "options": "Offer Sample Evaluation Item"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_recon_section",
+   "fieldtype": "Section Break",
+   "label": "Reconciliation"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_total_pkgs",
+   "fieldtype": "Int",
+   "label": "Total Pkgs",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_recon_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_total_net_wt",
+   "fieldtype": "Float",
+   "label": "Total Nett. Wt. (Kgs)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_summary_section",
+   "fieldtype": "Section Break",
+   "label": "Import Summary"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_rows_read",
+   "fieldtype": "Int",
+   "label": "Rows Read",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_rows_created",
+   "fieldtype": "Int",
+   "label": "Rows Created",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_summary_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_rows_error",
+   "fieldtype": "Int",
+   "label": "Rows with Error",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_rows_duplicate",
+   "fieldtype": "Int",
+   "label": "Rows Duplicate",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private' && doc.purchase_type=='Internal'",
+   "fieldname": "offer_sample_rows_updated",
+   "fieldtype": "Int",
+   "label": "Rows Updated",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -399,7 +734,7 @@
    "link_fieldname": "source_doctype_id"
   }
  ],
- "modified": "2026-11-05 11:23:22.433093",
+ "modified": "2026-11-19 16:42:43.208082",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Buying Day",

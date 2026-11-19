@@ -6,51 +6,62 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "lot_section",
   "lot_no",
   "mark_raw",
   "grade_raw",
   "packages",
   "invoice_number",
+  "col_basic_2",
   "broker_code",
   "tea_type",
   "base_price",
   "auction_valuation",
+  "col_basic_3",
   "gross_weight",
   "net_weight",
   "sample_qty",
   "season",
   "sale_no",
-  "col_break_source",
   "source_row_type",
-  "warehouse",
-  "broker",
-  "purchase_order",
   "deal_book_section",
+  "deal_no",
+  "deal_time",
+  "session_type",
   "price_per_kg",
   "gross_wtpkg",
   "short_excess_weight",
   "total_net_weight",
-  "deal_no",
-  "deal_time",
-  "session_type",
   "col_break_deal",
   "within",
   "export",
   "interstate",
   "preference",
+  "col_deal_3",
   "buyer_export_address_code",
   "buyer_interstate_address_code",
   "buyer_within_address_code",
+  "warehouse_section",
+  "warehouse",
+  "broker",
+  "purchase_order",
+  "col_warehouse_2",
+  "category",
+  "item_code",
+  "batch_no",
   "col_break_status",
   "row_status",
   "message",
+  "col_status_2",
   "tea_lot",
-  "tea_purchase",
-  "category",
-  "item_code",
-  "batch_no"
+  "tea_purchase"
  ],
  "fields": [
+  {
+   "fieldname": "lot_section",
+   "fieldtype": "Section Break",
+   "label": "Lot Details"
+  },
   {
    "columns": 1,
    "fieldname": "lot_no",
@@ -86,6 +97,10 @@
    "label": "Invoice Number"
   },
   {
+   "fieldname": "col_basic_2",
+   "fieldtype": "Column Break"
+  },
+  {
    "description": "Auct Code",
    "fieldname": "broker_code",
    "fieldtype": "Data",
@@ -109,6 +124,10 @@
    "fieldtype": "Currency",
    "label": "Auction Valuation",
    "options": "INR"
+  },
+  {
+   "fieldname": "col_basic_3",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "gross_weight",
@@ -137,10 +156,6 @@
    "label": "Sale No"
   },
   {
-   "fieldname": "col_break_source",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "Deal Book",
    "description": "Which source file/format this row was parsed from",
    "fieldname": "source_row_type",
@@ -154,6 +169,21 @@
    "fieldname": "deal_book_section",
    "fieldtype": "Section Break",
    "label": "Deal Book Details"
+  },
+  {
+   "fieldname": "deal_no",
+   "fieldtype": "Data",
+   "label": "Deal No"
+  },
+  {
+   "fieldname": "deal_time",
+   "fieldtype": "Data",
+   "label": "Deal Time"
+  },
+  {
+   "fieldname": "session_type",
+   "fieldtype": "Data",
+   "label": "Session Type"
   },
   {
    "fieldname": "price_per_kg",
@@ -175,21 +205,6 @@
    "fieldname": "total_net_weight",
    "fieldtype": "Float",
    "label": "Total Net Wt (Kgs)"
-  },
-  {
-   "fieldname": "deal_no",
-   "fieldtype": "Data",
-   "label": "Deal No"
-  },
-  {
-   "fieldname": "deal_time",
-   "fieldtype": "Data",
-   "label": "Deal Time"
-  },
-  {
-   "fieldname": "session_type",
-   "fieldtype": "Data",
-   "label": "Session Type"
   },
   {
    "fieldname": "col_break_deal",
@@ -216,6 +231,10 @@
    "label": "Preference"
   },
   {
+   "fieldname": "col_deal_3",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "buyer_export_address_code",
    "fieldtype": "Data",
    "label": "Buyer's Export Address Code"
@@ -231,41 +250,31 @@
    "label": "Buyer's Within Address Code"
   },
   {
-   "fieldname": "col_break_status",
+   "fieldname": "warehouse_section",
+   "fieldtype": "Section Break",
+   "label": "Warehouse, Broker & Purchase Order"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "broker",
+   "fieldtype": "Link",
+   "label": "Broker",
+   "options": "Broker"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Purchase Order"
+  },
+  {
+   "fieldname": "col_warehouse_2",
    "fieldtype": "Column Break"
-  },
-  {
-   "columns": 1,
-   "default": "Pending",
-   "fieldname": "row_status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "Pending\nCreated\nError\nDuplicate"
-  },
-  {
-   "description": "Status message or error details",
-   "fieldname": "message",
-   "fieldtype": "Small Text",
-   "label": "Message"
-  },
-  {
-   "columns": 1,
-   "description": "Reference to created Tea Lot",
-   "fieldname": "tea_lot",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Tea Lot",
-   "options": "Tea Lot"
-  },
-  {
-   "columns": 1,
-   "description": "Reference to created Tea Purchase",
-   "fieldname": "tea_purchase",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Tea Purchase",
-   "options": "Tea Purchase"
   },
   {
    "columns": 1,
@@ -295,22 +304,46 @@
    "options": "Batch"
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse"
+   "fieldname": "col_break_status",
+   "fieldtype": "Section Break",
+   "label": "Status & References"
   },
   {
-   "fieldname": "broker",
-   "fieldtype": "Link",
-   "label": "Broker",
-   "options": "Broker"
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nCreated\nError\nDuplicate"
   },
   {
-   "fieldname": "purchase_order",
+   "description": "Status message or error details",
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message"
+  },
+  {
+   "fieldname": "col_status_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Lot",
+   "fieldname": "tea_lot",
    "fieldtype": "Link",
-   "label": "Purchase Order",
-   "options": "Purchase Order"
+   "in_list_view": 1,
+   "label": "Tea Lot",
+   "options": "Tea Lot"
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Purchase",
+   "fieldname": "tea_purchase",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Purchase",
+   "options": "Tea Purchase"
   }
  ],
  "index_web_pages_for_search": 1,

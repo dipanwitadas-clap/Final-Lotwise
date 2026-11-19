@@ -35,6 +35,15 @@ function offer_sample_error_count(frm) {
 	).length;
 }
 
+// Error rows of a Deal Book / Private Purchase List table.
+// before_batch = failed before a Batch was created (these block Create PO)
+// after_batch  = failed at the PO step (Create PO can simply be run again)
+function purchase_error_counts(frm, table) {
+	const errors = (frm.doc[table] || []).filter((r) => r.row_status === "Error");
+	const after_batch = errors.filter((r) => r.batch_no).length;
+	return { before_batch: errors.length - after_batch, after_batch };
+}
+
 function offer_sample_all_done(frm) {
 	const rows = frm.doc.offer_sample_evaluation || [];
 	const ok = ["Created", "Duplicate"];
@@ -138,6 +147,33 @@ frappe.ui.form.on("Buying Day", {
 				),
 				"red"
 			);
+		}
+
+		// Deal Book Items (Auction) / Private Purchase List (Private) error banners
+		const purchase_table = {
+			Auction: ["deal_book_items", __("Deal Book Items")],
+			Private: ["private_purchase_list", __("Private Purchase List")],
+		}[frm.doc.acquisition_channel];
+		if (purchase_table) {
+			const counts = purchase_error_counts(frm, purchase_table[0]);
+			if (counts.before_batch) {
+				frm.dashboard.set_headline_alert(
+					__(
+						"{0} Error row(s) in {1}. Fix them and run Create Tea Purchase again; Create PO is blocked until all rows are fixed.",
+						[counts.before_batch, purchase_table[1]]
+					),
+					"red"
+				);
+			}
+			if (counts.after_batch) {
+				frm.dashboard.set_headline_alert(
+					__(
+						"{0} Error row(s) in {1} failed at the PO step. Fix them and run Create PO again.",
+						[counts.after_batch, purchase_table[1]]
+					),
+					"red"
+				);
+			}
 		}
 
 		const has_errors = (table) =>
