@@ -60,6 +60,10 @@ function set_status_options(frm) {
 }
 
 frappe.ui.form.on("Buying Day", {
+	onload(frm) {
+		register_job_realtime(frm);
+	},
+
 	acquisition_channel(frm) {
 		set_status_options(frm);
 	},
@@ -109,6 +113,10 @@ frappe.ui.form.on("Buying Day", {
 	refresh(frm) {
 		set_status_options(frm);
 		if (frm.is_new()) return;
+
+		render_job_progress(frm);
+		apply_job_lock(frm);
+		if (job_active(frm)) return; // no action buttons while a job runs
 
 		const catalogue_errors = catalogue_error_count(frm);
 		if (catalogue_errors) {
@@ -183,18 +191,7 @@ frappe.ui.form.on("Buying Day", {
 					return;
 				}
 				frappe.confirm(confirm_message, () => {
-					frm.call({
-						doc: frm.doc,
-						method: po_method[1],
-						freeze: true,
-						freeze_message: __("Creating Purchase Orders…"),
-					}).then((r) => {
-						frm.reload_doc();
-						const m = r.message || {};
-						frappe.msgprint(
-							__("Created: {0}  ·  Errors: {1}", [m.created || 0, m.errors || 0])
-						);
-					});
+					start_job(frm, po_method[1]);
 				});
 			}).addClass("btn-primary");
 			add_export_errors_button();
@@ -262,19 +259,7 @@ frappe.ui.form.on("Buying Day", {
 					return;
 				}
 
-				frm.call({
-					doc: frm.doc,
-					method: method,
-					freeze: true,
-					freeze_message: __("Reading file…"),
-				}).then((r) => {
-					frm.reload_doc();
-					const rows = (r.message && r.message.rows) || 0;
-					frappe.show_alert({
-						message: __("Read {0} rows", [rows]),
-						indicator: "blue",
-					});
-				});
+				start_job(frm, method);
 			});
 
 		const run_create = (method, confirm_message, freeze_message) => {
@@ -282,24 +267,7 @@ frappe.ui.form.on("Buying Day", {
 				frappe.msgprint(__("Please save the document before creating records."));
 				return;
 			}
-			frappe.confirm(confirm_message, () => {
-				frm.call({
-					doc: frm.doc,
-					method: method,
-					freeze: true,
-					freeze_message: freeze_message,
-				}).then((r) => {
-					frm.reload_doc();
-					const m = r.message || {};
-					frappe.msgprint(
-						__("Created: {0}  ·  Errors: {1}  ·  Duplicates: {2}", [
-							m.created || 0,
-							m.errors || 0,
-							m.duplicates || 0,
-						])
-					);
-				});
-			});
+			frappe.confirm(confirm_message, () => start_job(frm, method));
 		};
 
 		if (
@@ -428,5 +396,152 @@ function export_errors(frm, table) {
 		} else {
 			frappe.msgprint(__("No error data to export."));
 		}
+	});
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND JOB + PROGRESS BAR (Read File / Create Tea Lot / Tea Purchase / PO)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const JOB_BAR_ID = "buying-day-job-bar";
+
+function job_active(frm) {
+	return ["Queued", "Processing"].includes(frm.doc.job_status);
+}
+
+function start_job(frm, action) {
+	frm.call({ doc: frm.doc, method: "start_background", args: { action } }).then(() => {
+		frm.reload_doc();
+	});
+}
+
+function apply_job_lock(frm) {
+	const should_lock = job_active(frm);
+	if (should_lock === !!frm._job_locked) return;
+	frm._job_locked = should_lock;
+
+	if (should_lock) {
+		// No freeze overlay: the progress bar must stay visible.
+		frm.disable_save();
+		frm.set_read_only();
+		frm.dashboard.set_headline(
+			__("🔒 Processing in background — the form is locked until it completes.")
+		);
+	} else {
+		frm.enable_save();
+		frm.fetch_permissions();
+		frm.refresh_fields();
+		frm.dashboard.clear_headline();
+	}
+}
+
+function job_counts(frm) {
+	const total = frm.doc.job_total || 0;
+	const processed = frm.doc.job_processed || 0;
+	const pct = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : 0;
+	return { total, processed, pct };
+}
+
+function job_action_label(action) {
+	const labels = {
+		parse_auction_catalog: __("Reading file"),
+		parse_deal_book: __("Reading file"),
+		parse_private_purchase_list: __("Reading file"),
+		parse_offer_sample_evaluation: __("Reading file"),
+		create_tea_lots: __("Creating Tea Lots"),
+		create_tea_lots_and_evaluations_from_offer_samples: __("Creating Tea Lots & Evaluations"),
+		create_tea_lots_from_private_purchase_list: __("Creating Tea Lots"),
+		create_tea_purchases: __("Creating Tea Purchases"),
+		create_private_tea_purchases: __("Creating Tea Purchases"),
+		create_purchase_orders: __("Creating Purchase Orders"),
+		create_private_purchase_orders: __("Creating Purchase Orders"),
+	};
+	return labels[action] || action || "";
+}
+
+function job_color(status) {
+	if (status === "Error") return "#dc3545";
+	if (status === "Done") return "#198754";
+	return "#0d6efd";
+}
+
+function render_job_progress(frm) {
+	const status = frm.doc.job_status;
+	if (!status) {
+		frm.set_df_property("progress_bar_html", "options", "");
+		frm.refresh_field("progress_bar_html");
+		return;
+	}
+	const { total, processed, pct } = job_counts(frm);
+	const color = job_color(status);
+	const running = job_active(frm);
+	const html = `
+		<style>@keyframes bd-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.6)}}</style>
+		<div id="${JOB_BAR_ID}" style="margin:4px 0 12px;">
+			<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:13px;">
+				<span style="font-weight:600;display:flex;align-items:center;gap:6px;">
+					<span style="display:${
+						running ? "inline-block" : "none"
+					};width:8px;height:8px;background:${color};border-radius:50%;animation:bd-pulse 1.2s ease-in-out infinite;"></span>
+					${frappe.utils.escape_html(job_action_label(frm.doc.job_action))} — ${
+		running ? __("Processing") : __(status)
+	}
+				</span>
+				<span id="${JOB_BAR_ID}-pct" style="font-weight:700;color:${color};">${pct}%</span>
+			</div>
+			<div style="background:var(--input-disabled-bg);border-radius:6px;height:10px;overflow:hidden;">
+				<div id="${JOB_BAR_ID}-fill" style="width:${pct}%;height:100%;background:${color};border-radius:6px;transition:width .5s ease;"></div>
+			</div>
+			<div id="${JOB_BAR_ID}-count" style="text-align:center;margin-top:4px;font-size:12px;color:var(--text-muted);">${processed} / ${total}</div>
+			<div id="${JOB_BAR_ID}-cur" style="font-size:11px;color:var(--text-muted);margin-top:3px;display:none;"></div>
+		</div>`;
+	frm.set_df_property("progress_bar_html", "options", html);
+	frm.refresh_field("progress_bar_html");
+}
+
+function update_job_bar_dom(frm, current) {
+	if (!document.getElementById(JOB_BAR_ID)) {
+		render_job_progress(frm);
+		return;
+	}
+	const { total, processed, pct } = job_counts(frm);
+	const fill = document.getElementById(`${JOB_BAR_ID}-fill`);
+	const pct_el = document.getElementById(`${JOB_BAR_ID}-pct`);
+	const count = document.getElementById(`${JOB_BAR_ID}-count`);
+	const cur = document.getElementById(`${JOB_BAR_ID}-cur`);
+	if (fill) fill.style.width = `${pct}%`;
+	if (pct_el) pct_el.textContent = `${pct}%`;
+	if (count) count.textContent = `${processed} / ${total}`;
+	if (cur) {
+		cur.style.display = current ? "block" : "none";
+		cur.textContent = current || "";
+	}
+}
+
+function register_job_realtime(frm) {
+	frappe.realtime.off("lotwise_job_progress");
+	frappe.realtime.on("lotwise_job_progress", function (data) {
+		if (data.docname !== frm.doc.name) return;
+
+		if (data.phase === "done") {
+			frm.doc.job_processed = data.processed;
+			frm.doc.job_total = data.total;
+			update_job_bar_dom(frm, "");
+			frappe.show_alert({
+				message: data.message || __("Finished"),
+				indicator: data.status === "Error" ? "red" : "green",
+			});
+			if (data.status === "Error" && data.message) {
+				frappe.msgprint({ title: __("Error"), message: data.message, indicator: "red" });
+			}
+			setTimeout(() => frm.reload_doc(), 1000);
+			return;
+		}
+
+		frm.doc.job_status = "Processing";
+		frm.doc.job_processed = data.processed;
+		frm.doc.job_total = data.total;
+		apply_job_lock(frm);
+		update_job_bar_dom(frm, data.current);
 	});
 }

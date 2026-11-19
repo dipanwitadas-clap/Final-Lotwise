@@ -676,3 +676,60 @@ class TestOfferSampleLotAndEvaluation(FrappeTestCase):
 		self.assertEqual(inserted, ["Tea Lot", "Tea Evaluation"])
 		self.assertEqual(result["created"], 1)
 		self.assertEqual((row.row_status, row.eval_status), ("Created", "Created"))
+
+
+class TestBuyingDayBackground(FrappeTestCase):
+	def test_every_background_action_is_a_whitelisted_method(self):
+		for action in mod.BACKGROUND_ACTIONS:
+			self.assertTrue(callable(getattr(mod.BuyingDay, action, None)), action)
+
+	def test_job_summary(self):
+		self.assertIn("5", mod._job_summary({"rows": 5}))
+		summary = mod._job_summary({"created": 2, "errors": 1, "duplicates": 3})
+		for n in ("2", "1", "3"):
+			self.assertIn(n, summary)
+
+	def test_run_job_reports_error_and_always_finishes(self):
+		from unittest.mock import patch
+
+		with (
+			patch("lotwise.utils.background.mark_processing"),
+			patch("lotwise.utils.background.finish_job") as finish,
+			patch.object(mod.frappe, "get_doc", side_effect=frappe.ValidationError("boom")),
+			patch.object(mod.frappe, "log_error"),
+			patch.object(mod.frappe.db, "rollback"),
+		):
+			mod.run_buying_day_job("BD-X", "create_tea_lots")
+		args = finish.call_args[0]
+		self.assertEqual(args[2], "Error")
+		self.assertIn("boom", args[3])
+
+	def test_unknown_action_is_rejected(self):
+		from unittest.mock import patch
+
+		with (
+			patch("lotwise.utils.background.finish_job") as finish,
+			patch.object(mod.frappe, "log_error"),
+			patch.object(mod.frappe.db, "rollback"),
+		):
+			mod.run_buying_day_job("BD-X", "drop_everything")
+		self.assertEqual(finish.call_args[0][2], "Error")
+
+	def test_progress_persists_previous_row_with_commit(self):
+		from types import SimpleNamespace
+		from unittest.mock import MagicMock, patch
+
+		rows = [MagicMock(name="r0"), MagicMock(name="r1")]
+		for r in rows:
+			r.name = "x"
+		doc = SimpleNamespace(name="BD-X", _bg=True)
+		with patch("lotwise.utils.background.notify") as notify:
+			mod.BuyingDay._progress(doc, 0, 2, rows=rows)
+			rows[0].db_update.assert_not_called()
+			mod.BuyingDay._progress(doc, 1, 2, rows=rows)
+			rows[0].db_update.assert_called_once()
+			rows[1].db_update.assert_not_called()
+			self.assertEqual(notify.call_count, 2)
+
+	def test_action_table_covers_create_actions_only(self):
+		self.assertTrue(set(mod.ACTION_TABLE) <= set(mod.BACKGROUND_ACTIONS))

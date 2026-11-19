@@ -577,7 +577,8 @@ class BuyingDay(Document):
 			frappe.throw(_("This is not a valid Private Purchase List file. Check the file format."))
 
 		self.set("private_purchase_list", [])
-		for raw_row in rows[1:]:
+		for row_no, raw_row in enumerate(rows[1:]):
+			self._progress(row_no, len(rows) - 1, commit=False)
 			# The table is one contiguous block; the first fully blank row ends it
 			# (anything below, e.g. the explanatory note, is not data).
 			if not any(c is not None and str(c).strip() != "" for c in raw_row):
@@ -635,7 +636,8 @@ class BuyingDay(Document):
 			)
 
 		self.set("offer_sample_evaluation", [])
-		for raw_row in rows[header_idx + 1 :]:
+		for row_no, raw_row in enumerate(rows[header_idx + 1 :]):
+			self._progress(row_no, len(rows) - header_idx - 1, commit=False)
 			if not any(c is not None and str(c).strip() != "" for c in raw_row):
 				break
 			values = {}
@@ -690,7 +692,8 @@ class BuyingDay(Document):
 		total_packages = 0
 		total_net_weight = 0.0
 
-		for raw_row in rows[1:]:
+		for row_no, raw_row in enumerate(rows[1:]):
+			self._progress(row_no, len(rows) - 1, commit=False)
 			if not any(cell is not None and str(cell).strip() not in ("", "-") for cell in raw_row):
 				continue
 
@@ -835,7 +838,8 @@ class BuyingDay(Document):
 		evaluation_date = nowdate()
 		created = duplicate = error = 0
 
-		for row in self.offer_sample_evaluation:
+		for row_no, row in enumerate(self.offer_sample_evaluation):
+			self._progress(row_no, len(self.offer_sample_evaluation), rows=self.offer_sample_evaluation)
 			if row.row_status == "Created" and row.eval_status == "Created":
 				continue
 			lot_done = bool(row.tea_lot) and row.row_status in ("Created", "Duplicate")
@@ -988,7 +992,8 @@ class BuyingDay(Document):
 		meta = frappe.get_meta("Tea Lot")
 		created = duplicate = error = 0
 
-		for row in self.items:
+		for row_no, row in enumerate(self.items):
+			self._progress(row_no, len(self.items), rows=self.items)
 			if row.row_status == "Created":
 				continue
 			try:
@@ -1172,7 +1177,8 @@ class BuyingDay(Document):
 		meta = frappe.get_meta("Tea Purchase")
 		created = duplicate = error = 0
 
-		for row in self.deal_book_items:
+		for row_no, row in enumerate(self.deal_book_items):
+			self._progress(row_no, len(self.deal_book_items), rows=self.deal_book_items)
 			if row.row_status == "Created":
 				continue
 			try:
@@ -1394,7 +1400,8 @@ class BuyingDay(Document):
 		meta = frappe.get_meta("Tea Lot")
 		created = duplicate = error = 0
 
-		for row in self.private_purchase_list:
+		for row_no, row in enumerate(self.private_purchase_list):
+			self._progress(row_no, len(self.private_purchase_list), rows=self.private_purchase_list)
 			if row.tea_lot:
 				continue
 			try:
@@ -1517,7 +1524,8 @@ class BuyingDay(Document):
 		external = self.purchase_type == "External"
 		created = duplicate = error = 0
 
-		for row in self.private_purchase_list:
+		for row_no, row in enumerate(self.private_purchase_list):
+			self._progress(row_no, len(self.private_purchase_list), rows=self.private_purchase_list)
 			if row.tea_purchase:
 				# Backfill Item / Batch on rows created before those columns existed
 				if not (row.item_code and row.batch_no):
@@ -1668,7 +1676,8 @@ class BuyingDay(Document):
 				continue
 			groups.setdefault(row.broker, []).append(row)
 
-		for broker, rows in groups.items():
+		for row_no, (broker, rows) in enumerate(groups.items()):
+			self._progress(row_no, len(groups), broker, rows=list(groups.values()))
 			try:
 				supplier = frappe.db.get_value("Broker", broker, "supplier")
 				if not supplier:
@@ -1779,7 +1788,8 @@ class BuyingDay(Document):
 				continue
 			groups.setdefault((seller, invoice), []).append(row)
 
-		for (seller, invoice), rows in groups.items():
+		for row_no, ((seller, invoice), rows) in enumerate(groups.items()):
+			self._progress(row_no, len(groups), seller, rows=list(groups.values()))
 			try:
 				supplier = frappe.db.get_value(
 					"Supplier", {"supplier_name": seller}, "name"
@@ -1885,6 +1895,48 @@ class BuyingDay(Document):
 
 		return {"created": created, "errors": error}
 
+	# ── Background jobs ──────────────────────────────────────────────────────
+	def _progress(self, done, total, current="", commit=True, rows=None):
+		"""Report progress to the form. No-op unless running inside the background
+		job. Called at the top of each row, i.e. outside the per-row savepoints, so
+		committing here is safe.
+
+		`rows` is the loop's list (child rows, or lists of rows for grouped loops).
+		The previous, finished item is written to the DB together with the commit, so
+		its row_status / tea_lot / purchase_order survive a worker crash."""
+		if not getattr(self, "_bg", False):
+			return
+		# Keep the in-memory doc in step with the DB counters: the job's own
+		# self.save() would otherwise write the stale 0 / 0 back over them.
+		self.job_processed = done
+		self.job_total = total
+		self._job_total = total
+		if not commit and done % 25:
+			return
+		if rows and done > 0:
+			prev = rows[done - 1]
+			for r in prev if isinstance(prev, list) else [prev]:
+				if r.name:
+					r.db_update()
+		from lotwise.utils.background import notify
+
+		notify("Buying Day", self.name, done, total, current, commit=commit)
+
+	@frappe.whitelist()
+	def start_background(self, action):
+		"""Queue one of BACKGROUND_ACTIONS; the form shows a live progress bar."""
+		if action not in BACKGROUND_ACTIONS:
+			frappe.throw(_("Unknown action {0}").format(action))
+		self.check_permission("write")
+		from lotwise.utils.background import start_job
+
+		return start_job(
+			"Buying Day",
+			self.name,
+			action,
+			"lotwise.lotwise.doctype.buying_day.buying_day.run_buying_day_job",
+		)
+
 	@staticmethod
 	def _deal_date(deal_time):
 		"""Date part of a Deal Time such as '25/09/2026 11:30:00'."""
@@ -1893,3 +1945,115 @@ class BuyingDay(Document):
 			return datetime.strptime(date_part, "%d/%m/%Y").date()
 		except ValueError:
 			raise frappe.ValidationError(_("Deal Time '{0}' is not in dd/mm/yyyy format.").format(deal_time))
+
+
+BACKGROUND_ACTIONS = {
+	"parse_auction_catalog": "Reading file",
+	"parse_deal_book": "Reading file",
+	"parse_private_purchase_list": "Reading file",
+	"parse_offer_sample_evaluation": "Reading file",
+	"create_tea_lots": "Creating Tea Lots",
+	"create_tea_lots_and_evaluations_from_offer_samples": "Creating Tea Lots & Evaluations",
+	"create_tea_lots_from_private_purchase_list": "Creating Tea Lots",
+	"create_tea_purchases": "Creating Tea Purchases",
+	"create_private_tea_purchases": "Creating Tea Purchases",
+	"create_purchase_orders": "Creating Purchase Orders",
+	"create_private_purchase_orders": "Creating Purchase Orders",
+}
+
+
+def _job_summary(result):
+	result = result or {}
+	if "rows" in result:
+		return _("Read {0} rows").format(result.get("rows") or 0)
+	parts = [
+		_("Created: {0}").format(result.get("created") or 0),
+		_("Errors: {0}").format(result.get("errors") or 0),
+	]
+	if "duplicates" in result:
+		parts.append(_("Duplicates: {0}").format(result.get("duplicates") or 0))
+	return "  ·  ".join(parts)
+
+
+def run_buying_day_job(name, action):
+	"""Background worker entry point (queued by BuyingDay.start_background)."""
+	from lotwise.utils import background
+
+	status, message = "Done", ""
+	try:
+		if action not in BACKGROUND_ACTIONS:
+			frappe.throw(_("Unknown action {0}").format(action))
+		background.mark_processing("Buying Day", name)
+		doc = frappe.get_doc("Buying Day", name)
+		doc._bg = True
+		result = getattr(doc, action)()
+		message = _job_summary(result)
+		total = getattr(doc, "_job_total", 0) or frappe.db.get_value("Buying Day", name, "job_total") or 0
+		if not total and ACTION_TABLE.get(action):
+			total = len(doc.get(ACTION_TABLE[action]) or [])
+		background.notify("Buying Day", name, total, total)
+	except Exception as e:
+		frappe.db.rollback()
+		status = "Error"
+		message = str(e) or frappe.get_traceback()
+		try:
+			_recount_rows(name, action)
+			frappe.db.commit()
+		except Exception:
+			frappe.log_error(frappe.get_traceback(), "Buying Day: recount after failure")
+		frappe.log_error(frappe.get_traceback(), f"Buying Day background job failed: {action}")
+	finally:
+		background.finish_job("Buying Day", name, status, message)
+
+
+# Child table each create action works on (used to recount after a crash).
+ACTION_TABLE = {
+	"create_tea_lots": "items",
+	"create_tea_lots_and_evaluations_from_offer_samples": "offer_sample_evaluation",
+	"create_tea_lots_from_private_purchase_list": "private_purchase_list",
+	"create_tea_purchases": "deal_book_items",
+	"create_private_tea_purchases": "private_purchase_list",
+	"create_purchase_orders": "deal_book_items",
+	"create_private_purchase_orders": "private_purchase_list",
+}
+
+
+def _recount_rows(name, action):
+	"""Recompute rows_created / rows_error / rows_duplicate from the child rows that
+	were already persisted (the in-memory totals are lost if the job dies)."""
+	table = ACTION_TABLE.get(action)
+	if not table:
+		return None
+	child = frappe.get_meta("Buying Day").get_field(table).options
+	counts = {
+		status: frappe.db.count(child, {"parent": name, "parentfield": table, "row_status": status})
+		for status in ("Created", "Error", "Duplicate")
+	}
+	frappe.db.set_value(
+		"Buying Day",
+		name,
+		{
+			"rows_created": counts["Created"],
+			"rows_error": counts["Error"],
+			"rows_duplicate": counts["Duplicate"],
+		},
+		update_modified=False,
+	)
+	return counts
+
+
+def _describe_stale_job(name):
+	action = frappe.db.get_value("Buying Day", name, "job_action")
+	counts = _recount_rows(name, action)
+	if not counts:
+		return None
+	return _(
+		"Stopped midway - Created: {0}, Errors: {1}, Duplicates: {2}. Click the button again to continue with the remaining rows."
+	).format(counts["Created"], counts["Error"], counts["Duplicate"])
+
+
+def unlock_stale_buying_day_jobs():
+	"""Hourly backstop (hooks.py) for jobs whose worker was killed."""
+	from lotwise.utils.background import unlock_stale_jobs
+
+	unlock_stale_jobs("Buying Day", describe=_describe_stale_job)

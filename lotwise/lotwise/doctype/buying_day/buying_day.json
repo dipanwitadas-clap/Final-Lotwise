@@ -5,6 +5,14 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "job_section",
+  "progress_bar_html",
+  "job_status",
+  "job_action",
+  "job_processed",
+  "job_total",
+  "job_updated",
+  "job_message",
   "buying_week",
   "source_section",
   "acquisition_channel",
@@ -46,6 +54,66 @@
   "purchase_orders"
  ],
  "fields": [
+  {
+   "fieldname": "job_section",
+   "fieldtype": "Section Break",
+   "depends_on": "eval:doc.job_status"
+  },
+  {
+   "fieldname": "progress_bar_html",
+   "fieldtype": "HTML",
+   "label": "Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "job_status",
+   "fieldtype": "Select",
+   "label": "Job Status",
+   "options": "\nQueued\nProcessing\nDone\nError",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "job_action",
+   "fieldtype": "Data",
+   "label": "Job Action",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "job_processed",
+   "fieldtype": "Int",
+   "label": "Job Processed",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "job_total",
+   "fieldtype": "Int",
+   "label": "Job Total",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "job_updated",
+   "fieldtype": "Datetime",
+   "label": "Job Updated",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "job_message",
+   "fieldtype": "Small Text",
+   "label": "Job Message",
+   "read_only": 1,
+   "no_copy": 1,
+   "depends_on": "eval:doc.job_status=='Error'"
+  },
   {
    "fieldname": "buying_week",
    "fieldtype": "Link",

@@ -142,7 +142,10 @@ add_to_apps_screen = [{"name": "lotwise", "title": "Lotwise", "route": "/desk/lo
 # ---------------
 
 scheduler_events = {
-	"hourly": ["lotwise.lotwise.doctype.tea_lot_image_import.tea_lot_image_import.unlock_stale_scans"],
+	"hourly": [
+		"lotwise.lotwise.doctype.tea_lot_image_import.tea_lot_image_import.unlock_stale_scans",
+		"lotwise.lotwise.doctype.buying_day.buying_day.unlock_stale_buying_day_jobs",
+	],
 }
 
 # Testing
