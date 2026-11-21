@@ -1,14 +1,10 @@
 // Copyright (c) 2026, BusinessThat.Works
 
 const BADGE_STYLES = {
-	holding_status: {
+	purchase_status: {
 		Committed: ["#dcfce7", "#166534"],
 		Received: ["#dbeafe", "#1e40af"],
 		"In Stock": ["#fef3c7", "#92400e"],
-	},
-	status: {
-		Offered: ["#f3e8ff", "#6b21a8"],
-		Evaluated: ["#fce7f3", "#9d174d"],
 	},
 	acquisition_channel: {
 		Auction: ["#e0e7ff", "#3730a3"],
@@ -17,13 +13,8 @@ const BADGE_STYLES = {
 	},
 };
 
-const NUMERIC_COLUMNS = new Set(["packages", "net_weight_total", "rate"]);
-const CENTER_COLUMNS = new Set([
-	"acquisition_channel",
-	"status",
-	"holding_status",
-	"purchase_date",
-]);
+const NUMERIC_COLUMNS = new Set(["packages", "net_weight_total", "rate", "total_amount"]);
+const CENTER_COLUMNS = new Set(["acquisition_channel", "purchase_status"]);
 
 function badge(value, colors) {
 	const [background, color] = colors;
@@ -35,9 +26,15 @@ frappe.query_reports["Holding Warhouse"] = {
 	filters: [
 		{
 			fieldname: "name",
-			label: __("Lot ID"),
+			label: __("Tea Lot"),
 			fieldtype: "Link",
 			options: "Tea Lot",
+		},
+		{
+			fieldname: "tea_purchase",
+			label: __("Tea Purchase"),
+			fieldtype: "Link",
+			options: "Tea Purchase",
 		},
 		{
 			fieldname: "acquisition_channel",
@@ -51,26 +48,16 @@ frappe.query_reports["Holding Warhouse"] = {
 			fieldtype: "Data",
 		},
 		{
-			fieldname: "from_date",
-			label: __("From Date"),
-			fieldtype: "Date",
+			fieldname: "purchase_status",
+			label: __("Purchase Status"),
+			fieldtype: "Link",
+			options: "Purchase Status",
 		},
 		{
-			fieldname: "to_date",
-			label: __("To Date"),
-			fieldtype: "Date",
-		},
-		{
-			fieldname: "holding_status",
-			label: __("Holding Status"),
-			fieldtype: "Select",
-			options: "\nCommitted\nReceived\nIn Stock",
-		},
-		{
-			fieldname: "status",
-			label: __("Status"),
-			fieldtype: "Select",
-			options: "\nOffered\nEvaluated",
+			fieldname: "warehouse",
+			label: __("Warehouse"),
+			fieldtype: "Link",
+			options: "Warehouse",
 		},
 		{
 			fieldname: "mark",
@@ -85,28 +72,34 @@ frappe.query_reports["Holding Warhouse"] = {
 			options: "Grade",
 		},
 		{
-			fieldname: "seller",
-			label: __("Seller"),
+			fieldname: "auction_centre",
+			label: __("Auction Centre"),
 			fieldtype: "Link",
-			options: "Seller",
+			options: "Auction Centre",
 		},
 		{
-			fieldname: "intended_segment",
-			label: __("Segment"),
-			fieldtype: "Link",
-			options: "Tea Segment",
+			fieldname: "sale_no_from",
+			label: __("Sale No From"),
+			fieldtype: "Int",
+		},
+
+		{
+			fieldname: "sale_no_to",
+			label: __("Sale No To"),
+			fieldtype: "Int",
 		},
 	],
 
 	onload(report) {
 		$(report.page.main).addClass("holding-warehouse-report");
 
-		if (document.getElementById("holding-warehouse-report-style")) {
-			return;
+		let style = document.getElementById("holding-warehouse-report-style");
+		if (!style) {
+			style = document.createElement("style");
+			style.id = "holding-warehouse-report-style";
+			document.head.appendChild(style);
 		}
 
-		const style = document.createElement("style");
-		style.id = "holding-warehouse-report-style";
 		style.textContent = `
 			.holding-warehouse-report .dt-cell__content {
 				align-items: center;
@@ -155,15 +148,49 @@ frappe.query_reports["Holding Warhouse"] = {
 				padding: 4px 9px;
 				vertical-align: middle;
 			}
+
+			.holding-warehouse-report .dt-row-footer .dt-cell__content {
+				font-weight: 700;
+			}
 		`;
-		document.head.appendChild(style);
+	},
+
+	refresh(report) {
+		if (!report.data) return;
+
+		setTimeout(() => {
+			const tableBody = report.pages[0]?.querySelector(".dt-table tbody");
+			if (!tableBody) return;
+
+			const rows = tableBody.querySelectorAll("tr");
+			rows.forEach((row, index) => {
+				const rowData = report.data[index];
+				if (rowData && rowData.name === "Total") {
+					const cells = row.querySelectorAll("td");
+					cells.forEach((cell) => {
+						const content = cell.querySelector(".dt-cell__content");
+						if (content) {
+							content.style.fontWeight = "700";
+							content.style.color = "black";
+							const badge = content.querySelector(".holding-warehouse-badge");
+							if (badge) {
+								badge.style.background = "transparent";
+								badge.style.color = "black";
+								badge.style.fontWeight = "700";
+							}
+						}
+					});
+				}
+			});
+		}, 50);
 	},
 
 	formatter(value, row, column, data, default_formatter) {
 		const formatted_value = default_formatter(value, row, column, data);
 		const fieldname = column.fieldname;
+		const is_total_row = data && data.name === "Total";
 		const field_styles = BADGE_STYLES[fieldname] || {};
-		const badge_colors = field_styles[data && data[fieldname]];
+		const badge_colors = is_total_row ? null : field_styles[data && data[fieldname]];
 		const content = badge_colors ? badge(formatted_value, badge_colors) : formatted_value;
 
 		if (NUMERIC_COLUMNS.has(fieldname)) {

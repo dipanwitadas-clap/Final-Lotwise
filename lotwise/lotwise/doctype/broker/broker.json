@@ -1,13 +1,18 @@
 {
  "actions": [],
  "allow_bulk_edit": 1,
+ "allow_import": 1,
  "allow_rename": 1,
  "creation": "2026-06-09 16:03:28.462975",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "broker_name",
-  "centre"
+  "broker_short_name",
+  "column_break_q4l9",
+  "auction_centre",
+  "auction_centre_code",
+  "supplier"
  ],
  "fields": [
   {
@@ -19,15 +24,43 @@
    "reqd": 1
   },
   {
-   "fieldname": "centre",
+   "fieldname": "auction_centre",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Auction Centre",
+   "options": "Auction Centre",
+   "reqd": 1
+  },
+  {
+   "fieldname": "broker_short_name",
    "fieldtype": "Data",
-   "label": "Centre"
+   "label": "Broker Short Name",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "auction_centre.auction_centre_code",
+   "fieldname": "auction_centre_code",
+   "fieldtype": "Data",
+   "label": "Auction Centre Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_q4l9",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-10 15:43:57.053146",
+ "modified": "2026-10-27 17:41:03.005787",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Broker",

@@ -3,13 +3,15 @@
  "allow_bulk_edit": 1,
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "LOT-.YYYY.-.#####",
  "creation": "2026-06-10 10:06:08.543447",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "section_break_mgxs",
+  "season",
+  "week_no",
   "acquisition_channel",
+  "offer_sample_list",
   "seller",
   "invoice_number",
   "packing",
@@ -18,21 +20,33 @@
   "density",
   "liquor_mark",
   "purchase_date",
+  "evaluation_status",
+  "suggested_valuation",
+  "actual_valuation",
   "column_break_uyqw",
-  "status",
+  "purchase_status",
+  "item",
   "mark",
   "grade",
+  "category",
   "net_weight_total",
   "intended_segment",
   "source_doctype",
   "source_doctype_id",
-  "holding_status",
+  "tea_purchase",
   "do_reference",
   "do_date",
+  "warehouse",
+  "offer_date",
+  "offer_check",
+  "purchase_check",
   "section_break_7zcb",
   "broker",
+  "purchase_type",
+  "region",
+  "broker_code",
   "sale_no",
-  "centre",
+  "auction_centre",
   "division",
   "lot_no",
   "manufacturer_ref",
@@ -53,7 +67,9 @@
   "purchase_invoice_date",
   "column_break_gapy",
   "warehouse_name",
-  "total_amount_as_per_to_tax_invoice"
+  "total_amount_as_per_to_tax_invoice",
+  "reprints_tab",
+  "reprints"
  ],
  "fields": [
   {
@@ -66,28 +82,20 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Acquisition Channel",
-   "options": "\nAuction\nPrivate\nOutsourced"
-  },
-  {
-   "default": "Offered",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Status",
-   "options": "\nOffered\nEvaluated"
+   "options": "\nAuction\nPrivate\nOutsourced",
+   "reqd": 1
   },
   {
    "fieldname": "seller",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Seller",
    "options": "Seller"
   },
   {
    "fieldname": "mark",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Mark",
@@ -100,13 +108,23 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Grade",
-   "options": "Grade"
+   "options": "Grade",
+   "reqd": 1
+  },
+  {
+   "description": "Auction Catalog CategoryId (e.g. CTC)",
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Category",
+   "reqd": 1
   },
   {
    "fieldname": "invoice_number",
    "fieldtype": "Data",
    "label": "Invoice Number",
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Private\""
   },
   {
    "fieldname": "packing",
@@ -137,7 +155,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "eval:doc.acquisition_channel==\"Auction\"",
    "fieldname": "section_break_7zcb",
    "fieldtype": "Section Break"
   },
@@ -148,17 +165,32 @@
    "options": "Broker"
   },
   {
-   "fieldname": "sale_no",
+   "fieldname": "purchase_type",
+   "fieldtype": "Select",
+   "label": "Purchase Type",
+   "options": "\nInternal\nExternal"
+  },
+  {
+   "fieldname": "region",
    "fieldtype": "Data",
+   "label": "Region"
+  },
+  {
+   "fieldname": "sale_no",
+   "fieldtype": "Int",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Sale No",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\""
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\" || doc.acquisition_channel==\"Outsourced\""
   },
   {
-   "fieldname": "centre",
-   "fieldtype": "Data",
-   "label": "Centre"
+   "fieldname": "auction_centre",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Auction Centre",
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\" || doc.acquisition_channel==\"Outsourced\"",
+   "options": "Auction Centre"
   },
   {
    "fieldname": "division",
@@ -171,7 +203,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Lot No",
-   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\""
+   "mandatory_depends_on": "eval:doc.acquisition_channel==\"Auction\" || doc.acquisition_channel==\"Outsourced\""
   },
   {
    "fieldname": "manufacturer_ref",
@@ -198,6 +230,7 @@
   {
    "fieldname": "warehouselocation",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Warehouse/Location"
   },
   {
@@ -242,15 +275,15 @@
   },
   {
    "fieldname": "liquor_mark",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Liquor Mark",
-   "options": "\nA+\nA\nB+\nB\nC+\nC"
+   "options": "Liquor Mark"
   },
   {
    "fieldname": "blend",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Blend",
-   "options": "\nPREMIUM PACK"
+   "options": "Blend"
   },
   {
    "fieldname": "source_doctype",
@@ -265,17 +298,31 @@
    "options": "source_doctype"
   },
   {
+   "description": "Tea Purchase created for the same lot from a Deal Book, if any",
+   "fieldname": "tea_purchase",
+   "fieldtype": "Link",
+   "label": "Tea Purchase",
+   "options": "Tea Purchase"
+  },
+  {
    "fieldname": "purchase_date",
    "fieldtype": "Date",
    "label": "Purchase Date"
   },
   {
-   "fieldname": "holding_status",
-   "fieldtype": "Select",
+   "fieldname": "purchase_status",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Holding Status",
-   "options": "\nCommitted\nReceived\nIn Stock"
+   "label": "Purchase Status",
+   "options": "Purchase Status"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item",
+   "read_only": 1
   },
   {
    "fieldname": "do_reference",
@@ -288,7 +335,6 @@
    "label": "DO Date"
   },
   {
-   "depends_on": "eval:doc.acquisition_channel==\"Private\"",
    "fieldname": "section_break_qop8",
    "fieldtype": "Section Break"
   },
@@ -314,27 +360,113 @@
   {
    "fieldname": "warehouse_name",
    "fieldtype": "Data",
-   "label": "Warehouse Name"
+   "hidden": 1,
+   "label": "Warehouse Name",
+   "options": "Warehouse"
   },
   {
    "fieldname": "total_amount_as_per_to_tax_invoice",
    "fieldtype": "Float",
    "label": "Total amount as per to Tax Invoice"
+  },
+  {
+   "fieldname": "evaluation_status",
+   "fieldtype": "Link",
+   "label": "Evaluation Status",
+   "options": "Evaluation Status"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel==\"Private\" && doc.purchase_status==\"Offer\"",
+   "fieldname": "offer_sample_list",
+   "fieldtype": "Link",
+   "label": "Offer Sample List",
+   "options": "Offer Sample List"
+  },
+  {
+   "fetch_from": "offer_sample_list.date",
+   "fieldname": "offer_date",
+   "fieldtype": "Date",
+   "label": "Offer Date"
+  },
+  {
+   "fieldname": "suggested_valuation",
+   "fieldtype": "Currency",
+   "label": "Suggested Valuation"
+  },
+  {
+   "fieldname": "actual_valuation",
+   "fieldtype": "Currency",
+   "label": "Actual Valuation"
+  },
+  {
+   "default": "0",
+   "fieldname": "offer_check",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Offer check"
+  },
+  {
+   "default": "0",
+   "fieldname": "purchase_check",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Purchase Check"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Int",
+   "label": "Season",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "week_no",
+   "fieldtype": "Int",
+   "label": "Week No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'"
+  },
+  {
+   "fieldname": "reprints",
+   "fieldtype": "Table",
+   "label": "Reprints",
+   "options": "Tea Lot Reprint"
+  },
+  {
+   "fieldname": "reprints_tab",
+   "fieldtype": "Tab Break",
+   "label": "Reprints"
+  },
+  {
+   "fetch_from": "broker.broker_short_name",
+   "fieldname": "broker_code",
+   "fieldtype": "Data",
+   "label": "Broker Code"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [
   {
+   "group": "Tea Lot Import",
    "link_doctype": "Tea Lot Import",
+   "link_fieldname": "tea_lot"
+  },
+  {
+   "group": "Tea Purchase",
+   "link_doctype": "Tea Purchase",
    "link_fieldname": "tea_lot"
   }
  ],
- "modified": "2026-07-01 16:26:04.712554",
+ "modified": "2026-10-28 14:43:55.009530",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Lot",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -388,5 +520,8 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
 }

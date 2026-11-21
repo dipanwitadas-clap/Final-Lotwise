@@ -16,6 +16,7 @@ class Taster(Document):
 
 		active: DF.Check
 		taster_name: DF.Data
+		user: DF.Link | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Taster"

@@ -33,7 +33,7 @@ def get_summary_stats() -> dict:
 			AS unique_grades
 
 
-		FROM `tabTea Lot`
+		FROM `tabTea Purchase`
 
 		""",
 		as_dict=True,
@@ -116,7 +116,7 @@ def get_lot_details(lot_no: str) -> dict:
 		"net_weight_total": lot.net_weight_total,
 		"rate": lot.rate,
 		"status": lot.status,
-		"holding_status": lot.holding_status,
+		"purchase_status": lot.purchase_status,
 		"liquor_mark": lot.liquor_mark,
 		"density": lot.density,
 		"invoice_number": lot.invoice_number,
@@ -127,7 +127,7 @@ def get_lot_details(lot_no: str) -> dict:
 		"awr_date": lot.awr_date,
 		"sale_no": lot.sale_no,
 		"broker": lot.broker,
-		"centre": lot.centre,
+		"auction_centre": lot.auction_centre,
 		"division": lot.division,
 		"manufacturer_ref": lot.manufacturer_ref,
 		"chest_serial_range": lot.chest_serial_range,
@@ -337,14 +337,14 @@ def get_status_distribution() -> list:
 
 
 @frappe.whitelist()
-def get_holding_status_distribution() -> list:
+def get_purchase_status_distribution() -> list:
 	return frappe.db.sql(
 		"""
 
 		SELECT
 
 			COALESCE(
-				holding_status,
+				purchase_status,
 				'Unknown'
 			)
 			AS name,
@@ -353,10 +353,10 @@ def get_holding_status_distribution() -> list:
 			COUNT(*) AS value
 
 
-		FROM `tabTea Lot`
+		FROM `tabTea Purchase`
 
 
-		GROUP BY holding_status
+		GROUP BY purchase_status
 
 
 		ORDER BY value DESC

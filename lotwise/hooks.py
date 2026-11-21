@@ -11,15 +11,7 @@ app_license = "mit"
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "lotwise",
-# 		"logo": "/assets/lotwise/logo.png",
-# 		"title": "Lotwise",
-# 		"route": "/lotwise",
-# 		"has_permission": "lotwise.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [{"name": "lotwise", "title": "Lotwise", "route": "/desk/lotwise"}]
 
 # Includes in <head>
 # ------------------
@@ -149,23 +141,12 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"lotwise.tasks.all"
-# 	],
-# 	"daily": [
-# 		"lotwise.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"lotwise.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"lotwise.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"lotwise.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"hourly": [
+		"lotwise.lotwise.doctype.tea_lot_image_import.tea_lot_image_import.unlock_stale_scans",
+		"lotwise.lotwise.doctype.buying_day.buying_day.unlock_stale_buying_day_jobs",
+	],
+}
 
 # Testing
 # -------
@@ -258,7 +239,21 @@ require_type_annotated_api_methods = True
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-fixtures = [{"doctype": "Role", "filters": [["role_name", "in", ["Tea Manager", "Taster", "Data Entry"]]]}]
+# fixtures = [{"doctype": "Role", "filters": [["role_name", "in", ["Tea Manager", "Taster", "Data Entry"]]]}]
+fixtures = [
+	{
+		"doctype": "Role",
+		"filters": [["role_name", "in", ["Tea Manager", "Taster", "Data Entry"]]],
+	},
+	{
+		"doctype": "Custom Field",
+		"filters": [
+			["dt", "in", ["Purchase Order Item", "Purchase Order"]],
+			["module", "=", "Lotwise"],
+		],
+	},
+]
+
 ignore_links_on_delete = [
 	"Tea Lot Import",
 ]

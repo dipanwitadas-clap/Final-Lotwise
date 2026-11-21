@@ -12,9 +12,9 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// BUTTONS
 	// --------------------------------------------------
 
-	page.add_inner_button(__("New Tea Lot"), () => frappe.new_doc("Tea Lot"));
-	page.add_inner_button(__("New Evaluation"), () => frappe.new_doc("Tea Evaluation"));
-	page.add_inner_button(__("Tea Lot Data Import"), () => frappe.new_doc("Tea Lot Import"));
+	page.add_inner_button(__("Tea Evaluation Comparison"), () => {
+		frappe.set_route("query-report", "Tea Evaluation Comparison");
+	});
 	page.add_inner_button(__("Holding Warehouse"), () => {
 		frappe.set_route("query-report", "Holding Warhouse");
 	});
@@ -305,18 +305,58 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	padding: 2px 6px !important;
 }
 
+
+.main-tab-panel{display:none}
+.main-tab-panel.active{display:block}
+.main-tab-list .main-tab-btn{font-size:14px}
+.buy-filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.buy-filters select{width:auto;min-width:140px}
+#buying-tab .detail-box{margin-bottom:14px;padding:12px}
+#buying-tab .detail-box h5{margin:0 0 8px;font-weight:600}
+.buy-tbl-wrap{max-height:380px;overflow:auto}
+.buy-tbl-wrap a{cursor:pointer}
 </style>
 
 
 
 <div class="tea-dashboard">
 
-<div class="row" id="cards"></div>
-
 <div class="dashboard-tabs">
+
+<div class="dashboard-tab-list main-tab-list">
+<button class="main-tab-btn dashboard-tab-btn active" data-main="buying-tab">Buying Week Overview</button>
+<button class="main-tab-btn dashboard-tab-btn" data-main="other-tab">Other</button>
+</div>
+
+<div class="main-tab-panel active" id="buying-tab">
+<div class="buy-filters" id="buy_filters">
+<select id="bf_season" class="form-control input-sm"></select>
+<select id="bf_week" class="form-control input-sm"></select>
+<select id="bf_day" class="form-control input-sm"></select>
+<select id="bf_channel" class="form-control input-sm">
+<option value="">All Channels</option><option>Auction</option><option>Private</option><option>Outsourced</option></select>
+<select id="bf_pstatus" class="form-control input-sm"></select>
+<select id="bf_postatus" class="form-control input-sm"></select>
+<button class="btn btn-default btn-sm" id="bf_reset">Reset</button>
+</div>
+<div class="row" id="buy_kpis"></div>
+<div class="row">
+<div class="col-md-7"><div class="detail-box"><h5>Buying Week wise (Net Kg)</h5><div id="buy_chart_week"></div></div></div>
+<div class="col-md-5"><div class="detail-box"><h5>Acquisition Channel (Lots)</h5><div id="buy_chart_channel"></div></div></div>
+</div>
+<div class="detail-box"><h5>Buying Week</h5><div id="buy_week_tbl"></div></div>
+<div class="detail-box"><h5>Buying Day</h5><div id="buy_day_tbl"></div></div>
+<div class="detail-box"><h5>Purchase Orders</h5><div id="buy_po_tbl"></div></div>
+<div class="detail-box"><h5>Tea Lot / Purchase / Evaluation</h5><div id="buy_lot_tbl"></div></div>
+</div>
+
+<div class="main-tab-panel" id="other-tab">
+
+<div class="row" id="cards"></div>
 
 <div class="dashboard-tab-list">
 <button class="dashboard-tab-btn active" data-tab="tea-lot-tab">Tea Lot</button>
+<button class="dashboard-tab-btn" data-tab="tea-purchase-tab">Tea Purchase</button>
 <button class="dashboard-tab-btn" data-tab="lot-details-tab">Tea Lot Details</button>
 <button class="dashboard-tab-btn" data-tab="mark-tab">Mark</button>
 <button class="dashboard-tab-btn" data-tab="grade-tab">Grade</button>
@@ -325,6 +365,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 
 <div class="dashboard-tab-panel active" id="tea-lot-tab">
 <div id="tea_lot_all"></div>
+</div>
+
+<div class="dashboard-tab-panel" id="tea-purchase-tab">
+<div id="tea_purchase_all"></div>
 </div>
 
 <div class="dashboard-tab-panel" id="lot-details-tab">
@@ -352,27 +396,21 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 </div>
 
 <div class="dashboard-tab-panel" id="evaluation-tab">
-<div class="lot-search-card" style="padding:16px;">
-<table style="width:100%;border-collapse:collapse;">
-<tr>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Colour</label><div style="display:flex;gap:3px;"><select id="eval_colour_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_colour" placeholder="e.g. 8" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Strength</label><div style="display:flex;gap:3px;"><select id="eval_strength_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_strength" placeholder="e.g. 4" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Taste</label><div style="display:flex;gap:3px;"><select id="eval_taste_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_taste" placeholder="e.g. 9" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Briskness</label><div style="display:flex;gap:3px;"><select id="eval_briskness_operator" style="width:44px;flex:0 0 auto;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 2px;"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value=">=">>=</option><option value="<="><=</option></select><input type="number" id="eval_briskness" placeholder="e.g. 10" step="0.001" style="flex:1;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;padding:2px 6px;background:white;box-sizing:border-box;"></div></td>
-<td style="padding:4px 6px;vertical-align:top;width:18%;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Quality Grade</label>
-<select id="eval_quality_grade" style="width:100%;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 4px;box-sizing:border-box;"><option value="">All</option><option value="A">A</option><option value="A++">A++</option><option value="A+++">A+++</option><option value="B">B</option><option value="B+">B+</option><option value="B++">B++</option><option value="B-">B-</option><option value="C">C</option><option value="C+">C+</option><option value="D">D</option><option value="D+">D+</option><option value="E">E</option><option value="E+">E+</option></select></td>
-</tr>
-</table>
-<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding:4px 6px;">
-<div style="flex:3;min-width:180px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Taster</label><div id="eval_taster_field"></div></div>
-<div style="flex:1;min-width:110px;"><label style="font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:4px;">Stage</label>
-<select id="eval_stage" style="width:100%;height:26px;font-size:12px;border:1px solid #d8dee8;border-radius:4px;outline:none;background:white;padding:1px 4px;box-sizing:border-box;"><option value="">All</option><option value="Pre-purchase">Pre-purchase</option><option value="Arrival">Arrival</option><option value="Blend QC">Blend QC</option><option value="Storage">Storage</option></select></div>
-<div style="display:flex;align-items:end;gap:4px;">
-<button class="btn btn-primary btn-sm" id="eval_search_btn" style="height:26px;font-size:12px;padding:2px 12px;"><i class="fa fa-search"></i> Search</button>
-<button class="btn btn-default btn-sm" id="eval_clear_btn" style="height:26px;font-size:12px;padding:2px 12px;"><i class="fa fa-eraser"></i> Clear</button></div>
+<div class="detail-box">
+<div class="section-heading">
+<div class="section-title-wrap">
+<h4>Tea Evaluations</h4>
+<span class="lot-count-badge" id="eval_total_count">0 Total</span>
+<span class="lot-badge" id="eval_filtered_count" style="background:#fef3c7;color:#92400e;display:none;">0 Filtered</span>
+<button class="btn btn-default btn-sm" id="download_eval_btn" title="Download Excel">
+<i class="fa fa-download"></i> Download
+</button>
 </div>
 </div>
 <div id="evaluation_results"></div>
+</div>
+</div>
+
 </div>
 
 </div>
@@ -467,60 +505,6 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	var filter_timeout = null;
 	var current_page = 0;
 	var page_size = 10;
-	var flt_from_date_field = null;
-	var flt_to_date_field = null;
-
-	function get_date_filter_args() {
-		var args = {};
-		var from_date = flt_from_date_field ? flt_from_date_field.get_value() : "";
-		var to_date = flt_to_date_field ? flt_to_date_field.get_value() : "";
-		if (from_date) args.from_date = from_date;
-		if (to_date) args.to_date = to_date;
-		return args;
-	}
-
-	function create_date_filter_controls() {
-		if (flt_from_date_field) return; // already created
-
-		flt_from_date_field = frappe.ui.form.make_control({
-			parent: $("#flt_from_date_wrapper"),
-			df: {
-				fieldname: "flt_from_date",
-				fieldtype: "Date",
-				label: "",
-				placeholder: "dd/mm/yyyy",
-				onchange: function () {
-					load_all_lots();
-				},
-			},
-			render_input: true,
-		});
-		flt_from_date_field.refresh();
-		flt_from_date_field.$input.addClass("input-xs");
-		flt_from_date_field.$input.on("change", function () {
-			load_all_lots();
-		});
-
-		flt_to_date_field = frappe.ui.form.make_control({
-			parent: $("#flt_to_date_wrapper"),
-			df: {
-				fieldname: "flt_to_date",
-				fieldtype: "Date",
-				label: "",
-				placeholder: "dd/mm/yyyy",
-				onchange: function () {
-					load_all_lots();
-				},
-			},
-			render_input: true,
-		});
-		flt_to_date_field.refresh();
-		flt_to_date_field.$input.addClass("input-xs");
-		flt_to_date_field.$input.on("change", function () {
-			load_all_lots();
-		});
-	}
-
 	function load_all_lots() {
 		if (!$("#tea_lot_all").length) return;
 		if (!$("#tea_lot_all_heading").length) {
@@ -534,16 +518,11 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 							<button class="btn btn-default btn-sm" id="download_all_lots_btn" title="Download Excel">
 								<i class="fa fa-download"></i> Download
 							</button>
-							<span style="font-size:12px;font-weight:600;color:#4b5563;">Purchase Date :</span>
-							<div id="flt_from_date_wrapper" style="display:inline-block;width:160px;"></div>
-							<span style="font-size:12px;color:#6b7280;">to</span>
-							<div id="flt_to_date_wrapper" style="display:inline-block;width:160px;"></div>
 						</div>
 					</div>
 					<div id="tea_lot_all_container"></div>
 				</div>
 			`);
-			create_date_filter_controls();
 			$("#tea_lot_all")
 				.off("click", "#download_all_lots_btn")
 				.on("click", "#download_all_lots_btn", function (e) {
@@ -555,7 +534,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		$("#tea_lot_all_container").html(
 			`<div class="text-center text-muted" style="padding:20px;"><i class="fa fa-spinner fa-spin"></i> Loading all tea lots...</div>`
 		);
-		var args = get_date_filter_args();
+		var args = {};
 		api_from("tea_lot_dashboard_all_lots", "get_all_lots", args, function (data) {
 			all_lots_data = (data && data.lots) || [];
 			current_page = 0;
@@ -588,20 +567,18 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		var columns = [
 			{ key: "sno", label: "S.No" },
 			{ key: "name", label: "Tea Lot ID", clickable: true },
+			{ key: "tea_purchase", label: "Tea Purchase ID" },
 			{ key: "lot_no", label: "Lot No" },
 			{ key: "mark", label: "Mark" },
 			{ key: "grade", label: "Grade" },
-			{ key: "seller", label: "Seller" },
 			{ key: "invoice_number", label: "Invoice No" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
 			{ key: "acquisition_channel", label: "Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
 			{ key: "packages", label: "Packages", numeric: true },
 			{ key: "net_weight_total", label: "Net Wt Kg", numeric: true },
-			{ key: "rate", label: "Rate", numeric: true },
-			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
+			{ key: "rate", label: "Purchase Rate", numeric: true },
+			{ key: "purchase_status", label: "Purchase Status" },
 			{ key: "warehouse", label: "Warehouse" },
+			{ key: "sale_no", label: "Sale No" },
 		];
 
 		var filters = {};
@@ -795,70 +772,39 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	function download_all_lots_excel() {
-		if (!filtered_lots_data || !filtered_lots_data.length) {
-			frappe.msgprint({
-				title: __("No Data"),
-				indicator: "orange",
-				message: __("No tea lots to download."),
-			});
-			return;
-		}
-
-		var columns = [
-			{ key: "name", label: "Tea Lot ID" },
-			{ key: "lot_no", label: "Lot No" },
-			{ key: "mark", label: "Mark" },
-			{ key: "grade", label: "Grade" },
-			{ key: "seller", label: "Seller" },
-			{ key: "invoice_number", label: "Invoice No" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
-			{ key: "acquisition_channel", label: "Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
-			{ key: "packages", label: "Packages" },
-			{ key: "net_weight_total", label: "Net Wt Kg" },
-			{ key: "rate", label: "Rate" },
-			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
-			{ key: "warehouse", label: "Warehouse" },
-		];
-
-		// Build CSV content
-		var csv_content =
-			columns
-				.map(function (col) {
-					return col.label;
-				})
-				.join(",") + "\n";
-
-		filtered_lots_data.forEach(function (row) {
-			var row_data = columns.map(function (col) {
-				var val = row[col.key];
-				if (val == null) val = "";
-				if (col.key === "rate") val = val || 0;
-				return val;
-			});
-			csv_content += row_data.join(",") + "\n";
+		frappe.call({
+			method: "lotwise.lotwise.page.tea_lot_dashboard.tea_lot_dashboard_all_lots.download_all_lots_xlsx",
+			args: {},
+			callback: function (r) {
+				if (!r.message || !r.message.content) {
+					frappe.msgprint({
+						title: __("Error"),
+						indicator: "red",
+						message: __("Failed to generate Excel."),
+					});
+					return;
+				}
+				var data = r.message;
+				var binary = atob(data.content);
+				var array = new Uint8Array(binary.length);
+				for (var i = 0; i < binary.length; i++) {
+					array[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([array], {
+					type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				});
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement("a");
+				a.href = url;
+				a.download = data.filename || "Tea_Lots.xlsx";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function () {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				}, 100);
+			},
 		});
-
-		// Download
-		var date_str = frappe.datetime.now_date();
-		var filename = "Tea_Lots_" + date_str + ".csv";
-
-		var blob = new Blob([csv_content], { type: "text/csv" });
-		if (navigator.msSaveBlob) {
-			navigator.msSaveBlob(blob, filename);
-		} else {
-			var url = URL.createObjectURL(blob);
-			var a = document.createElement("a");
-			a.href = url;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			setTimeout(function () {
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
-			}, 100);
-		}
 	}
 
 	// --------------------------------------------------
@@ -917,7 +863,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			<tr><th>Channel</th><td>${vd(l.acquisition_channel)}</td><th>Status</th><td>${vd(
 			l.status
 		)}</td></tr>
-			<tr><th>Holding Status</th><td>${vd(l.holding_status)}</td><th>Intended Segment</th><td>${vd(
+			<tr><th>Purchase Status</th><td>${vd(l.purchase_status)}</td><th>Intended Segment</th><td>${vd(
 			l.intended_segment
 		)}</td></tr>
 			<tr><th>Packages</th><td>${fmt(l.packages)}</td><th>Net Weight</th><td>${fmt(
@@ -932,7 +878,9 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			<tr><th>Purchase Date</th><td>${vd(l.purchase_date)}</td><th>GP No</th><td>${vd(l.gp_no)}</td></tr>
 			<tr><th>GP Date</th><td>${vd(l.gp_date)}</td><th>AWR Date</th><td>${vd(l.awr_date)}</td></tr>
 			<tr><th>Broker</th><td>${vd(l.broker)}</td><th>Sale No</th><td>${vd(l.sale_no)}</td></tr>
-			<tr><th>Centre</th><td>${vd(l.centre)}</td><th>Division</th><td>${vd(l.division)}</td></tr>
+			<tr><th>Auction Centre</th><td>${vd(l.auction_centre)}</td><th>Division</th><td>${vd(
+			l.division
+		)}</td></tr>
 			<tr><th>Manufacturer Ref</th><td>${vd(l.manufacturer_ref)}</td><th>Chest Serial Range</th><td>${vd(
 			l.chest_serial_range
 		)}</td></tr>
@@ -1035,16 +983,16 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		)}</span><span class="lot-badge">${fmt(lots.length)} Lots</span>
 		<button class="btn btn-default btn-sm" id="download_mark_btn" title="Download Excel">
 			<i class="fa fa-download"></i> Download
-		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Grade</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Holding Status</th></tr>`;
+		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Grade</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Purchase Status</th></tr>`;
 		lots.forEach(function (lot) {
 			h += `<tr><td>${vd(lot.lot_no || lot.name)}</td><td>${vd(lot.name)}</td><td>${vd(
-				lot.grade
+				lot.mark
 			)}</td><td>${vd(lot.invoice_number)}</td><td>${vd(lot.liquor_mark)}</td><td>${vd(
 				lot.acquisition_channel
 			)}</td><td>${vd(lot.purchase_date)}</td><td>${fmt(lot.packages)}</td><td>${fmt(
 				lot.net_weight_total
 			)}</td><td>${money(lot.rate)}</td><td>${vd(lot.status)}</td><td>${vd(
-				lot.holding_status
+				lot.purchase_status
 			)}</td></tr>`;
 		});
 		return h + `</table></div></div>`;
@@ -1055,67 +1003,39 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	function download_mark_excel(mark, lots) {
-		if (!lots.length) {
-			frappe.msgprint({
-				title: __("No Data"),
-				indicator: "orange",
-				message: __("No tea lots to download."),
-			});
-			return;
-		}
-
-		var columns = [
-			{ key: "lot_no", label: "Lot No" },
-			{ key: "name", label: "Tea Lot ID" },
-			{ key: "grade", label: "Grade" },
-			{ key: "invoice_number", label: "Invoice Number" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
-			{ key: "acquisition_channel", label: "Acquisition Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
-			{ key: "packages", label: "Packages" },
-			{ key: "net_weight_total", label: "Net Weight Kg" },
-			{ key: "rate", label: "Rate" },
-			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
-		];
-
-		// Build CSV content
-		var csv_content =
-			columns
-				.map(function (col) {
-					return col.label;
-				})
-				.join(",") + "\n";
-
-		lots.forEach(function (row) {
-			var row_data = columns.map(function (col) {
-				var val = row[col.key];
-				if (val == null) val = "";
-				if (col.key === "rate") val = val || 0;
-				return val;
-			});
-			csv_content += row_data.join(",") + "\n";
+		frappe.call({
+			method: "lotwise.lotwise.page.tea_lot_dashboard.tea_lot_dashboard_mark.download_mark_xlsx",
+			args: { mark: mark },
+			callback: function (r) {
+				if (!r.message || !r.message.content) {
+					frappe.msgprint({
+						title: __("Error"),
+						indicator: "red",
+						message: __("Failed to generate Excel."),
+					});
+					return;
+				}
+				var data = r.message;
+				var binary = atob(data.content);
+				var array = new Uint8Array(binary.length);
+				for (var i = 0; i < binary.length; i++) {
+					array[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([array], {
+					type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				});
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement("a");
+				a.href = url;
+				a.download = data.filename || "Tea_Lots_Mark.xlsx";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function () {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				}, 100);
+			},
 		});
-
-		// Download
-		var date_str = frappe.datetime.now_date();
-		var filename = "Tea_Lots_Mark_" + (mark || "All") + "_" + date_str + ".csv";
-
-		var blob = new Blob([csv_content], { type: "text/csv" });
-		if (navigator.msSaveBlob) {
-			navigator.msSaveBlob(blob, filename);
-		} else {
-			var url = URL.createObjectURL(blob);
-			var a = document.createElement("a");
-			a.href = url;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			setTimeout(function () {
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
-			}, 100);
-		}
 	}
 
 	// --------------------------------------------------
@@ -1189,7 +1109,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 		)}</span><span class="lot-badge">${fmt(lots.length)} Lots</span>
 		<button class="btn btn-default btn-sm" id="download_grade_btn" title="Download Excel">
 			<i class="fa fa-download"></i> Download
-		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Mark</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Holding Status</th></tr>`;
+		</button></div></div><div class="section-body"><table class="table table-bordered"><tr><th>Lot No</th><th>Tea Lot ID</th><th>Mark</th><th>Invoice Number</th><th>Liquor Mark</th><th>Acquisition Channel</th><th>Purchase Date</th><th>Packages</th><th>Net Weight Kg</th><th>Rate</th><th>Status</th><th>Purchase Status</th></tr>`;
 		lots.forEach(function (lot) {
 			h += `<tr><td>${vd(lot.lot_no || lot.name)}</td><td>${vd(lot.name)}</td><td>${vd(
 				lot.mark
@@ -1198,7 +1118,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 			)}</td><td>${vd(lot.purchase_date)}</td><td>${fmt(lot.packages)}</td><td>${fmt(
 				lot.net_weight_total
 			)}</td><td>${money(lot.rate)}</td><td>${vd(lot.status)}</td><td>${vd(
-				lot.holding_status
+				lot.purchase_status
 			)}</td></tr>`;
 		});
 		return h + `</table></div></div>`;
@@ -1209,171 +1129,287 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	function download_grade_excel(grade, lots) {
-		if (!lots.length) {
-			frappe.msgprint({
-				title: __("No Data"),
-				indicator: "orange",
-				message: __("No tea lots to download."),
-			});
+		frappe.call({
+			method: "lotwise.lotwise.page.tea_lot_dashboard.tea_lot_dashboard_grade.download_grade_xlsx",
+			args: { grade: grade },
+			callback: function (r) {
+				if (!r.message || !r.message.content) {
+					frappe.msgprint({
+						title: __("Error"),
+						indicator: "red",
+						message: __("Failed to generate Excel."),
+					});
+					return;
+				}
+				var data = r.message;
+				var binary = atob(data.content);
+				var array = new Uint8Array(binary.length);
+				for (var i = 0; i < binary.length; i++) {
+					array[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([array], {
+					type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				});
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement("a");
+				a.href = url;
+				a.download = data.filename || "Tea_Lots_Grade.xlsx";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function () {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				}, 100);
+			},
+		});
+	}
+
+	// --------------------------------------------------
+	// EVALUATION TAB - INLINE FILTER TABLE (like All Lots)
+	// --------------------------------------------------
+
+	var eval_data = [];
+	var eval_filtered_data = [];
+	var eval_filter_timeout = null;
+	var eval_current_page = 0;
+	var eval_page_size = 10;
+
+	function load_evaluations() {
+		if (!$("#evaluation_results").length) return;
+
+		$("#evaluation_results").html(
+			`<div class="section-body text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading evaluations...</div>`
+		);
+		api_from("tea_lot_dashboard_evaluation", "get_evaluations", {}, function (data) {
+			eval_data = (data && data.evaluations) || [];
+			eval_current_page = 0;
+			render_evaluations_table();
+		});
+	}
+
+	// Bind download button for evaluations (server-side .xlsx)
+	$(page.main).on("click", "#download_eval_btn", function () {
+		frappe.call({
+			method: "lotwise.lotwise.page.tea_lot_dashboard.tea_lot_dashboard_evaluation.download_evaluation_xlsx",
+			args: {},
+			callback: function (r) {
+				if (!r.message || !r.message.content) {
+					frappe.msgprint({
+						title: __("Error"),
+						indicator: "red",
+						message: __("Failed to generate Excel."),
+					});
+					return;
+				}
+				var data = r.message;
+				var binary = atob(data.content);
+				var array = new Uint8Array(binary.length);
+				for (var i = 0; i < binary.length; i++) {
+					array[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([array], {
+					type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				});
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement("a");
+				a.href = url;
+				a.download = data.filename || "tea_evaluations.xlsx";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function () {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				}, 100);
+			},
+		});
+	});
+
+	function render_evaluations_table() {
+		// Save focus state before re-render so the user can keep typing
+		var focused_filter_id = null;
+		var cursor_start = 0;
+		var cursor_end = 0;
+		var active = document.activeElement;
+		if (active && active.id && active.id.indexOf("eval_flt_") === 0) {
+			focused_filter_id = active.id;
+			cursor_start = active.selectionStart || 0;
+			cursor_end = active.selectionEnd || 0;
+		}
+
+		var data = eval_data;
+		if (!data.length) {
+			$("#eval_total_count").text("0 Total");
+			$("#eval_filtered_count").hide();
+			$("#evaluation_results").html(
+				`<div class="section-body text-center text-muted">No Evaluations found.</div>`
+			);
 			return;
 		}
 
 		var columns = [
-			{ key: "lot_no", label: "Lot No" },
-			{ key: "name", label: "Tea Lot ID" },
-			{ key: "mark", label: "Mark" },
-			{ key: "invoice_number", label: "Invoice Number" },
-			{ key: "liquor_mark", label: "Liquor Mark" },
-			{ key: "acquisition_channel", label: "Acquisition Channel" },
-			{ key: "purchase_date", label: "Purchase Date" },
-			{ key: "packages", label: "Packages" },
-			{ key: "net_weight_total", label: "Net Weight Kg" },
-			{ key: "rate", label: "Rate" },
-			{ key: "status", label: "Status" },
-			{ key: "holding_status", label: "Holding Status" },
+			{ key: "sno", label: "S.No" },
+			{ key: "name", label: "Tea Eval ID" },
+			{ key: "tea_lot", label: "Tea Lot" },
+			{ key: "tea_lot_no", label: "Lot No" },
+			{ key: "tea_lot_mark", label: "Mark" },
+			{ key: "colour", label: "Colour", numeric: true },
+			{ key: "strength", label: "Strength", numeric: true },
+			{ key: "taste", label: "Taste", numeric: true },
+			{ key: "briskness", label: "Briskness", numeric: true },
+			{ key: "quality_grade", label: "Quality Grade" },
+			{ key: "taster", label: "Taster" },
+			{ key: "stage", label: "Stage" },
+			{ key: "evaluation_date", label: "Eval Date" },
+			{ key: "suggested_valuation", label: "Suggested Val", numeric: true },
+			{ key: "notes", label: "Notes" },
 		];
 
-		// Build CSV content
-		var csv_content =
-			columns
-				.map(function (col) {
-					return col.label;
-				})
-				.join(",") + "\n";
+		// Read current filter values
+		var filters = {};
+		columns.forEach(function (col) {
+			var val = $("#eval_flt_" + col.key).val();
+			filters[col.key] = (val || "").toLowerCase();
+		});
 
-		lots.forEach(function (row) {
-			var row_data = columns.map(function (col) {
-				var val = row[col.key];
-				if (val == null) val = "";
-				if (col.key === "rate") val = val || 0;
-				return val;
+		// Numeric filter helper: supports >, <, >=, <=, =, ==
+		function apply_numeric_filter(rowValue, filterValue) {
+			if (/^\s*([><]=?|={1,2})\s*$/.test(filterValue)) return true;
+			var match = filterValue.match(/^\s*([><]=?|={1,2})\s*([\d.]+)\s*$/);
+			if (!match) return null;
+			var op = match[1];
+			var num = parseFloat(match[2]);
+			if (isNaN(num)) return null;
+			var rv = parseFloat(rowValue);
+			if (isNaN(rv)) return false;
+			switch (op) {
+				case ">=":
+					return rv >= num;
+				case "<=":
+					return rv <= num;
+				case ">":
+					return rv > num;
+				case "<":
+					return rv < num;
+				case "=":
+				case "==":
+					return rv === num;
+				default:
+					return null;
+			}
+		}
+
+		// Filter rows and store in global for download
+		eval_filtered_data = data.filter(function (row, rowIndex) {
+			return columns.every(function (col) {
+				var fv = filters[col.key];
+				if (!fv) return true;
+				if (col.key === "sno") {
+					return (
+						String(rowIndex + 1)
+							.toLowerCase()
+							.indexOf(fv) !== -1
+					);
+				}
+				if (col.numeric) {
+					var numericResult = apply_numeric_filter(row[col.key], fv);
+					if (numericResult !== null) return numericResult;
+				}
+				var rv = (row[col.key] == null ? "" : String(row[col.key])).toLowerCase();
+				return rv.indexOf(fv) !== -1;
 			});
-			csv_content += row_data.join(",") + "\n";
 		});
 
-		// Download
-		var date_str = frappe.datetime.now_date();
-		var filename = "Tea_Lots_Grade_" + (grade || "All") + "_" + date_str + ".csv";
+		// Add original index for correct S.No
+		var filtered_with_index = eval_filtered_data.map(function (row) {
+			return { row: row, original_index: data.indexOf(row) };
+		});
 
-		var blob = new Blob([csv_content], { type: "text/csv" });
-		if (navigator.msSaveBlob) {
-			navigator.msSaveBlob(blob, filename);
+		// Pagination
+		eval_current_page = 0;
+		var total_pages = Math.ceil(eval_filtered_data.length / eval_page_size);
+		if (total_pages === 0) total_pages = 1;
+		var start_idx = eval_current_page * eval_page_size;
+		var page_data = filtered_with_index.slice(start_idx, start_idx + eval_page_size);
+
+		// Update heading counts
+		$("#eval_total_count").text(fmt(data.length) + " Total");
+		if (eval_filtered_data.length !== data.length) {
+			$("#eval_filtered_count")
+				.text(fmt(eval_filtered_data.length) + " Filtered")
+				.show();
 		} else {
-			var url = URL.createObjectURL(blob);
-			var a = document.createElement("a");
-			a.href = url;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			setTimeout(function () {
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
-			}, 100);
+			$("#eval_filtered_count").hide();
 		}
-	}
 
-	// --------------------------------------------------
-	// EVALUATION TAB
-	// --------------------------------------------------
+		var html = `<div class="section-body" style="padding:0;"><div class="all-lots-wrap">
+		<table class="table table-bordered" id="eval_table"><thead><tr>`;
 
-	var taster_field = null;
-
-	function create_evaluation_search() {
-		$("#eval_search_btn").on("click", function () {
-			load_evaluations();
+		columns.forEach(function (col) {
+			var cur_val = filters[col.key] || "";
+			html += `<th><span class="col-head">${esc(col.label)}</span>
+				<input class="col-filter" id="eval_flt_${col.key}" type="text" value="${esc(
+				cur_val
+			)}" placeholder="filter" data-col="${col.key}" autocomplete="off" /></th>`;
 		});
-		$("#eval_clear_btn").on("click", function () {
-			$(
-				"#eval_colour,#eval_strength,#eval_taste,#eval_briskness,#eval_quality_grade,#eval_stage"
-			).val("");
-			$(
-				"#eval_colour_operator,#eval_strength_operator,#eval_taste_operator,#eval_briskness_operator"
-			).val("=");
-			if (taster_field) taster_field.set_value("");
-			$("#evaluation_results").empty();
-		});
-		taster_field = frappe.ui.form.make_control({
-			parent: $("#eval_taster_field"),
-			df: {
-				fieldname: "taster",
-				label: "Taster",
-				fieldtype: "Link",
-				options: "Taster",
-				placeholder: "Select taster",
-				onchange: function () {
-					load_evaluations();
-				},
-			},
-			render_input: true,
-		});
-		taster_field.refresh();
-	}
 
-	function load_evaluations() {
-		var args = {};
-		var colour = $("#eval_colour").val().trim();
-		var strength = $("#eval_strength").val().trim();
-		var taste = $("#eval_taste").val().trim();
-		var briskness = $("#eval_briskness").val().trim();
-		var quality_grade = $("#eval_quality_grade").val();
-		var stage = $("#eval_stage").val();
-		var taster_val = taster_field ? (taster_field.get_value() || "").trim() : "";
-		if (colour) {
-			args.colour = colour;
-			args.colour_operator = $("#eval_colour_operator").val();
-		}
-		if (strength) {
-			args.strength = strength;
-			args.strength_operator = $("#eval_strength_operator").val();
-		}
-		if (taste) {
-			args.taste = taste;
-			args.taste_operator = $("#eval_taste_operator").val();
-		}
-		if (briskness) {
-			args.briskness = briskness;
-			args.briskness_operator = $("#eval_briskness_operator").val();
-		}
-		if (quality_grade) args.quality_grade = quality_grade;
-		if (taster_val) args.taster = taster_val;
-		if (stage) args.stage = stage;
+		html += `</tr></thead><tbody>`;
 
-		$("#evaluation_results").html(
-			`<div class="detail-box text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading evaluations...</div>`
-		);
-		api_from("tea_lot_dashboard_evaluation", "get_evaluations", args, function (data) {
-			var evals = (data && data.evaluations) || [];
-			$("#evaluation_results").html(eval_table(evals));
-
-			$("#evaluation_results")
-				.off("click", "#download_eval_btn")
-				.on("click", "#download_eval_btn", function () {
-					download_evaluation_excel(evals);
+		if (!page_data.length) {
+			html += `<tr><td colspan="${columns.length}" class="text-center text-muted" style="padding:20px;">No matching evaluations found.</td></tr>`;
+		} else {
+			page_data.forEach(function (item) {
+				var e = item.row;
+				var original_idx = item.original_index;
+				html += "<tr>";
+				columns.forEach(function (col) {
+					var val = e[col.key];
+					if (col.key === "sno") {
+						html += "<td>" + (original_idx + 1) + "</td>";
+					} else if (col.numeric && col.key === "suggested_valuation") {
+						html += "<td>" + (val == null ? "-" : money(val)) + "</td>";
+					} else if (col.numeric) {
+						html += "<td>" + (val == null ? "-" : esc(val)) + "</td>";
+					} else {
+						html += "<td>" + vd(val) + "</td>";
+					}
 				});
-		});
-	}
+				html += "</tr>";
+			});
+		}
 
-	function eval_table(evals) {
-		if (!evals.length)
-			return `<div class="detail-box text-center text-muted">No Evaluations found.</div>`;
-		var h = `<div class="detail-box"><div class="section-heading"><div class="section-title-wrap"><h4>Tea Evaluation Results</h4><span class="lot-badge">${fmt(
-			evals.length
-		)} Records</span>
-		<button class="btn btn-default btn-sm" id="download_eval_btn" title="Download Excel">
-			<i class="fa fa-download"></i> Download
-		</button></div></div><div class="section-body" style="overflow-x:auto;"><table class="table table-bordered"><tr><th>Tea Evaluation ID</th><th>Tea Lot</th><th>Lot No</th><th>Mark</th><th>Colour</th><th>Strength</th><th>Taste</th><th>Briskness</th><th>Quality Grade</th><th>Taster</th><th>Stage</th><th>Eval Date</th><th>Suggested Valuation</th><th>Notes</th></tr>`;
-		evals.forEach(function (e) {
-			h += `<tr><td>${vd(e.name)}</td><td>${vd(e.tea_lot)}</td><td>${vd(
-				e.tea_lot_no
-			)}</td><td>${vd(e.tea_lot_mark)}</td><td>${fmt(e.colour)}</td><td>${fmt(
-				e.strength
-			)}</td><td>${fmt(e.taste)}</td><td>${fmt(e.briskness)}</td><td>${vd(
-				e.quality_grade
-			)}</td><td>${vd(e.taster)}</td><td>${vd(e.stage)}</td><td>${vd(
-				e.evaluation_date
-			)}</td><td>${money(e.suggested_valuation)}</td><td>${vd(e.notes)}</td></tr>`;
-		});
-		return h + `</table></div></div>`;
+		// Pagination info
+		var show_start = eval_filtered_data.length ? start_idx + 1 : 0;
+		var show_end = Math.min(start_idx + eval_page_size, eval_filtered_data.length);
+		var pagination_html = `
+			<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #edf0f4;background:#fbfcfe;">
+				<span style="font-size:12px;color:#6b7280;">Showing ${show_start}-${show_end} of ${eval_filtered_data.length}</span>
+			</div>
+		`;
+
+		html += `</tbody></table></div></div>${pagination_html}`;
+		$("#evaluation_results").html(html);
+
+		// Restore focus
+		if (focused_filter_id) {
+			var $input = $("#" + focused_filter_id);
+			if ($input.length) {
+				$input.focus();
+				var inputEl = $input[0];
+				if (inputEl.setSelectionRange) {
+					inputEl.setSelectionRange(cursor_start, cursor_end);
+				}
+			}
+		}
+
+		// Bind filter input events with debounce
+		$("#evaluation_results")
+			.off("input", ".col-filter")
+			.on("input", ".col-filter", function () {
+				if (eval_filter_timeout) clearTimeout(eval_filter_timeout);
+				eval_filter_timeout = setTimeout(function () {
+					render_evaluations_table();
+				}, 200);
+			});
 	}
 
 	// --------------------------------------------------
@@ -1519,7 +1555,7 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				<tr><th>Channel</th><td>${vd(l.acquisition_channel)}</td><th>Status</th><td>${vd(
 				l.status
 			)}</td></tr>
-				<tr><th>Holding Status</th><td>${vd(l.holding_status)}</td><th>Intended Segment</th><td>${vd(
+				<tr><th>Purchase Status</th><td>${vd(l.purchase_status)}</td><th>Intended Segment</th><td>${vd(
 				l.intended_segment
 			)}</td></tr>
 				<tr><th>Packages</th><td>${fmt(l.packages)}</td><th>Net Weight</th><td>${fmt(
@@ -1533,8 +1569,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 				<tr><th>Blend</th><td>${vd(l.blend)}</td><th>Warehouse</th><td>${vd(l.warehouse)}</td></tr>
 				<tr><th>Purchase Date</th><td>${vd(l.purchase_date)}</td><th>GP No</th><td>${vd(l.gp_no)}</td></tr>
 				<tr><th>GP Date</th><td>${vd(l.gp_date)}</td><th>AWR Date</th><td>${vd(l.awr_date)}</td></tr>
-				<tr><th>Broker</th><td>${vd(l.broker)}</td><th>Sale No</th><td>${vd(l.sale_no)}</td></tr>
-				<tr><th>Centre</th><td>${vd(l.centre)}</td><th>Division</th><td>${vd(l.division)}</td></tr>
+			<tr><th>Broker</th><td>${vd(l.broker)}</td><th>Sale No</th><td>${vd(l.sale_no)}</td></tr>
+			<tr><th>Auction Centre</th><td>${vd(l.auction_centre)}</td><th>Division</th><td>${vd(
+				l.division
+			)}</td></tr>
 				<tr><th>Manufacturer Ref</th><td>${vd(l.manufacturer_ref)}</td><th>Chest Serial Range</th><td>${vd(
 				l.chest_serial_range
 			)}</td></tr>
@@ -1576,16 +1614,633 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	}
 
 	// --------------------------------------------------
+	// BUYING OVERVIEW TAB
+	// --------------------------------------------------
+
+	var buy_charts = {};
+
+	function buy_filters() {
+		return {
+			season: $("#bf_season").val() || "",
+			buying_week: $("#bf_week").val() || "",
+			buying_day: $("#bf_day").val() || "",
+			acquisition_channel: $("#bf_channel").val() || "",
+			purchase_status: $("#bf_pstatus").val() || "",
+			po_status: $("#bf_postatus").val() || "",
+		};
+	}
+
+	function fill_select(sel, first, items) {
+		var h = `<option value="">${esc(first)}</option>`;
+		items.forEach(function (i) {
+			h += `<option value="${esc(i.v)}">${esc(i.l)}</option>`;
+		});
+		$(sel).html(h);
+	}
+
+	function load_buying_options(keep) {
+		var wk = $("#bf_week").val() || "";
+		api_from(
+			"tea_lot_dashboard_buying",
+			"get_filter_options",
+			{ buying_week: wk },
+			function (o) {
+				if (!o) return;
+				var cur = buy_filters();
+				if (!keep) {
+					fill_select(
+						"#bf_season",
+						"All Seasons",
+						o.seasons.map((x) => ({ v: x, l: "Season " + x }))
+					);
+					fill_select(
+						"#bf_week",
+						"All Buying Weeks",
+						o.weeks.map((x) => ({
+							v: x.name,
+							l: "Week " + (x.week_no || "") + " (" + x.name + ")",
+						}))
+					);
+					fill_select(
+						"#bf_pstatus",
+						"All Purchase Status",
+						o.purchase_statuses.map((x) => ({ v: x, l: x }))
+					);
+					fill_select(
+						"#bf_postatus",
+						"All PO Status",
+						o.po_statuses.map((x) => ({ v: x, l: x }))
+					);
+				}
+				fill_select(
+					"#bf_day",
+					"All Buying Days",
+					o.days.map((x) => ({
+						v: x.name,
+						l: "Day " + (x.day || "") + " (" + x.name + ")",
+					}))
+				);
+				if (keep) $("#bf_day").val(cur.buying_day);
+			}
+		);
+	}
+
+	function link(doctype, name) {
+		if (!name) return "-";
+		return `<a data-dt="${esc(doctype)}" data-name="${esc(name)}" class="buy-link">${esc(
+			name
+		)}</a>`;
+	}
+
+	function buy_table(cols, rows, limit) {
+		if (!rows || !rows.length)
+			return `<div class="alert alert-info">No data for selected filters</div>`;
+		var total = rows.length;
+		if (limit && total > limit) rows = rows.slice(0, limit);
+		var h = `<div class="buy-tbl-wrap"><table class="table table-bordered table-sm"><thead><tr>`;
+		cols.forEach(function (c) {
+			h += `<th>${esc(c[0])}</th>`;
+		});
+		h += `</tr></thead><tbody>`;
+		rows.forEach(function (r) {
+			h += "<tr>";
+			cols.forEach(function (c) {
+				h += `<td>${c[1](r)}</td>`;
+			});
+			h += "</tr>";
+		});
+		h += `</tbody></table></div>`;
+		if (total > rows.length)
+			h += `<div class="text-muted" style="font-size:12px;margin-top:6px">Showing first ${fmt(
+				rows.length
+			)} of ${fmt(total)} rows. Use the filters above to narrow down.</div>`;
+		return h;
+	}
+
+	function draw_chart(sel, cfg) {
+		if (buy_charts[sel]) {
+			try {
+				buy_charts[sel].destroy && buy_charts[sel].destroy();
+			} catch (e) {
+				// ignore: chart may already be destroyed or detached from the DOM
+			}
+		}
+		$(sel).empty();
+		if (!cfg.data.labels.length) {
+			$(sel).html(`<div class="text-muted">No data</div>`);
+			return;
+		}
+		buy_charts[sel] = new frappe.Chart(sel, cfg);
+	}
+
+	function load_buying() {
+		var f = JSON.stringify(buy_filters());
+
+		api_from("tea_lot_dashboard_buying", "get_kpis", { filters: f }, function (d) {
+			if (!d) return;
+			var cards = [
+				["Buying Weeks", d.buying_weeks, "fa-calendar", "#2563eb", "#eff6ff"],
+				["Buying Days", d.buying_days, "fa-calendar-o", "#7c3aed", "#f5f3ff"],
+				["Tea Lots", fmt(d.lots), "fa-cubes", "#16a34a", "#f0fdf4"],
+				["Net Kg", fmt(d.net_weight), "fa-balance-scale", "#ea580c", "#fff7ed"],
+				[
+					"Purchased Lots",
+					fmt(d.purchased_lots) + " / " + fmt(d.lots),
+					"fa-shopping-cart",
+					"#0d9488",
+					"#f0fdfa",
+				],
+				["Purchase Value", money(d.value), "fa-inr", "#ca8a04", "#fefce8"],
+				["Avg Purchase Rate/kg", money(d.avg_rate), "fa-line-chart", "#0891b2", "#ecfeff"],
+				[
+					"Purchase Orders",
+					d.po_count + " / " + money(d.po_total),
+					"fa-file-text-o",
+					"#db2777",
+					"#fdf2f8",
+				],
+				[
+					"Evaluated",
+					fmt(d.evaluated) +
+						" / " +
+						fmt(d.lots) +
+						" (" +
+						fmt(d.not_evaluated) +
+						" pending)",
+					"fa-check-square-o",
+					"#dc2626",
+					"#fef2f2",
+				],
+			];
+			var html = "";
+			cards.forEach(function (c) {
+				html += `<div class="col-md-3" style="padding:5px;"><div class="dashboard-card" style="--card-accent:${
+					c[3]
+				};--card-bg:${c[4]};">
+				<div class="dashboard-card-icon"><i class="fa ${c[2]}"></i></div><div><h3 style="font-size:18px">${
+					c[1] == null ? 0 : c[1]
+				}</h3><small>${c[0]}</small></div></div></div>`;
+			});
+			$("#buy_kpis").html(html);
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_week_summary", { filters: f }, function (rows) {
+			rows = rows || [];
+			draw_chart("#buy_chart_week", {
+				type: "bar",
+				height: 240,
+				colors: ["#2563eb"],
+				data: {
+					labels: rows
+						.slice()
+						.reverse()
+						.map((r) => "W" + (r.week_no || r.buying_week)),
+					datasets: [
+						{
+							name: "Net Kg",
+							values: rows
+								.slice()
+								.reverse()
+								.map((r) => Math.round(r.net_weight)),
+						},
+					],
+				},
+			});
+			$("#buy_week_tbl").html(
+				buy_table(
+					[
+						["Buying Week", (r) => link("Buying Week", r.buying_week)],
+						["Week", (r) => vd(r.week_no)],
+						["Season", (r) => vd(r.season)],
+						["Days", (r) => fmt(r.days)],
+						["Catalogue Rows", (r) => fmt(r.catalogue_rows)],
+						["Lots", (r) => fmt(r.lots)],
+						["Purchased", (r) => fmt(r.purchased_lots)],
+						["Net Kg", (r) => fmt(r.net_weight)],
+						["Purchase Value", (r) => money(r.value)],
+						["POs", (r) => fmt(r.pos)],
+					],
+					rows
+				)
+			);
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_day_summary", { filters: f }, function (rows) {
+			$("#buy_day_tbl").html(
+				buy_table(
+					[
+						["Buying Day", (r) => link("Buying Day", r.buying_day)],
+						["Week", (r) => link("Buying Week", r.buying_week)],
+						["Day", (r) => vd(r.day)],
+						["Channel", (r) => vd(r.acquisition_channel)],
+						["Status", (r) => `<span class="lot-badge">${vd(r.status)}</span>`],
+						["Catalogue Rows", (r) => fmt(r.catalogue_rows)],
+						["Lots", (r) => fmt(r.lots)],
+						["Purchased", (r) => fmt(r.purchased_lots)],
+						["Net Kg", (r) => fmt(r.net_weight)],
+						["Purchase Value", (r) => money(r.value)],
+						["POs", (r) => fmt(r.pos)],
+						["Evaluated", (r) => fmt(r.evaluated) + " / " + fmt(r.lots)],
+					],
+					rows
+				)
+			);
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_channel_split", { filters: f }, function (rows) {
+			rows = rows || [];
+			draw_chart("#buy_chart_channel", {
+				type: "donut",
+				height: 240,
+				data: {
+					labels: rows.map((r) => r.channel),
+					datasets: [{ values: rows.map((r) => r.lots) }],
+				},
+			});
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_po_summary", { filters: f }, function (rows) {
+			$("#buy_po_tbl").html(
+				buy_table(
+					[
+						["PO", (r) => link("Purchase Order", r.purchase_order)],
+						["Supplier", (r) => vd(r.supplier)],
+						["Buying Day", (r) => link("Buying Day", r.buying_day)],
+						["Date", (r) => vd(r.transaction_date)],
+						["Status", (r) => vd(r.status)],
+						["Lots", (r) => fmt(r.lots)],
+						["Net Kg", (r) => fmt(r.net_weight)],
+						["Amount", (r) => money(r.grand_total)],
+						["Received %", (r) => fmt(r.per_received)],
+						["Billed %", (r) => fmt(r.per_billed)],
+					],
+					rows
+				)
+			);
+		});
+
+		api_from("tea_lot_dashboard_buying", "get_lot_rows", { filters: f }, function (rows) {
+			$("#buy_lot_tbl").html(
+				buy_table(
+					[
+						[
+							"Lot No",
+							(r) =>
+								link("Tea Lot", r.tea_lot) +
+								(r.lot_no ? " (" + esc(r.lot_no) + ")" : ""),
+						],
+						["Purchase", (r) => link("Tea Purchase", r.tea_purchase)],
+						["Mark", (r) => vd(r.mark)],
+						["Grade", (r) => vd(r.grade)],
+						["Channel", (r) => vd(r.acquisition_channel)],
+						["Buying Day", (r) => link("Buying Day", r.buying_day)],
+						["Net Kg", (r) => fmt(r.net_weight_total)],
+						["Rate", (r) => money(r.rate)],
+						["Purchase Status", (r) => vd(r.purchase_status)],
+						["PO", (r) => link("Purchase Order", r.purchase_order)],
+						["PO Status", (r) => vd(r.po_status)],
+						[
+							"Evaluation",
+							(r) =>
+								r.eval_count
+									? `${esc(r.eval_count)} (${vd(r.eval_stage)})`
+									: `<span class="text-danger">Pending</span>`,
+						],
+						[
+							"Suggested Val.",
+							(r) => (r.suggested_valuation ? money(r.suggested_valuation) : "-"),
+						],
+					],
+					rows,
+					300
+				)
+			);
+		});
+	}
+
+	$(page.main).on("click", ".buy-link", function () {
+		frappe.set_route("Form", $(this).attr("data-dt"), $(this).attr("data-name"));
+	});
+	$(page.main).on("change", "#buy_filters select", function () {
+		if (this.id === "bf_week") {
+			$("#bf_day").val("");
+			load_buying_options(true);
+		}
+		load_buying();
+	});
+	$(page.main).on("click", "#bf_reset", function () {
+		$("#buy_filters select").val("");
+		load_buying_options(false);
+		load_buying();
+	});
+
+	// --------------------------------------------------
+	// TEA PURCHASE TAB (generic filter-box table)
+	// --------------------------------------------------
+
+	function make_data_table(cfg) {
+		var P = cfg.prefix;
+		var st = { data: [], filtered: [], page: 0, size: 10, timer: null };
+		var $root = $(cfg.container);
+
+		function build_shell() {
+			$root.html(`
+				<div class="detail-box">
+					<div class="section-heading">
+						<div class="section-title-wrap">
+							<h4>${esc(cfg.title)}</h4>
+							<span class="lot-count-badge" id="${P}total">0 Total</span>
+							<span class="lot-badge" id="${P}filtered" style="background:#fef3c7;color:#92400e;display:none;">0 Filtered</span>
+							<button class="btn btn-default btn-sm" id="${P}download" title="Download Excel">
+								<i class="fa fa-download"></i> Download
+							</button>
+						</div>
+					</div>
+					<div id="${P}container"></div>
+				</div>`);
+			$root
+				.off("click", "#" + P + "download")
+				.on("click", "#" + P + "download", function (e) {
+					e.preventDefault();
+					download();
+				});
+		}
+
+		function numeric_filter(rowValue, fv) {
+			if (/^\s*([><]=?|={1,2})\s*$/.test(fv)) return true;
+			var m = fv.match(/^\s*([><]=?|={1,2})\s*([\d.]+)\s*$/);
+			if (!m) return null;
+			var num = parseFloat(m[2]),
+				rv = parseFloat(rowValue);
+			if (isNaN(num)) return null;
+			if (isNaN(rv)) return false;
+			switch (m[1]) {
+				case ">=":
+					return rv >= num;
+				case "<=":
+					return rv <= num;
+				case ">":
+					return rv > num;
+				case "<":
+					return rv < num;
+				default:
+					return rv === num;
+			}
+		}
+
+		function cell(col, row, idx) {
+			var val = row[col.key];
+			if (col.key === "sno") return "<td>" + (idx + 1) + "</td>";
+			if (col.lot_link && val)
+				return `<td><a href="#" class="lot-detail-link" data-lot="${esc(
+					val
+				)}" style="color:#1f5eff;font-weight:600;text-decoration:none;">${esc(
+					val
+				)}</a></td>`;
+			if (col.doctype && val)
+				return `<td><a href="#" class="${P}doc-link" data-dt="${esc(
+					col.doctype
+				)}" data-name="${esc(
+					val
+				)}" style="color:#1f5eff;font-weight:600;text-decoration:none;">${esc(
+					val
+				)}</a></td>`;
+			if (col.numeric) return "<td>" + (val == null ? "-" : fmt(val)) + "</td>";
+			if (col.money) return "<td>" + money(val) + "</td>";
+			return "<td>" + vd(val) + "</td>";
+		}
+
+		function render() {
+			var focus_id = null,
+				cs = 0,
+				ce = 0,
+				a = document.activeElement;
+			if (a && a.id && a.id.indexOf(P + "flt_") === 0) {
+				focus_id = a.id;
+				cs = a.selectionStart || 0;
+				ce = a.selectionEnd || 0;
+			}
+			var $c = $("#" + P + "container");
+			if (!st.data.length) {
+				$("#" + P + "total").text("0 Total");
+				$("#" + P + "filtered").hide();
+				$c.html(
+					`<div class="text-center text-muted" style="padding:20px;">No records found.</div>`
+				);
+				return;
+			}
+			var filters = {};
+			cfg.columns.forEach(function (col) {
+				filters[col.key] = ($("#" + P + "flt_" + col.key).val() || "").toLowerCase();
+			});
+			var indexed = [];
+			st.data.forEach(function (row, i) {
+				var ok = cfg.columns.every(function (col) {
+					var fv = filters[col.key];
+					if (!fv) return true;
+					if (col.key === "sno") return String(i + 1).indexOf(fv) !== -1;
+					if (col.numeric) {
+						var r = numeric_filter(row[col.key], fv);
+						if (r !== null) return r;
+					}
+					return (
+						(row[col.key] == null ? "" : String(row[col.key]))
+							.toLowerCase()
+							.indexOf(fv) !== -1
+					);
+				});
+				if (ok) indexed.push({ row: row, i: i });
+			});
+			st.filtered = indexed;
+			var pages = Math.max(1, Math.ceil(indexed.length / st.size));
+			if (st.page >= pages) st.page = pages - 1;
+			var start = st.page * st.size;
+			var slice = indexed.slice(start, start + st.size);
+
+			$("#" + P + "total").text(fmt(st.data.length) + " Total");
+			if (indexed.length !== st.data.length)
+				$("#" + P + "filtered")
+					.text(fmt(indexed.length) + " Filtered")
+					.show();
+			else $("#" + P + "filtered").hide();
+
+			var h = `<div class="section-body" style="padding:0;"><div class="all-lots-wrap"><table class="table table-bordered"><thead><tr>`;
+			cfg.columns.forEach(function (col) {
+				h += `<th><span class="col-head">${esc(
+					col.label
+				)}</span><input class="col-filter ${P}flt" id="${P}flt_${
+					col.key
+				}" type="text" value="${esc(
+					filters[col.key]
+				)}" placeholder="filter" autocomplete="off" /></th>`;
+			});
+			h += `</tr></thead><tbody>`;
+			if (!slice.length) {
+				h += `<tr><td colspan="${cfg.columns.length}" class="text-center text-muted" style="padding:20px;">No matching records found.</td></tr>`;
+			} else {
+				slice.forEach(function (it) {
+					h += "<tr>";
+					cfg.columns.forEach(function (col) {
+						h += cell(col, it.row, it.i);
+					});
+					h += "</tr>";
+				});
+			}
+			var from = indexed.length ? start + 1 : 0,
+				to = Math.min(start + st.size, indexed.length);
+			h += `</tbody></table></div></div>
+			<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #edf0f4;background:#fbfcfe;">
+				<span style="font-size:12px;color:#6b7280;">Showing ${from}-${to} of ${indexed.length}</span>
+				<div style="display:flex;gap:6px;">
+					<button class="btn btn-default btn-sm" id="${P}prev" ${
+				st.page === 0 ? "disabled" : ""
+			}>Previous</button>
+					<button class="btn btn-default btn-sm" id="${P}next" ${
+				st.page >= pages - 1 ? "disabled" : ""
+			}>Next</button>
+				</div></div>`;
+			$c.html(h);
+
+			if (focus_id) {
+				var el = $("#" + focus_id)[0];
+				if (el) {
+					el.focus();
+					if (el.setSelectionRange) el.setSelectionRange(cs, ce);
+				}
+			}
+			$c.off("input", "." + P + "flt").on("input", "." + P + "flt", function () {
+				clearTimeout(st.timer);
+				st.timer = setTimeout(function () {
+					st.page = 0;
+					render();
+				}, 200);
+			});
+			$c.off("click", "#" + P + "prev").on("click", "#" + P + "prev", function () {
+				if (st.page > 0) {
+					st.page--;
+					render();
+				}
+			});
+			$c.off("click", "#" + P + "next").on("click", "#" + P + "next", function () {
+				if (st.page < pages - 1) {
+					st.page++;
+					render();
+				}
+			});
+			$c.off("click", "." + P + "doc-link").on("click", "." + P + "doc-link", function (e) {
+				e.preventDefault();
+				frappe.set_route("Form", $(this).attr("data-dt"), $(this).attr("data-name"));
+			});
+			$c.off("click", ".lot-detail-link").on("click", ".lot-detail-link", function (e) {
+				e.preventDefault();
+				show_lot_detail_modal($(this).attr("data-lot"));
+			});
+		}
+
+		function load() {
+			if (!$root.length) return;
+			if (!$("#" + P + "container").length) build_shell();
+			$("#" + P + "container").html(
+				`<div class="text-center text-muted" style="padding:20px;"><i class="fa fa-spinner fa-spin"></i> Loading...</div>`
+			);
+			api_from(cfg.module, cfg.method, {}, function (d) {
+				st.data = (d && d.lots) || [];
+				st.page = 0;
+				render();
+			});
+		}
+
+		function download() {
+			frappe.call({
+				method: "lotwise.lotwise.page.tea_lot_dashboard." + cfg.module + "." + cfg.xlsx,
+				callback: function (r) {
+					var d = r.message;
+					if (!d || !d.content) {
+						frappe.msgprint({
+							title: __("Error"),
+							indicator: "red",
+							message: __("Failed to generate Excel."),
+						});
+						return;
+					}
+					var bin = atob(d.content),
+						arr = new Uint8Array(bin.length);
+					for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+					var url = URL.createObjectURL(
+						new Blob([arr], {
+							type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+						})
+					);
+					var a = document.createElement("a");
+					a.href = url;
+					a.download = d.filename || "export.xlsx";
+					document.body.appendChild(a);
+					a.click();
+					setTimeout(function () {
+						document.body.removeChild(a);
+						URL.revokeObjectURL(url);
+					}, 100);
+				},
+			});
+		}
+
+		return { load: load };
+	}
+
+	var tea_purchase_table = make_data_table({
+		container: "#tea_purchase_all",
+		prefix: "tp_",
+		title: "All Tea Purchases",
+		module: "tea_lot_dashboard_purchase",
+		method: "get_all_purchases",
+		xlsx: "download_purchases_xlsx",
+		columns: [
+			{ key: "sno", label: "S.No" },
+			{ key: "tea_purchase", label: "Tea Purchase ID", doctype: "Tea Purchase" },
+			{ key: "tea_lot", label: "Tea Lot ID", lot_link: true },
+			{ key: "lot_no", label: "Lot No" },
+			{ key: "mark", label: "Mark" },
+			{ key: "grade", label: "Grade" },
+			{ key: "acquisition_channel", label: "Channel" },
+			{ key: "packages", label: "Packages", numeric: true },
+			{ key: "net_weight_total", label: "Net Wt Kg", numeric: true },
+			{ key: "rate", label: "Purchase Rate", numeric: true, money: true },
+			{ key: "purchase_status", label: "Purchase Status" },
+			{ key: "purchase_order", label: "PO", doctype: "Purchase Order" },
+			{ key: "po_status", label: "PO Status" },
+			{ key: "broker", label: "Broker" },
+			{ key: "sale_no", label: "Sale No" },
+		],
+	});
+
+	// --------------------------------------------------
 	// TAB CLICK HANDLER
 	// --------------------------------------------------
 
-	$(page.main).on("click", ".dashboard-tab-btn", function () {
-		let tab = $(this).attr("data-tab");
-		$(".dashboard-tab-btn").removeClass("active");
+	$(page.main).on("click", ".main-tab-btn", function () {
+		let main = $(this).attr("data-main");
+		$(".main-tab-btn").removeClass("active");
 		$(this).addClass("active");
-		$(".dashboard-tab-panel").removeClass("active");
+		$(".main-tab-panel").removeClass("active");
+		$("#" + main).addClass("active");
+		if (main === "buying-tab") {
+			load_buying();
+		} else if ($("#tea-lot-tab").hasClass("active")) {
+			load_all_lots();
+		} else if ($("#tea-purchase-tab").hasClass("active")) {
+			tea_purchase_table.load();
+		}
+	});
+
+	$(page.main).on("click", ".dashboard-tab-btn:not(.main-tab-btn)", function () {
+		let tab = $(this).attr("data-tab");
+		$("#other-tab .dashboard-tab-btn").removeClass("active");
+		$(this).addClass("active");
+		$("#other-tab .dashboard-tab-panel").removeClass("active");
 		$("#" + tab).addClass("active");
-		if (tab === "tea-lot-tab") {
+		if (tab === "tea-purchase-tab") {
+			tea_purchase_table.load();
+		} else if (tab === "tea-lot-tab") {
 			load_all_lots();
 		} else if (tab === "evaluation-tab") {
 			load_evaluations();
@@ -1607,9 +2262,10 @@ frappe.pages["tea-lot-dashboard"].on_page_load = function (wrapper) {
 	// --------------------------------------------------
 
 	load_cards();
+	load_buying_options(false);
+	load_buying();
 	load_all_lots();
 	create_lot_search();
 	create_mark_search();
 	create_grade_search();
-	create_evaluation_search();
 };

@@ -14,22 +14,22 @@ class TeaEvaluation(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		briskness: DF.Float
-		colour: DF.Float
+		actual_valuation: DF.Currency
+		briskness: DF.Int
+		colour: DF.Int
+		density: DF.Float
 		evaluation_date: DF.Date
+		evaluation_stage: DF.Link | None
 		invoice_number: DF.Data | None
-		liquor_mark: DF.Literal["", "A+", "A", "B+", "B", "C+", "C"]
+		liquor_mark: DF.Link | None
+		lot_no: DF.Data | None
 		mark: DF.Link | None
 		notes: DF.SmallText | None
-		quality_grade: DF.Literal[
-			"", "A", "A++", "A+++", "B", "B+", "B++", "B-", "C", "C+", "D", "D+", "E", "E+"
-		]
-		stage: DF.Literal[
-			"", "Pre-purchase", "Arrival", "Blend QC", "Storage", "Purchase Sample", "Bag Sample"
-		]
-		strength: DF.Float
+		quality_grade: DF.Link | None
+		remarks: DF.Data | None
+		strength: DF.Int
 		suggested_valuation: DF.Currency
-		taste: DF.Float
+		taste: DF.Int
 		taster: DF.Link
 		tea_lot: DF.Link
 	# end: auto-generated types
@@ -37,6 +37,8 @@ class TeaEvaluation(Document):
 	_DOCTYPE_NAME = "Tea Evaluation"
 
 	def on_update(self):
-		"""Update linked Tea Lot status to 'Evaluated' when a Tea Evaluation is created or updated."""
+		"""Update linked Tea Lot evaluation_status to 'Evaluated' when a Tea Evaluation is created or updated."""
 		if self.tea_lot:
-			frappe.db.set_value("Tea Lot", self.tea_lot, "status", "Evaluated")
+			frappe.db.set_value("Tea Lot", self.tea_lot, "evaluation_status", "Evaluated")
+			frappe.db.set_value("Tea Lot", self.tea_lot, "suggested_valuation", self.suggested_valuation)
+			frappe.db.set_value("Tea Lot", self.tea_lot, "actual_valuation", self.actual_valuation)

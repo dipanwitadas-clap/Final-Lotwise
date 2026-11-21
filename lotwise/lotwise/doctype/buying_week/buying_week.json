@@ -1,0 +1,143 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-09 10:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "acquisition_channel",
+  "auction_centre",
+  "sale_no",
+  "week_no",
+  "column_break_wtjh",
+  "season",
+  "company",
+  "section_break_s4h8",
+  "days_section",
+  "buying_days"
+ ],
+ "fields": [
+  {
+   "description": "Auction, Private purchase, or Outsourced",
+   "fieldname": "acquisition_channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Acquisition Channel",
+   "options": "\nAuction\nPrivate\nOutsourced",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "auction_centre",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Auction Centre",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "options": "Auction Centre"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Auction'",
+   "fieldname": "sale_no",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Sale No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Auction'"
+  },
+  {
+   "depends_on": "eval:doc.acquisition_channel=='Private'",
+   "fieldname": "week_no",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Week No",
+   "mandatory_depends_on": "eval:doc.acquisition_channel=='Private'"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Season",
+   "reqd": 1
+  },
+  {
+   "fieldname": "days_section",
+   "fieldtype": "Section Break",
+   "label": "Buying Days"
+  },
+  {
+   "fieldname": "buying_days",
+   "fieldtype": "Table",
+   "label": "Buying Days",
+   "options": "Buying Week Day"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_wtjh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_s4h8",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "links": [
+  {
+   "group": "Buying Day",
+   "link_doctype": "Buying Day",
+   "link_fieldname": "buying_week"
+  }
+ ],
+ "modified": "2026-10-27 11:46:16.246521",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Buying Week",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tea Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Data Entry",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

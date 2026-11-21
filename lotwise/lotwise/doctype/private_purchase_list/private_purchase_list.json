@@ -1,0 +1,353 @@
+{
+ "actions": [],
+ "creation": "2026-10-15 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "list_section",
+  "list_no",
+  "list_date",
+  "broker",
+  "col_list_2",
+  "seller",
+  "seller_gstin",
+  "col_list_3",
+  "tax_invoice_no",
+  "tax_invoice_date",
+  "delivery_section",
+  "warehouse",
+  "delivery",
+  "col_delivery_2",
+  "transporter",
+  "bilty_lr_no",
+  "lot_section",
+  "lot_invoice_no",
+  "mark_raw",
+  "grade_raw",
+  "col_lot_2",
+  "packages",
+  "net_kg_per_package",
+  "short_packages",
+  "col_lot_3",
+  "kg_short_per_package",
+  "net_kg",
+  "pricing_section",
+  "rate_per_kg",
+  "value",
+  "col_pricing_2",
+  "brokerage_percent",
+  "brokerage",
+  "col_pricing_3",
+  "bill_mode",
+  "quality_section",
+  "overall_rating",
+  "col_quality_2",
+  "density",
+  "col_quality_3",
+  "for_blend",
+  "status_section",
+  "row_status",
+  "message",
+  "col_status_2",
+  "tea_lot",
+  "tea_purchase",
+  "col_status_3",
+  "item_code",
+  "batch_no",
+  "purchase_order"
+ ],
+ "fields": [
+  {
+   "fieldname": "list_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "List No"
+  },
+  {
+   "fieldname": "list_date",
+   "fieldtype": "Date",
+   "label": "List Date"
+  },
+  {
+   "description": "Our team only",
+   "fieldname": "broker",
+   "fieldtype": "Data",
+   "label": "Broker"
+  },
+  {
+   "fieldname": "seller",
+   "fieldtype": "Data",
+   "label": "Seller"
+  },
+  {
+   "fieldname": "seller_gstin",
+   "fieldtype": "Data",
+   "label": "Seller GSTIN",
+   "length": 15
+  },
+  {
+   "fieldname": "tax_invoice_no",
+   "fieldtype": "Data",
+   "label": "Tax Invoice No"
+  },
+  {
+   "fieldname": "tax_invoice_date",
+   "fieldtype": "Date",
+   "label": "Tax Invoice Date"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Data",
+   "label": "Warehouse"
+  },
+  {
+   "fieldname": "delivery",
+   "fieldtype": "Select",
+   "label": "Delivery",
+   "options": "Garden delivers\nWe collect"
+  },
+  {
+   "fieldname": "transporter",
+   "fieldtype": "Data",
+   "label": "Transporter"
+  },
+  {
+   "fieldname": "bilty_lr_no",
+   "fieldtype": "Data",
+   "label": "Bilty / LR No"
+  },
+  {
+   "fieldname": "lot_invoice_no",
+   "fieldtype": "Data",
+   "label": "Lot / Invoice No"
+  },
+  {
+   "fieldname": "mark_raw",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Garden / Mark"
+  },
+  {
+   "fieldname": "grade_raw",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grade"
+  },
+  {
+   "fieldname": "packages",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Packages"
+  },
+  {
+   "fieldname": "net_kg_per_package",
+   "fieldtype": "Float",
+   "label": "Net Kg per Package"
+  },
+  {
+   "fieldname": "short_packages",
+   "fieldtype": "Int",
+   "label": "Short Packages"
+  },
+  {
+   "fieldname": "kg_short_per_package",
+   "fieldtype": "Float",
+   "label": "Kg Short per Short Package"
+  },
+  {
+   "fieldname": "net_kg",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Net Kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rate_per_kg",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate per Kg",
+   "options": "INR"
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Value",
+   "options": "INR",
+   "read_only": 1
+  },
+  {
+   "description": "Our team only",
+   "fieldname": "brokerage_percent",
+   "fieldtype": "Percent",
+   "label": "Brokerage %"
+  },
+  {
+   "fieldname": "brokerage",
+   "fieldtype": "Currency",
+   "label": "Brokerage",
+   "options": "INR",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bill_mode",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bill Mode"
+  },
+  {
+   "fieldname": "overall_rating",
+   "fieldtype": "Data",
+   "label": "Overall Rating"
+  },
+  {
+   "fieldname": "density",
+   "fieldtype": "Float",
+   "label": "Density"
+  },
+  {
+   "fieldname": "for_blend",
+   "fieldtype": "Data",
+   "label": "For Blend"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "label": "Row Status",
+   "options": "Pending\nCreated\nError\nDuplicate",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "label": "Tea Lot",
+   "options": "Tea Lot"
+  },
+  {
+   "fieldname": "tea_purchase",
+   "fieldtype": "Link",
+   "label": "Tea Purchase",
+   "options": "Tea Purchase"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "description": "Batch created by Tea Purchase",
+   "fieldname": "batch_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Batch No",
+   "options": "Batch",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Purchase Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "list_section",
+   "fieldtype": "Section Break",
+   "label": "List Details"
+  },
+  {
+   "fieldname": "col_list_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_list_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "delivery_section",
+   "fieldtype": "Section Break",
+   "label": "Delivery"
+  },
+  {
+   "fieldname": "col_delivery_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lot_section",
+   "fieldtype": "Section Break",
+   "label": "Lot Details"
+  },
+  {
+   "fieldname": "col_lot_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_lot_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pricing_section",
+   "fieldtype": "Section Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "col_pricing_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_pricing_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quality_section",
+   "fieldtype": "Section Break",
+   "label": "Quality"
+  },
+  {
+   "fieldname": "col_quality_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_quality_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status & References"
+  },
+  {
+   "fieldname": "col_status_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_status_3",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-28 14:59:27.092062",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Private Purchase List",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "rows_threshold_for_grid_search": 1
+}

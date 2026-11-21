@@ -1,0 +1,142 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_import": 1,
+ "allow_rename": 1,
+ "creation": "2026-08-17 17:30:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "no_of_marks",
+  "broker_name",
+  "no_of_lots",
+  "weight",
+  "remarks",
+  "image",
+  "from_broker",
+  "from_garden"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "no_of_marks",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "No of Marks",
+   "reqd": 1
+  },
+  {
+   "fieldname": "broker_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Broker Name",
+   "options": "Broker",
+   "reqd": 1
+  },
+  {
+   "fieldname": "no_of_lots",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "No of Lots",
+   "reqd": 1
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Weight (kgs)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  },
+  {
+   "default": "0",
+   "fieldname": "from_broker",
+   "fieldtype": "Check",
+   "label": "From Broker"
+  },
+  {
+   "default": "0",
+   "fieldname": "from_garden",
+   "fieldtype": "Check",
+   "label": "From Garden"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-08-18 10:53:01.468219",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Offer Sample List",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tea Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Taster",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Data Entry",
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
+}

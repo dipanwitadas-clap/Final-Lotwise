@@ -10,10 +10,12 @@
  "field_order": [
   "tea_lot",
   "taster",
-  "stage",
   "liquor_mark",
   "evaluation_date",
   "suggested_valuation",
+  "actual_valuation",
+  "remarks",
+  "evaluation_stage",
   "column_break_imtm",
   "colour",
   "strength",
@@ -22,6 +24,8 @@
   "quality_grade",
   "invoice_number",
   "mark",
+  "density",
+  "lot_no",
   "section_break_4j6n",
   "notes"
  ],
@@ -45,19 +49,10 @@
    "reqd": 1
   },
   {
-   "fieldname": "stage",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Stage",
-   "options": "\nPre-purchase\nArrival\nBlend QC\nStorage\nPurchase Sample\nBag Sample",
-   "reqd": 1
-  },
-  {
    "fieldname": "liquor_mark",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Liquor Mark",
-   "options": "\nA+\nA\nB+\nB\nC+\nC"
+   "options": "Liquor Mark"
   },
   {
    "default": "Today",
@@ -69,28 +64,33 @@
   },
   {
    "fieldname": "colour",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "label": "Colour"
   },
   {
    "fieldname": "strength",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "label": "Strength"
   },
   {
    "fieldname": "taste",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "label": "Taste"
   },
   {
    "fieldname": "briskness",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "label": "Briskness"
   },
   {
    "fieldname": "suggested_valuation",
    "fieldtype": "Currency",
    "label": "Suggested Valuation"
+  },
+  {
+   "fieldname": "actual_valuation",
+   "fieldtype": "Currency",
+   "label": "Actual Valuation"
   },
   {
    "fieldname": "notes",
@@ -107,9 +107,9 @@
   },
   {
    "fieldname": "quality_grade",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Quality Grade",
-   "options": "\nA\nA++\nA+++\nB\nB+\nB++\nB-\nC\nC+\nD\nD+\nE\nE+"
+   "options": "Quality Grade"
   },
   {
    "fieldname": "invoice_number",
@@ -121,12 +121,34 @@
    "fieldtype": "Link",
    "label": "Mark",
    "options": "Mark"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "density",
+   "fieldtype": "Float",
+   "label": "Density",
+   "precision": "2"
+  },
+  {
+   "fieldname": "lot_no",
+   "fieldtype": "Data",
+   "label": "Lot No"
+  },
+  {
+   "fieldname": "evaluation_stage",
+   "fieldtype": "Link",
+   "label": "Evaluation Stage",
+   "options": "Evaluation Stage"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-03 16:53:28.075225",
+ "modified": "2026-08-02 22:05:29.287911",
  "modified_by": "Administrator",
  "module": "Lotwise",
  "name": "Tea Evaluation",
@@ -184,5 +206,8 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
 }

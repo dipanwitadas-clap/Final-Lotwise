@@ -14,10 +14,11 @@ class TeaLotImportItem(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		auction_centre: DF.Link | None
 		bill_mode: DF.Data | None
+		blend: DF.Data | None
 		created_masters: DF.Data | None
 		density: DF.Float
-		grade_qualifier: DF.Data | None
 		grade_raw: DF.Data | None
 		gross_wtpkg: DF.Float
 		invoice_number: DF.Data | None
@@ -30,6 +31,7 @@ class TeaLotImportItem(Document):
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
+		purchase_date: DF.Date | None
 		purchase_from: DF.Data | None
 		purchase_invoice_date: DF.Date | None
 		purchase_invoice_no: DF.Data | None
@@ -40,7 +42,7 @@ class TeaLotImportItem(Document):
 		sam_wt: DF.Data | None
 		tea_lot: DF.Link | None
 		total_amount_as_per_to_tax_invoice: DF.Float
-		warehouse_name: DF.Data | None
+		warehouse: DF.Data | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Tea Lot Import Item"

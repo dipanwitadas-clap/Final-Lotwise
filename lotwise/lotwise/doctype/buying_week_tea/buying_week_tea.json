@@ -1,0 +1,305 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-09-26 22:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lot_section",
+  "lot_no",
+  "mark_raw",
+  "grade_raw",
+  "packages",
+  "invoice_number",
+  "col_basic_2",
+  "broker_code",
+  "tea_type",
+  "base_price",
+  "auction_valuation",
+  "col_break_source",
+  "gross_weight",
+  "net_weight",
+  "sample_qty",
+  "season",
+  "sale_no",
+  "source_row_type",
+  "auction_catalog_section",
+  "auction_date",
+  "session_time",
+  "origin_code",
+  "sub_tea_type",
+  "category_id",
+  "invoice_weight",
+  "period_of_manufacture",
+  "col_break_auction",
+  "last_sold_price",
+  "lot_type",
+  "gp_no",
+  "gp_date",
+  "package_type",
+  "package_nos",
+  "warehouse_name",
+  "mark_packaging_comments",
+  "col_break_status",
+  "row_status",
+  "message",
+  "col_status_2",
+  "tea_lot",
+  "tea_purchase"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "lot_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lot No"
+  },
+  {
+   "columns": 1,
+   "fieldname": "mark_raw",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Garden / Mark"
+  },
+  {
+   "columns": 1,
+   "fieldname": "grade_raw",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grade"
+  },
+  {
+   "columns": 1,
+   "fieldname": "packages",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "No of Pkgs"
+  },
+  {
+   "fieldname": "invoice_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Invoice Number"
+  },
+  {
+   "description": "Auctioneer (Auction Catalog) / Auct Code (Deal Book)",
+   "fieldname": "broker_code",
+   "fieldtype": "Data",
+   "label": "Broker / Auctioneer Code"
+  },
+  {
+   "description": "TeaTypeId (Auction Catalog) / Type (Deal Book)",
+   "fieldname": "tea_type",
+   "fieldtype": "Data",
+   "label": "Tea Type"
+  },
+  {
+   "fieldname": "base_price",
+   "fieldtype": "Currency",
+   "label": "Base Price",
+   "options": "INR"
+  },
+  {
+   "description": "Auctioneers Valuation (Auction Catalog) / Auct. Val (Deal Book)",
+   "fieldname": "auction_valuation",
+   "fieldtype": "Currency",
+   "label": "Auction Valuation",
+   "options": "INR"
+  },
+  {
+   "fieldname": "gross_weight",
+   "fieldtype": "Float",
+   "label": "Gross Weight (Kgs)"
+  },
+  {
+   "fieldname": "net_weight",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Net Weight (Kgs)"
+  },
+  {
+   "fieldname": "sample_qty",
+   "fieldtype": "Float",
+   "label": "Sample Qty (Kgs)"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Int",
+   "label": "Season"
+  },
+  {
+   "fieldname": "sale_no",
+   "fieldtype": "Int",
+   "label": "Sale No"
+  },
+  {
+   "fieldname": "col_break_source",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Which source file/format this row was parsed from",
+   "fieldname": "source_row_type",
+   "fieldtype": "Select",
+   "label": "Source Format",
+   "options": "\nAuction Catalog\nDeal Book",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "auction_catalog_section",
+   "fieldtype": "Section Break",
+   "label": "Auction Catalog Details"
+  },
+  {
+   "fieldname": "auction_date",
+   "fieldtype": "Date",
+   "label": "Auction Date"
+  },
+  {
+   "fieldname": "session_time",
+   "fieldtype": "Data",
+   "label": "Session Time"
+  },
+  {
+   "fieldname": "origin_code",
+   "fieldtype": "Data",
+   "label": "Origin Code"
+  },
+  {
+   "fieldname": "sub_tea_type",
+   "fieldtype": "Data",
+   "label": "Sub Tea Type"
+  },
+  {
+   "fieldname": "category_id",
+   "fieldtype": "Data",
+   "label": "Category"
+  },
+  {
+   "fieldname": "invoice_weight",
+   "fieldtype": "Float",
+   "label": "Invoice Weight (Kgs)"
+  },
+  {
+   "fieldname": "period_of_manufacture",
+   "fieldtype": "Data",
+   "label": "Period Of Manufacture"
+  },
+  {
+   "fieldname": "col_break_auction",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_sold_price",
+   "fieldtype": "Currency",
+   "label": "Last Sold Price",
+   "options": "INR"
+  },
+  {
+   "description": "e.g. Sold",
+   "fieldname": "lot_type",
+   "fieldtype": "Data",
+   "label": "Lot Type"
+  },
+  {
+   "fieldname": "gp_no",
+   "fieldtype": "Data",
+   "label": "GP No"
+  },
+  {
+   "fieldname": "gp_date",
+   "fieldtype": "Date",
+   "label": "GP Date"
+  },
+  {
+   "fieldname": "package_type",
+   "fieldtype": "Data",
+   "label": "Package Type"
+  },
+  {
+   "fieldname": "package_nos",
+   "fieldtype": "Data",
+   "label": "Package Nos"
+  },
+  {
+   "fieldname": "warehouse_name",
+   "fieldtype": "Data",
+   "label": "Warehouse Name"
+  },
+  {
+   "fieldname": "mark_packaging_comments",
+   "fieldtype": "Small Text",
+   "label": "Mark Packaging Comments"
+  },
+  {
+   "fieldname": "col_break_status",
+   "fieldtype": "Section Break",
+   "label": "Status & References"
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nCreated\nError\nDuplicate",
+   "read_only": 1
+  },
+  {
+   "description": "Status message or error details",
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Lot",
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Lot",
+   "options": "Tea Lot",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Purchase",
+   "fieldname": "tea_purchase",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Purchase",
+   "options": "Tea Purchase",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lot_section",
+   "fieldtype": "Section Break",
+   "label": "Lot Details"
+  },
+  {
+   "fieldname": "col_basic_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_status_2",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-05 12:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Buying Week Tea",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

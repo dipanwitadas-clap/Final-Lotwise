@@ -1,0 +1,754 @@
+/* Tea Evaluation Update - Modern Grayscale/Blue custom styles */
+
+@keyframes spin {
+	to { transform: rotate(360deg); }
+}
+
+/* =============================================================================
+   CSS VARIABLES - Grayscale/Blue Color Palette
+   ============================================================================= */
+
+:root {
+	/* Primary Colors - Ink Blue/Grey Scale */
+	--ink-black: #0D1B2A;
+	--prussian-blue: #1B263B;
+	--dusk-blue: #415A77;
+	--lavender-grey: #778DA9;
+	--alabaster-grey: #E0E1DD;
+
+	/* Neutral Palette */
+	--bg-primary: #F5F5F7;
+	--card-bg: #FFFFFF;
+	--text-primary: #1B263B;
+	--text-secondary: #415A77;
+	--border-color: #E0E1DD;
+	--border-light: #EEEEF0;
+
+	/* Stage Colors - Monochromatic with blue tones */
+	--stage-draft-bg: #D5D8DC;
+	--stage-draft-text: #2C3E50;
+	--stage-pending-bg: #AED6F1;
+	--stage-pending-text: #1B4F72;
+	--stage-approved-bg: #A9DFBF;
+	--stage-approved-text: #1E8449;
+	--stage-rejected-bg: #F1948A;
+	--stage-rejected-text: #922B21;
+
+	/* Shadows */
+	--shadow-sm: 0 1px 3px rgba(13, 27, 42, 0.08);
+	--shadow-md: 0 4px 6px rgba(13, 27, 42, 0.1);
+	--shadow-lg: 0 10px 15px rgba(13, 27, 42, 0.12);
+}
+
+/* =============================================================================
+   LOADING SPINNER
+   ============================================================================= */
+
+.eval-loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 3px 3px;
+	color: var(--text-secondary);
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.eval-loading svg {
+	color: var(--prussian-blue);
+}
+
+/* =============================================================================
+   CARDS - Enhanced with modern theme
+   ============================================================================= */
+
+.tea-eval-page .card {
+	background: var(--card-bg);
+	border: 1px solid var(--border-light);
+	box-shadow: var(--shadow-sm);
+	transition: box-shadow 0.3s ease;
+	margin-bottom: 6px !important;
+}
+
+.tea-eval-page .card:hover {
+	box-shadow: var(--shadow-md);
+}
+
+.tea-eval-page .card-header {
+	background: linear-gradient(135deg, #F8F9FA 0%, #E8E8EA 100%);
+	border-bottom: 2px solid var(--prussian-blue);
+	padding: 8px 12px;
+}
+
+.tea-eval-page .card-header span {
+	color: var(--ink-black);
+	font-weight: 600;
+	font-size: 13px;
+	letter-spacing: 0.3px;
+}
+
+.tea-eval-page .card-header svg {
+	color: var(--prussian-blue);
+}
+
+.tea-eval-page .card-body {
+	padding: 10px;
+	background: var(--card-bg);
+}
+
+.tea-eval-page .card-footer {
+	background: #F8F9FA;
+	border-top: 1px solid var(--border-light);
+	padding: 8px 12px;
+}
+
+/* =============================================================================
+   FILTER SECTION
+   ============================================================================= */
+
+.eval-filter-grid {
+	gap: 8px;
+	position: relative;
+	z-index: 20;
+}
+
+.eval-field {
+	margin-bottom: 0;
+}
+
+.eval-field-label {
+	display: block;
+	font-size: 10px;
+	font-weight: 700;
+	color: var(--text-secondary);
+	margin-bottom: 4px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 1.3;
+}
+
+.eval-field-btn {
+	padding-bottom: 0;
+	margin-bottom: 0;
+}
+
+#clear_filters_btn {
+	border-color: var(--border-color);
+	color: var(--text-secondary);
+	background: var(--card-bg);
+	transition: all 0.2s ease;
+}
+
+#clear_filters_btn:hover {
+	background: #F0F1F2;
+	border-color: var(--prussian-blue);
+	color: var(--prussian-blue);
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-sm);
+}
+
+/* =============================================================================
+   TOOLBAR BUTTONS
+   ============================================================================= */
+
+.tea-eval-page .btn-outline-primary {
+	border-color: var(--prussian-blue);
+	color: var(--prussian-blue);
+	background: var(--card-bg);
+	transition: all 0.2s ease;
+	font-weight: 500;
+	font-size: 12px;
+	padding: 4px 8px;
+	border-radius: 5px;
+}
+
+.tea-eval-page .btn-outline-primary:hover {
+	background: var(--prussian-blue);
+	color: white;
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-md);
+}
+
+.tea-eval-page .btn-outline-primary svg {
+	color: var(--prussian-blue);
+}
+
+.tea-eval-page .btn-outline-primary:hover svg {
+	color: white;
+}
+
+.tea-eval-page .btn-success {
+	background: linear-gradient(135deg, var(--ink-black) 0%, var(--prussian-blue) 100%);
+	border: none;
+	color: white;
+	font-weight: 600;
+	box-shadow: var(--shadow-sm);
+	transition: all 0.2s ease;
+	font-size: 12px;
+	padding: 4px 10px;
+}
+
+.tea-eval-page .btn-success:hover {
+	background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--dusk-blue) 100%);
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-md);
+}
+
+.tea-eval-page .btn-outline-success {
+	border-color: var(--ink-black);
+	color: var(--ink-black);
+	background: var(--card-bg);
+	transition: all 0.2s ease;
+	font-weight: 500;
+	font-size: 12px;
+	padding: 4px 8px;
+}
+
+.tea-eval-page .btn-outline-success:hover {
+	background: var(--ink-black);
+	color: white;
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-md);
+}
+
+/* =============================================================================
+   TABLE STYLES
+   ============================================================================= */
+
+#eval_table_container .table-responsive {
+	max-height: calc(100vh - 300px);
+	overflow-y: auto;
+	overflow-x: auto;
+	background: var(--card-bg);
+	border-radius: 6px 6px 0 0;
+}
+
+#eval_table_container .table {
+	margin-bottom: 0;
+	font-size: 13px;
+	white-space: nowrap;
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+/* Table Header */
+#eval_table_container .eval-table thead th {
+	background: linear-gradient(180deg, #E8E8EA 0%, #D5D8DC 100%);
+	padding: 6px 4px;
+	vertical-align: middle;
+	border-bottom: 2px solid var(--prussian-blue);
+	font-weight: 700;
+	font-size: 10px;
+	color: var(--ink-black);
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	border-right: 1px solid var(--border-light);
+}
+
+#eval_table_container .eval-table thead th:last-child {
+	border-right: none;
+}
+
+#eval_table_container .eval-table thead tr {
+	box-shadow: 0 2px 4px rgba(13, 27, 42, 0.08);
+}
+
+/* Table Body */
+#eval_table_container .eval-table tbody td {
+	padding: 4px 6px;
+	vertical-align: middle;
+	border-bottom: 1px solid var(--border-light);
+	border-right: 1px solid var(--border-light);
+	color: var(--text-primary);
+}
+
+#eval_table_container .eval-table tbody td:last-child {
+	border-right: none;
+}
+
+/* Row States */
+#eval_table_container .eval-table tbody tr {
+	transition: background-color 0.15s ease;
+}
+
+#eval_table_container .eval-table tbody tr:hover {
+	background: #F0F2F5;
+}
+
+#eval_table_container .eval-table tbody tr:nth-child(even) {
+	background: #FAFBFC;
+}
+
+#eval_table_container .eval-table tbody tr:nth-child(even):hover {
+	background: #F0F2F5;
+}
+
+/* Edited Row Highlighting */
+#eval_table_container .eval-table tbody tr[data-row-key] {
+	position: relative;
+}
+
+#eval_table_container .eval-table tbody tr.row-edited {
+	background: #FEF9E7 !important;
+}
+
+#eval_table_container .eval-table tbody tr.row-edited:hover {
+	background: #FCF3CF !important;
+}
+
+#eval_table_container .eval-table tbody tr.row-saved {
+	background: #E8F8F5 !important;
+	transition: background-color 0.5s ease;
+}
+
+/* =============================================================================
+   CELL ALIGNMENT
+   ============================================================================= */
+
+.eval-td-center {
+	text-align: center;
+	padding: 4px 6px;
+}
+
+.eval-td {
+	padding: 6px 10px;
+	font-weight: 500;
+}
+
+.eval-td-cell {
+	padding: 4px 6px;
+}
+
+/* =============================================================================
+   CHECKBOX & HEADER HELPERS
+   ============================================================================= */
+
+.eval-th-checkbox {
+	width: 40px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.eval-th-save {
+	width: 60px;
+	min-width: 60px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+/* =============================================================================
+   LINKS
+   ============================================================================= */
+
+.lot-id-link {
+	color: var(--prussian-blue);
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.lot-id-link:hover {
+	color: var(--ink-black);
+	text-decoration: underline;
+}
+
+/* =============================================================================
+   CHECKBOXES
+   ============================================================================= */
+
+.lot-select-checkbox {
+	display: inline-block !important;
+	width: 16px !important;
+	height: 16px !important;
+	opacity: 1 !important;
+	visibility: visible !important;
+	margin: 0 auto;
+	cursor: pointer;
+	accent-color: var(--prussian-blue);
+	transition: transform 0.15s ease;
+	position: relative;
+	z-index: 5;
+}
+
+.lot-select-checkbox:hover {
+	transform: scale(1.1);
+}
+
+.eval-th-checkbox {
+	position: relative;
+	z-index: 5;
+}
+
+.eval-td-center {
+	position: relative;
+	z-index: 5;
+}
+
+/* =============================================================================
+   EDITABLE CELLS
+   ============================================================================= */
+
+.eval-cell {
+	height: 28px;
+	font-size: 13px;
+	padding: 4px 8px;
+	border: 1px solid var(--border-color);
+	border-radius: 5px;
+	background: var(--card-bg);
+	color: var(--text-primary);
+	outline: none;
+	transition: all 0.2s ease;
+	box-sizing: border-box;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.eval-cell:focus {
+	border-color: var(--prussian-blue) !important;
+	box-shadow: 0 0 0 3px rgba(27, 38, 59, 0.1) !important;
+	background: #FEFEFE;
+}
+
+.eval-cell:hover:not(:focus) {
+	border-color: var(--lavender-grey);
+}
+
+/* Select Dropdown */
+select.eval-cell {
+	cursor: pointer;
+	background: var(--card-bg) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%231B263B' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") right 8px center/10px 10px no-repeat;
+	padding-right: 28px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	position: relative;
+	z-index: 1;
+}
+
+select.eval-cell:focus {
+	border-color: var(--prussian-blue) !important;
+	box-shadow: 0 0 0 2px rgba(27, 38, 59, 0.08) !important;
+	background: #FEFEFE url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%231B263B' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") right 8px center/10px 10px no-repeat;
+}
+
+/* Date Input */
+.eval-date-wrapper {
+	display: flex;
+	gap: 0;
+}
+
+.eval-date-wrapper .eval-cell {
+	border-radius: 5px 0 0 5px;
+	flex: 1;
+}
+
+.eval-date-wrapper .eval-date-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 28px;
+	border: 1px solid var(--border-color);
+	border-left: none;
+	border-radius: 0 5px 5px 0;
+	background: #F0F1F2;
+	color: var(--prussian-blue);
+	cursor: pointer;
+	padding: 0;
+	transition: all 0.2s ease;
+}
+
+.eval-date-wrapper .eval-date-btn:hover {
+	background: var(--prussian-blue);
+	color: white;
+}
+
+/* =============================================================================
+   SAVE BUTTONS
+   ============================================================================= */
+
+.save-row-btn {
+	padding: 4px 12px;
+	font-size: 11px;
+	border-radius: 5px;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	position: relative;
+	z-index: 5;
+}
+
+.save-row-btn.btn-success {
+	background: var(--ink-black);
+	color: white;
+}
+
+.save-row-btn.btn-success:hover:not(:disabled) {
+	background: var(--prussian-blue);
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-sm);
+}
+
+.save-row-btn.btn-warning {
+	background: var(--alabaster-grey);
+	color: var(--ink-black);
+}
+
+.save-row-btn.btn-warning:hover:not(:disabled) {
+	background: #D0D1D3;
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-sm);
+}
+
+.save-row-btn.btn-danger {
+	background: #C0392B;
+	color: white;
+}
+
+.save-row-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.save-row-btn:not(:disabled):active {
+	transform: translateY(0);
+}
+
+/* =============================================================================
+   STAGE BADGES
+   ============================================================================= */
+
+.stage-badge {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+	text-transform: uppercase;
+	white-space: nowrap;
+	transition: all 0.2s ease;
+	position: relative;
+	z-index: 1;
+}
+
+.stage-badge:hover {
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-sm);
+}
+
+.stage-draft {
+	background: var(--stage-draft-bg);
+	color: var(--stage-draft-text);
+}
+
+.stage-pending {
+	background: var(--stage-pending-bg);
+	color: var(--stage-pending-text);
+}
+
+.stage-approved {
+	background: var(--stage-approved-bg);
+	color: var(--stage-approved-text);
+}
+
+.stage-rejected {
+	background: var(--stage-rejected-bg);
+	color: var(--stage-rejected-text);
+}
+
+/* =============================================================================
+   PAGINATION
+   ============================================================================= */
+
+.eval-page-size {
+	border-color: var(--border-color);
+	color: var(--text-secondary);
+	background: var(--card-bg);
+	transition: all 0.2s ease;
+	font-size: 12px;
+	padding: 4px 10px;
+}
+
+.eval-page-size:hover {
+	background: #F0F1F2;
+	border-color: var(--prussian-blue);
+	color: var(--prussian-blue);
+}
+
+.eval-page-size.active {
+	background: var(--prussian-blue);
+	color: white;
+	border-color: var(--prussian-blue);
+	font-weight: 600;
+}
+
+#prev_page_btn,
+#next_page_btn {
+	border-color: var(--border-color);
+	color: var(--text-secondary);
+	transition: all 0.2s ease;
+}
+
+#prev_page_btn:hover:not(:disabled),
+#next_page_btn:hover:not(:disabled) {
+	background: var(--prussian-blue);
+	color: white;
+	border-color: var(--prussian-blue);
+}
+
+#pagination_info {
+	color: var(--text-secondary);
+	font-size: 13px;
+	font-weight: 500;
+}
+
+/* =============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================= */
+
+@media (max-width: 768px) {
+.eval-filter-grid {
+	gap: 8px;
+}
+
+	.eval-field {
+		flex: 1 1 calc(50% - 8px) !important;
+	}
+
+	.tea-eval-page .card-body {
+		padding: 12px;
+	}
+
+	.tea-eval-page .card-header {
+		padding: 10px 12px;
+		font-size: 13px;
+	}
+
+	#eval_table_container .table {
+		font-size: 12px;
+	}
+
+	.eval-cell {
+		font-size: 12px;
+		padding: 3px 6px;
+	}
+
+	.save-row-btn {
+		padding: 3px 8px;
+		font-size: 10px;
+	}
+}
+
+@media (max-width: 576px) {
+	.eval-field {
+		flex: 1 1 100% !important;
+	}
+}
+
+/* =============================================================================
+   SCROLLBAR STYLING
+   ============================================================================= */
+
+#eval_table_container .table-responsive::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+#eval_table_container .table-responsive::-webkit-scrollbar-track {
+	background: #F0F1F2;
+	border-radius: 5px;
+}
+
+#eval_table_container .table-responsive::-webkit-scrollbar-thumb {
+	background: var(--border-color);
+	border-radius: 5px;
+	border: 2px solid #F0F1F2;
+}
+
+#eval_table_container .table-responsive::-webkit-scrollbar-thumb:hover {
+	background: var(--lavender-grey);
+}
+
+/* =============================================================================
+   FRAppe CONTROL OVERRIDES
+   ============================================================================= */
+
+.eval-filter-grid .frappe-control .control-label,
+.eval-filter-grid .frappe-control label {
+	display: none !important;
+}
+
+.eval-filter-grid .frappe-control {
+	margin-bottom: 0 !important;
+	position: relative !important;
+}
+
+.eval-filter-grid .frappe-control .control-input {
+	margin-top: 0 !important;
+}
+
+.eval-filter-grid .frappe-control input,
+.eval-filter-grid .frappe-control select {
+	height: 34px !important;
+	font-size: 13px !important;
+	border-radius: 6px !important;
+	border-color: var(--border-color) !important;
+	padding: 6px 12px !important;
+	position: relative;
+	z-index: 1;
+}
+
+.eval-filter-grid .frappe-control input:focus,
+.eval-filter-grid .frappe-control select:focus {
+	border-color: var(--prussian-blue) !important;
+	box-shadow: 0 0 0 3px rgba(27, 38, 59, 0.1) !important;
+}
+
+.eval-filter-grid .frappe-control .clearfix {
+	display: none !important;
+}
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-5px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+#eval_table_container .eval-table tbody tr {
+	animation: fadeIn 0.3s ease;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.6;
+	}
+}
+
+.save-row-btn.saving {
+	animation: pulse 1.5s ease-in-out infinite;
+}

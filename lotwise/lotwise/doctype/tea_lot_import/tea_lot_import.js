@@ -49,15 +49,48 @@ frappe.ui.form.on("Tea Lot Import", {
 						frm.reload_doc();
 						const m = r.message || {};
 						frappe.msgprint(
-							__("Created: {0}  ·  Errors: {1}  ·  Duplicates: {2}", [
-								m.created || 0,
-								m.errors || 0,
-								m.duplicates || 0,
-							])
+							__(
+								"Created: {0}  ·  Updated: {1}  ·  Errors: {2}  ·  Duplicates: {3}",
+								[m.created || 0, m.updated || 0, m.errors || 0, m.duplicates || 0]
+							)
 						);
 					});
 				});
 			}).addClass("btn-primary");
+		}
+
+		if ((frm.doc.rows_error || 0) > 0) {
+			frm.add_custom_button(__("Export Errors"), () => {
+				frm.call({
+					doc: frm.doc,
+					method: "export_error_rows",
+					freeze: true,
+					freeze_message: __("Exporting error rows…"),
+				}).then((r) => {
+					if (r.message && r.message.content) {
+						const binary = atob(r.message.content);
+						const bytes = new Uint8Array(binary.length);
+						for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+						const blob = new Blob([bytes.buffer], {
+							type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+						});
+						const url = window.URL.createObjectURL(blob);
+						const a = document.createElement("a");
+						a.href = url;
+						a.download = r.message.filename || frm.doc.name + "_errors.xlsx";
+						document.body.appendChild(a);
+						a.click();
+						document.body.removeChild(a);
+						window.URL.revokeObjectURL(url);
+						frappe.show_alert({
+							message: __("Error rows exported successfully."),
+							indicator: "green",
+						});
+					} else {
+						frappe.msgprint(__("No error data to export."));
+					}
+				});
+			}).addClass("btn-danger");
 		}
 	},
 });

@@ -1,0 +1,772 @@
+# Copyright (c) 2026, BusinessThat.Works and Contributors
+# See license.txt
+
+import frappe
+from frappe.tests.utils import FrappeTestCase
+from frappe.utils import flt
+
+from lotwise.lotwise.doctype.buying_day import buying_day as mod
+
+_XML_HEADER = (
+	'<?xml version="1.0" encoding="utf-8"?>\n'
+	'<?mso-application progid="Excel.Sheet"?>\n'
+	'<ss:Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n'
+	'  <ss:Worksheet ss:Name="Sheet1">\n'
+	"    <ss:Table>\n"
+)
+_XML_FOOTER = "    </ss:Table>\n  </ss:Worksheet>\n</ss:Workbook>\n"
+
+
+def _row_xml(cells):
+	"""Build one <ss:Row> with the given cell values. A float is written as a
+	Number cell, everything else as a String cell - matching what the real
+	exports do."""
+	out = ["      <ss:Row>\n"]
+	for value in cells:
+		if isinstance(value, (int, float)) and not isinstance(value, bool):
+			out.append(f'        <ss:Cell><ss:Data ss:Type="Number">{value}</ss:Data></ss:Cell>\n')
+		else:
+			out.append(f'        <ss:Cell><ss:Data ss:Type="String">{value}</ss:Data></ss:Cell>\n')
+	out.append("      </ss:Row>\n")
+	return "".join(out)
+
+
+def _make_spreadsheetml(rows):
+	return _XML_HEADER + "".join(_row_xml(r) for r in rows) + _XML_FOOTER
+
+
+class TestBuyingDayHelpers(FrappeTestCase):
+	"""Pure-function tests - no DB/file access needed."""
+
+	def test_normalize_header(self):
+		self.assertEqual(mod._normalize_header("LotNo"), "lotno")
+		self.assertEqual(mod._normalize_header("LOT NO"), "lot no")
+		self.assertEqual(mod._normalize_header("Qty (Pkgs)"), "qty pkgs")
+		self.assertEqual(mod._normalize_header(None), "")
+
+	def test_convert_cell_blank_and_dash_are_none(self):
+		self.assertIsNone(mod._convert_cell("", "str"))
+		self.assertIsNone(mod._convert_cell("-", "str"))
+		self.assertIsNone(mod._convert_cell(None, "float"))
+
+	def test_convert_cell_types(self):
+		self.assertEqual(mod._convert_cell("30", "int"), 30)
+		self.assertEqual(mod._convert_cell(30.0, "int"), 30)
+		self.assertEqual(mod._convert_cell("40.47", "float"), 40.47)
+		self.assertEqual(mod._convert_cell(" GHATIAROYAL ", "str"), "GHATIAROYAL")
+		self.assertEqual(mod._convert_cell("01/09/2026", "date"), frappe.utils.getdate("2026-09-01"))
+		self.assertIsNone(mod._convert_cell("not-a-date", "date"))
+
+	def test_read_spreadsheetml_rows(self):
+		xml = _make_spreadsheetml(
+			[
+				["LotNo", "Mark", "Qty (Pkgs)"],
+				["JT0059", "BINAGURI", 25],
+			]
+		)
+		path = frappe.utils.get_files_path("test_buying_week_sample.xml", is_private=1)
+		with open(path, "w", encoding="utf-8") as f:
+			f.write(xml)
+		try:
+			rows = mod._read_spreadsheetml_rows(path)
+			self.assertEqual(rows[0], ["LotNo", "Mark", "Qty (Pkgs)"])
+			self.assertEqual(rows[1], ["JT0059", "BINAGURI", 25.0])
+		finally:
+			import os
+
+			os.remove(path)
+
+
+def _pad_headers(header_map, rows):
+	"""Append every expected header missing from rows[0] (blank cells) - the parser
+	requires the full header set."""
+	from lotwise.lotwise.doctype.buying_day.buying_day import _normalize_header
+
+	have = {_normalize_header(h) for h in rows[0]}
+	extra = [h for h in header_map if h not in have]
+	return [rows[0] + extra] + [r + [None] * len(extra) for r in rows[1:]]
+
+
+class TestBuyingDayParseFile(FrappeTestCase):
+	"""End-to-end: attach a small SpreadsheetML file and run parse_auction_catalog()/parse_deal_book()."""
+
+	def setUp(self):
+		if not frappe.db.exists("Purchase Status", "Test Purchased"):
+			frappe.get_doc({"doctype": "Purchase Status", "purchase_status": "Test Purchased"}).insert(
+				ignore_permissions=True
+			)
+
+	def _attach(self, doc, xml_content, filename, field):
+		file_doc = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": filename,
+				"content": xml_content,
+				"attached_to_doctype": doc.doctype,
+				"attached_to_name": doc.name,
+				"is_private": 1,
+			}
+		)
+		file_doc.insert(ignore_permissions=True)
+		doc.set(field, file_doc.file_url)
+		doc.save(ignore_permissions=True)
+
+	def test_parse_deal_book(self):
+		doc = frappe.get_doc(
+			{
+				"doctype": "Buying Day",
+				"acquisition_channel": "Outsourced",
+				"purchase_status": "Test Purchased",
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		xml = _make_spreadsheetml(
+			_pad_headers(
+				mod.HEADER_TO_FIELD_DEAL_BOOK,
+				[
+					[
+						"LotNo",
+						"Mark",
+						"Grade",
+						"Qty (Pkgs)",
+						"Invoice No",
+						"Price/Kg",
+						"Auct. Val",
+						"BasePrice",
+						"Total GrossWt",
+						"NtWt",
+						"Total NtWt",
+						"Type",
+						"DealNo",
+					],
+					[
+						"JT0059",
+						"BINAGURI",
+						"OF",
+						25,
+						"C955",
+						304,
+						355,
+						1,
+						955.5,
+						950,
+						941.4,
+						"Leaf",
+						"27703301",
+					],
+				],
+			)
+		)
+		self._attach(doc, xml, "deal_book_test.xls", "deal_book_file")
+
+		result = doc.parse_deal_book()
+
+		self.assertEqual(result["rows"], 1)
+		self.assertEqual(doc._tab_totals()["deal_book_rows_read"], 1)
+		self.assertEqual(doc._tab_totals()["deal_book_rows_created_purchase"], 0)
+		row = doc.deal_book_items[0]
+		self.assertEqual(row.lot_no, "JT0059")
+		self.assertEqual(row.mark_raw, "BINAGURI")
+		self.assertEqual(row.packages, 25)
+		self.assertEqual(row.deal_no, "27703301")
+		self.assertEqual(row.source_row_type, "Deal Book")
+		self.assertEqual(row.row_status, "Pending")
+		self.assertEqual(doc._tab_totals()["deal_book_purchase_total_pkgs"], 0)
+		row.tea_purchase = "TP-1"
+		totals = doc._tab_totals()
+		self.assertEqual(totals["deal_book_rows_created_purchase"], 1)
+		self.assertEqual(totals["deal_book_purchase_total_pkgs"], 25)
+		self.assertEqual(totals["deal_book_purchase_total_net_wt"], 941.4)
+		self.assertEqual(totals["deal_book_rows_created_po"], 0)
+		self.assertEqual(totals["deal_book_po_total_pkgs"], 0)
+		row.purchase_order = "PO-1"
+		totals = doc._tab_totals()
+		self.assertEqual(totals["deal_book_rows_created_po"], 1)
+		self.assertEqual(totals["deal_book_po_total_pkgs"], 25)
+		self.assertEqual(doc.status, "Deal Book Loaded")
+
+	def test_parse_auction_catalog(self):
+		doc = frappe.get_doc(
+			{
+				"doctype": "Buying Day",
+				"acquisition_channel": "Outsourced",
+				"purchase_status": "Test Purchased",
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		xml = _make_spreadsheetml(
+			_pad_headers(
+				mod.HEADER_TO_FIELD_AUCTION_CATALOG,
+				[
+					[
+						"Season",
+						"Sale No",
+						"LOT NO",
+						"Auctioneer",
+						"MarkCode",
+						"GradeCode",
+						"NoOfPacks",
+						"GrossWeight",
+						"NetWeight",
+						"Lot Type",
+						"InvoiceNo",
+						"Warehouse Name",
+					],
+					[
+						2026,
+						36,
+						"JT0001",
+						"JT",
+						"GHATIAROYAL",
+						"BP",
+						30,
+						40.47,
+						40.00,
+						"Sold",
+						"UK1019",
+						"KTTWPL - UNIT - 1",
+					],
+				],
+			)
+		)
+		self._attach(doc, xml, "auction_catalog_test.xls", "catalogue_file")
+
+		result = doc.parse_auction_catalog()
+
+		self.assertEqual(result["rows"], 1)
+		row = doc.items[0]
+		self.assertEqual(row.lot_no, "JT0001")
+		self.assertEqual(row.mark_raw, "GHATIAROYAL")
+		self.assertEqual(row.packages, 30)
+		self.assertEqual(row.lot_type, "Sold")
+		self.assertEqual(row.warehouse_name, "KTTWPL - UNIT - 1")
+		self.assertEqual(row.source_row_type, "Auction Catalog")
+		# Reconciliation counts created rows only: nothing is created at parse time.
+		self.assertEqual(doc._tab_totals()["items_total_pkgs"], 0)
+		row.row_status = "Created"
+		totals = doc._tab_totals()
+		self.assertEqual(totals["items_total_pkgs"], 30)
+		self.assertEqual(totals["items_total_net_wt"], flt(row.net_weight * 30, 3))
+		self.assertEqual(doc.status, "Catalogue Loaded")
+
+	def test_wrong_file_is_rejected(self):
+		"""A Deal Book attached as the Catalogue (and vice versa) shares a header or
+		two with the other format; it must not be read."""
+		doc = frappe.get_doc(
+			{
+				"doctype": "Buying Day",
+				"acquisition_channel": "Outsourced",
+				"purchase_status": "Test Purchased",
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		deal_book = _make_spreadsheetml(
+			_pad_headers(mod.HEADER_TO_FIELD_DEAL_BOOK, [["LotNo", "BasePrice"], ["JT0059", 1]])
+		)
+		self._attach(doc, deal_book, "wrong_deal_book.xls", "catalogue_file")
+		self.assertRaises(frappe.ValidationError, doc.parse_auction_catalog)
+		self.assertEqual(len(doc.items), 0)
+		self.assertNotEqual(doc.status, "Catalogue Loaded")
+
+		catalogue = _make_spreadsheetml([["Season", "Sale No", "LOT NO"], [2026, 36, "JT0001"]])
+		self._attach(doc, catalogue, "wrong_catalogue.xls", "deal_book_file")
+		self.assertRaises(frappe.ValidationError, doc.parse_deal_book)
+		self.assertEqual(len(doc.deal_book_items), 0)
+
+
+class TestBuyingDayCreateTeaLots(FrappeTestCase):
+	"""create_tea_lots(): Auction Catalog rows -> Tea Lot."""
+
+	def setUp(self):
+		if not frappe.db.exists("Auction Centre", "Test Siliguri BW"):
+			frappe.get_doc(
+				{
+					"doctype": "Auction Centre",
+					"auction_centre": "Test Siliguri BW",
+					"auction_centre_code": "TSLGBW",
+				}
+			).insert(ignore_permissions=True)
+		if not frappe.db.exists("Purchase Status", "Test Purchased BW"):
+			frappe.get_doc({"doctype": "Purchase Status", "purchase_status": "Test Purchased BW"}).insert(
+				ignore_permissions=True
+			)
+		if not frappe.db.exists("Mark", "TESTMARK BW"):
+			frappe.get_doc({"doctype": "Mark", "mark_name": "TESTMARK BW"}).insert(ignore_permissions=True)
+
+	def _make_doc(self, items, sale_no=777):
+		doc = frappe.get_doc(
+			{
+				"doctype": "Buying Day",
+				"acquisition_channel": "Auction",
+				"auction_centre": "Test Siliguri BW",
+				"sale_no": sale_no,
+				"season": 2025,
+				"day": 1,
+				"status": "Catalogue Loaded",
+				"purchase_status": "Test Purchased BW",
+				"items": items,
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		return doc
+
+	def test_create_tea_lot_computes_weight_and_name(self):
+		doc = self._make_doc(
+			sale_no=778,
+			items=[
+				{
+					"lot_no": "BWCT001",
+					"mark_raw": "TESTMARK BW",
+					"packages": 30,
+					"gross_weight": 40.47,
+					"net_weight": 40.0,
+					"base_price": 1,
+					"season": 2026,
+					"sale_no": 36,
+					"row_status": "Pending",
+					"source_row_type": "Auction Catalog",
+				}
+			],
+		)
+
+		result = doc.create_tea_lots()
+
+		self.assertEqual(result, {"created": 1, "errors": 0, "duplicates": 0})
+		row = doc.items[0]
+		self.assertEqual(row.row_status, "Created")
+		# Row's own season/sale_no (2026/36) win over the doc's (2025/777)
+		self.assertEqual(row.tea_lot, "TSLGBW-2026-36-BWCT001")
+
+		lot = frappe.db.get_value(
+			"Tea Lot",
+			row.tea_lot,
+			["gross_wtpkg", "net_wtpkg", "net_weight_total", "packages", "rate", "purchase_status"],
+			as_dict=True,
+		)
+		self.assertEqual(lot.gross_wtpkg, 40.47)
+		self.assertEqual(lot.net_wtpkg, 40.0)
+		self.assertEqual(lot.net_weight_total, 40.0 * 30)  # computed: per-pkg net x packages
+		self.assertEqual(lot.purchase_status, "Test Purchased BW")
+
+		# Re-running is idempotent - the already-created row is skipped
+		result2 = doc.create_tea_lots()
+		self.assertEqual(result2, {"created": 0, "errors": 0, "duplicates": 0})
+
+	def test_create_tea_lot_falls_back_to_doc_season_and_sale_no(self):
+		doc = self._make_doc(
+			sale_no=779,
+			items=[
+				{
+					"lot_no": "BWCT002",
+					"mark_raw": "TESTMARK BW",
+					"packages": 10,
+					"gross_weight": 40,
+					"net_weight": 38,
+					"base_price": 200,
+					"season": 0,
+					"sale_no": 0,
+					"row_status": "Pending",
+					"source_row_type": "Auction Catalog",
+				}
+			],
+		)
+
+		doc.create_tea_lots()
+
+		row = doc.items[0]
+		self.assertEqual(row.row_status, "Created")
+		# Row's season/sale_no are blank - falls back to the doc's own 2025/779
+		self.assertEqual(row.tea_lot, "TSLGBW-2025-779-BWCT002")
+
+	def test_create_tea_lot_errors_on_unknown_mark(self):
+		doc = self._make_doc(
+			sale_no=780,
+			items=[
+				{
+					"lot_no": "BWCT003",
+					"mark_raw": "NO SUCH MARK BW",
+					"packages": 10,
+					"gross_weight": 40,
+					"net_weight": 38,
+					"base_price": 200,
+					"season": 2026,
+					"sale_no": 40,
+					"row_status": "Pending",
+					"source_row_type": "Auction Catalog",
+				}
+			],
+		)
+
+		result = doc.create_tea_lots()
+
+		self.assertEqual(result, {"created": 0, "errors": 1, "duplicates": 0})
+		self.assertEqual(doc.items[0].row_status, "Error")
+		self.assertIn("not found", doc.items[0].message)
+
+	def test_export_error_rows(self):
+		import base64
+		import io
+
+		from openpyxl import load_workbook
+
+		doc = self._make_doc(
+			sale_no=781,
+			items=[
+				{
+					"lot_no": "BWCT004",
+					"mark_raw": "NO SUCH MARK BW",
+					"packages": 10,
+					"gross_weight": 40,
+					"net_weight": 38,
+					"base_price": 200,
+					"season": 2026,
+					"sale_no": 40,
+					"row_status": "Pending",
+					"source_row_type": "Auction Catalog",
+				}
+			],
+		)
+
+		# no error rows yet
+		self.assertRaises(frappe.ValidationError, doc.export_error_rows, "items")
+
+		doc.create_tea_lots()
+		result = doc.export_error_rows("items")
+
+		self.assertTrue(result["filename"].endswith("_auction_catalogue_errors.xlsx"))
+		ws = load_workbook(io.BytesIO(base64.b64decode(result["content"]))).active
+		self.assertEqual(ws.max_row, 2)
+		self.assertIn("not found", ws.cell(row=2, column=ws.max_column).value)
+
+		self.assertRaises(frappe.ValidationError, doc.export_error_rows, "deal_book_items")
+		self.assertRaises(frappe.ValidationError, doc.export_error_rows, "bogus")
+
+	def test_export_error_rows_private_purchase_list(self):
+		import base64
+		import io
+
+		from openpyxl import load_workbook
+
+		doc = self._make_doc(sale_no=782)
+		doc.append(
+			"private_purchase_list",
+			{"mark_raw": "X", "row_status": "Error", "message": "Mark not found"},
+		)
+
+		result = doc.export_error_rows("private_purchase_list")
+
+		self.assertTrue(result["filename"].endswith("_private_purchase_list_errors.xlsx"))
+		ws = load_workbook(io.BytesIO(base64.b64decode(result["content"]))).active
+		self.assertEqual(ws.max_row, 2)
+		self.assertEqual(ws.cell(row=2, column=ws.max_column).value, "Mark not found")
+
+
+class TestBuyingDayCreateTeaPurchases(FrappeTestCase):
+	"""create_tea_purchases(): Deal Book rows -> Tea Purchase, linked back to a
+	Tea Lot created earlier from the same (single, reused) Buying Day doc."""
+
+	def setUp(self):
+		if not frappe.db.exists("Auction Centre", "Test Siliguri TPU"):
+			frappe.get_doc(
+				{
+					"doctype": "Auction Centre",
+					"auction_centre": "Test Siliguri TPU",
+					"auction_centre_code": "TSLGTPU",
+				}
+			).insert(ignore_permissions=True)
+		if not frappe.db.exists("Purchase Status", "Test Purchased TPU"):
+			frappe.get_doc({"doctype": "Purchase Status", "purchase_status": "Test Purchased TPU"}).insert(
+				ignore_permissions=True
+			)
+		if not frappe.db.exists("Mark", "TESTMARK TPU"):
+			frappe.get_doc({"doctype": "Mark", "mark_name": "TESTMARK TPU"}).insert(ignore_permissions=True)
+
+	def test_create_tea_purchase_links_to_existing_tea_lot_and_falls_back(self):
+		# Naming (auction_centre + season + sale_no) means this is ONE document
+		# reused across the pipeline - catalogue loaded and lots created first,
+		# then the same doc switches to Deal Book Loaded for the purchase step.
+		doc = frappe.get_doc(
+			{
+				"doctype": "Buying Day",
+				"acquisition_channel": "Auction",
+				"auction_centre": "Test Siliguri TPU",
+				"sale_no": 950,
+				"season": 2025,
+				"day": 1,
+				"status": "Catalogue Loaded",
+				"purchase_status": "Test Purchased TPU",
+				"items": [
+					{
+						"lot_no": "TPU001",
+						"mark_raw": "TESTMARK TPU",
+						"category_id": "CTC",
+						"packages": 20,
+						"gross_weight": 40,
+						"net_weight": 39,
+						"base_price": 250,
+						"season": 2025,
+						"sale_no": 950,
+						"row_status": "Pending",
+						"source_row_type": "Auction Catalog",
+					}
+				],
+			}
+		)
+		doc.insert(ignore_permissions=True, ignore_mandatory=True)
+		doc.create_tea_lots()
+		lot_name = doc.items[0].tea_lot
+		self.assertEqual(lot_name, "TSLGTPU-2025-950-TPU001")
+		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "category"), "CTC")
+
+		doc.status = "Deal Book Loaded"
+		doc.set(
+			"deal_book_items",
+			[
+				{
+					# matches the Tea Lot above
+					"lot_no": "TPU001",
+					"mark_raw": "TESTMARK TPU",
+					"packages": 20,
+					"total_net_weight": 780,
+					"price_per_kg": 260,
+					"deal_no": "DEAL001",
+					"season": 2025,
+					"sale_no": 950,
+					"row_status": "Pending",
+					"source_row_type": "Deal Book",
+				},
+				{
+					# no matching Tea Lot, and blank row season/sale_no -> falls back to doc's
+					"lot_no": "TPU002",
+					"mark_raw": "TESTMARK TPU",
+					"packages": 5,
+					"total_net_weight": 190,
+					"price_per_kg": 200,
+					"deal_no": "DEAL002",
+					"season": 0,
+					"sale_no": 0,
+					"row_status": "Pending",
+					"source_row_type": "Deal Book",
+				},
+			],
+		)
+		doc.save(ignore_permissions=True)
+
+		result = doc.create_tea_purchases()
+
+		self.assertEqual(result, {"created": 2, "errors": 0, "duplicates": 0})
+		row1, row2 = doc.deal_book_items[0], doc.deal_book_items[1]
+		self.assertEqual(row1.tea_purchase, lot_name)  # same computed name as the Tea Lot
+		self.assertEqual(row2.tea_purchase, "TSLGTPU-2025-950-TPU002")
+
+		purchase1 = frappe.db.get_value(
+			"Tea Purchase", row1.tea_purchase, ["tea_lot", "rate", "net_weight_total"], as_dict=True
+		)
+		self.assertEqual(purchase1.tea_lot, lot_name)
+		self.assertEqual(frappe.db.get_value("Tea Purchase", row1.tea_purchase, "category"), "CTC")
+		self.assertEqual(row1.category, "CTC")
+		self.assertFalse(row2.category)
+		self.assertEqual(purchase1.rate, 260)
+		self.assertEqual(purchase1.net_weight_total, 780)
+
+		purchase2_tea_lot = frappe.db.get_value("Tea Purchase", row2.tea_purchase, "tea_lot")
+		self.assertFalse(purchase2_tea_lot)
+
+		# Bidirectional: the Tea Lot's own tea_purchase field points back
+		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "tea_purchase"), row1.tea_purchase)
+		self.assertEqual(frappe.db.get_value("Tea Lot", lot_name, "purchase_status"), "Test Purchased TPU")
+
+
+class TestBuyingDayStatusSyncToWeek(FrappeTestCase):
+	"""A Buying Day's status/day must be mirrored on its Buying Week Day row."""
+
+	def test_status_change_updates_week_child_row(self):
+		week = frappe.get_doc({"doctype": "Buying Week", "acquisition_channel": "Outsourced"})
+		week.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		day = frappe.get_doc(
+			{"doctype": "Buying Day", "buying_week": week.name, "acquisition_channel": "Outsourced", "day": 1}
+		)
+		day.insert(ignore_permissions=True, ignore_mandatory=True)
+
+		def row_values():
+			return frappe.db.get_value(
+				"Buying Week Day",
+				{"parent": week.name, "buying_day": day.name},
+				["status", "day"],
+				as_dict=True,
+			)
+
+		self.assertEqual(row_values().status, "Draft")
+
+		day.status = "Catalogue Loaded"
+		day.day = 2
+		day.save(ignore_permissions=True)
+
+		self.assertEqual(row_values().status, "Catalogue Loaded")
+		self.assertEqual(row_values().day, 2)
+
+
+class TestOfferSampleLotAndEvaluation(FrappeTestCase):
+	"""create_tea_lots_and_evaluations_from_offer_samples: a Tea Evaluation failure
+	must roll back the row's Tea Lot. DB calls are mocked."""
+
+	def _run(self, evaluation_error=None):
+		from unittest import mock
+
+		doc = frappe.new_doc("Buying Day")
+		doc.acquisition_channel = "Private"
+		doc.purchase_type = "Internal"
+		doc.status = "Offer Sample Evaluation Load"
+		doc.season = "2026"
+		doc.week_no = "45"
+		doc.append(
+			"offer_sample_evaluation",
+			{
+				"garden": "MK",
+				"invoice_no": "INV1",
+				"grade": "BP",
+				"qty": "10",
+				"pckgs": "5",
+				"taster": "T1",
+				"c": "1",
+				"t": "1",
+				"s": "1",
+				"b": "1",
+			},
+		)
+
+		real_get_doc = frappe.get_doc
+		inserted = []
+
+		def fake_get_doc(values, *a, **k):
+			if isinstance(values, dict) and values.get("doctype") in ("Tea Lot", "Tea Evaluation"):
+				m = mock.MagicMock()
+				m.name = values["doctype"] + "-1"
+
+				def insert(**kw):
+					if values["doctype"] == "Tea Evaluation" and evaluation_error:
+						raise frappe.ValidationError(evaluation_error)
+					inserted.append(values["doctype"])
+
+				m.insert.side_effect = insert
+				return m
+			return real_get_doc(values, *a, **k)
+
+		def fake_exists(doctype, name=None):
+			# masters exist; the lot / evaluation do not yet
+			return doctype not in ("Tea Lot", "Tea Evaluation")
+
+		with (
+			mock.patch.object(frappe.db, "exists", side_effect=fake_exists),
+			mock.patch.object(frappe.db, "get_value", return_value=None),
+			mock.patch.object(frappe.db, "savepoint"),
+			mock.patch.object(frappe.db, "rollback") as rollback,
+			mock.patch.object(frappe, "get_doc", side_effect=fake_get_doc),
+			mock.patch.object(frappe, "log_error"),
+			mock.patch.object(frappe, "get_meta", return_value=mock.MagicMock(has_field=lambda f: True)),
+			mock.patch.object(type(doc), "save"),
+			mock.patch(
+				"lotwise.lotwise.doctype.tea_lot.tea_lot.get_private_tea_lot_name",
+				return_value="LOT-1",
+			),
+		):
+			result = doc.create_tea_lots_and_evaluations_from_offer_samples()
+		return doc.offer_sample_evaluation[0], result, rollback, inserted
+
+	def test_evaluation_failure_rolls_back_tea_lot(self):
+		row, result, rollback, _inserted = self._run(evaluation_error="boom")
+		rollback.assert_called_once_with(save_point="offer_sample_row")
+		self.assertEqual(result["errors"], 1)
+		self.assertEqual(row.row_status, "Error")
+		self.assertFalse(row.tea_lot)
+		self.assertIn("Tea Lot not created", row.message)
+
+	def test_both_created_without_rollback(self):
+		row, result, rollback, inserted = self._run()
+		rollback.assert_not_called()
+		self.assertEqual(inserted, ["Tea Lot", "Tea Evaluation"])
+		self.assertEqual(result["created"], 1)
+		self.assertEqual((row.row_status, row.eval_status), ("Created", "Created"))
+
+
+class TestBuyingDayBackground(FrappeTestCase):
+	def test_every_background_action_is_a_whitelisted_method(self):
+		for action in mod.BACKGROUND_ACTIONS:
+			self.assertTrue(callable(getattr(mod.BuyingDay, action, None)), action)
+
+	def test_job_summary(self):
+		self.assertIn("5", mod._job_summary({"rows": 5}))
+		summary = mod._job_summary({"created": 2, "errors": 1, "duplicates": 3})
+		for n in ("2", "1", "3"):
+			self.assertIn(n, summary)
+
+	def test_run_job_reports_error_and_always_finishes(self):
+		from unittest.mock import patch
+
+		with (
+			patch("lotwise.utils.background.mark_processing"),
+			patch("lotwise.utils.background.finish_job") as finish,
+			patch.object(mod.frappe, "get_doc", side_effect=frappe.ValidationError("boom")),
+			patch.object(mod.frappe, "log_error"),
+			patch.object(mod.frappe.db, "rollback"),
+		):
+			mod.run_buying_day_job("BD-X", "create_tea_lots")
+		args = finish.call_args[0]
+		self.assertEqual(args[2], "Error")
+		self.assertIn("boom", args[3])
+
+	def test_unknown_action_is_rejected(self):
+		from unittest.mock import patch
+
+		with (
+			patch("lotwise.utils.background.finish_job") as finish,
+			patch.object(mod.frappe, "log_error"),
+			patch.object(mod.frappe.db, "rollback"),
+		):
+			mod.run_buying_day_job("BD-X", "drop_everything")
+		self.assertEqual(finish.call_args[0][2], "Error")
+
+	def test_progress_persists_previous_row_with_commit(self):
+		from types import SimpleNamespace
+		from unittest.mock import MagicMock, patch
+
+		rows = [MagicMock(name="r0"), MagicMock(name="r1")]
+		for r in rows:
+			r.name = "x"
+		doc = SimpleNamespace(name="BD-X", _bg=True)
+		with patch("lotwise.utils.background.notify") as notify:
+			mod.BuyingDay._progress(doc, 0, 2, rows=rows)
+			rows[0].db_update.assert_not_called()
+			mod.BuyingDay._progress(doc, 1, 2, rows=rows)
+			rows[0].db_update.assert_called_once()
+			rows[1].db_update.assert_not_called()
+			self.assertEqual(notify.call_count, 2)
+
+	def test_action_table_covers_create_actions_only(self):
+		self.assertTrue(set(mod.ACTION_TABLE) <= set(mod.BACKGROUND_ACTIONS))
+
+
+class TestBuyingDayTabTotals(FrappeTestCase):
+	def _private_doc(self, purchase_type):
+		doc = frappe.new_doc("Buying Day")
+		doc.acquisition_channel = "Private"
+		doc.purchase_type = purchase_type
+		doc.append(
+			"private_purchase_list", {"packages": 3, "net_kg": 150, "tea_lot": "L1", "tea_purchase": "TP1"}
+		)
+		return doc
+
+	def test_internal_private_has_no_tea_lot_step(self):
+		totals = self._private_doc("Internal")._tab_totals()
+		self.assertEqual(totals["private_list_rows_created_lot"], 0)
+		self.assertEqual(totals["private_list_lot_total_pkgs"], 0)
+		self.assertEqual(totals["private_list_rows_created_purchase"], 1)
+
+	def test_external_private_counts_tea_lot_step(self):
+		totals = self._private_doc("External")._tab_totals()
+		self.assertEqual(totals["private_list_rows_created_lot"], 1)
+		self.assertEqual(totals["private_list_lot_total_pkgs"], 3)

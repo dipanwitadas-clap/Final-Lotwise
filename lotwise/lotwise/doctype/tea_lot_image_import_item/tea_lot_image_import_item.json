@@ -1,0 +1,211 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-28 00:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lot_inv_no",
+  "grade",
+  "chest_nos",
+  "gr_wt",
+  "net_wt",
+  "awr_dt",
+  "gp_no_dt",
+  "mfg_month_year",
+  "total_net",
+  "location",
+  "pkgs",
+  "garden",
+  "region",
+  "company",
+  "warehouse",
+  "ctc_no",
+  "remarks",
+  "purchase_date",
+  "column_break_status",
+  "row_status",
+  "message",
+  "tea_lot"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "lot_inv_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lot Inv No"
+  },
+  {
+   "columns": 1,
+   "fieldname": "grade",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grade"
+  },
+  {
+   "columns": 1,
+   "description": "e.g. 18657/18687",
+   "fieldname": "chest_nos",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Chest Nos"
+  },
+  {
+   "columns": 1,
+   "fieldname": "gr_wt",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Gr. Wt.",
+   "precision": "2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "net_wt",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Net Wt.",
+   "precision": "2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "awr_dt",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "AWR Date"
+  },
+  {
+   "columns": 1,
+   "fieldname": "gp_no_dt",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "GP No / Date"
+  },
+  {
+   "columns": 1,
+   "description": "e.g. Jul-26",
+   "fieldname": "mfg_month_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "MFG Month / Year"
+  },
+  {
+   "columns": 1,
+   "fieldname": "total_net",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Net",
+   "precision": "2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Location"
+  },
+  {
+   "columns": 1,
+   "fieldname": "pkgs",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Pkgs"
+  },
+  {
+   "columns": 1,
+   "description": "Garden / Mark name only, without the region code",
+   "fieldname": "garden",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Garden/Mark"
+  },
+  {
+   "columns": 1,
+   "description": "Region code parsed from the parenthesized suffix, e.g. 'DO' from 'NOWERA NUDDY (DO)'",
+   "fieldname": "region",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Region"
+  },
+  {
+   "columns": 1,
+   "description": "Company / producer for this lot",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company"
+  },
+  {
+   "columns": 1,
+   "fieldname": "warehouse",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Warehouse"
+  },
+  {
+   "columns": 1,
+   "description": "Series / CTC No, e.g. 'CTC 4'",
+   "fieldname": "ctc_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CTC No"
+  },
+  {
+   "description": "Handwritten marks (red/blue pen) detected near this lot row",
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Handwritten Remarks"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
+  },
+  {
+   "fieldname": "column_break_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nCreated\nError\nDuplicate",
+   "read_only": 1
+  },
+  {
+   "description": "Status message or error details",
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Lot doctype",
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tea Lot",
+   "options": "Tea Lot",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-09-02 22:32:49.930602",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Tea Lot Image Import Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

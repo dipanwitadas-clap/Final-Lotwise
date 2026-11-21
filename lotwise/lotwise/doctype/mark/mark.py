@@ -21,6 +21,7 @@ class Mark(Document):
 		notes: DF.SmallText | None
 		region: DF.Data | None
 		state: DF.Data | None
+		supplier: DF.Link | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Mark"

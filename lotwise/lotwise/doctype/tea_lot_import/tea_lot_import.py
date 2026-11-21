@@ -6,7 +6,9 @@ import frappe
 import openpyxl
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, flt, getdate
+from frappe.utils import cint, flt
+
+from lotwise.lotwise.doctype.tea_lot.tea_lot import get_private_tea_lot_name
 
 # --------------------------------------------------------------------------- config
 # Add new column
@@ -15,10 +17,12 @@ HEADER_TO_FIELD = {
 	"invoice no": {"field": "invoice_number", "type": "str"},
 	"garden mark": {"field": "mark_raw", "type": "str", "required": True},
 	"grade": {"field": "grade_raw", "type": "str", "required": True},
-	"region qualifier": {"field": "grade_qualifier", "type": "str"},
+	"auction centre": {"field": "auction_centre", "type": "str"},
+	"purchase date": {"field": "purchase_date", "type": "date"},
+	"offer date": {"field": "offer_date", "type": "date"},
 	"no of pkgs": {"field": "packages", "type": "int", "required": True},
 	"wt kgs": {"field": "gross_wtpkg", "type": "float"},
-	"nett wt kgs": {"field": "net_weight_total", "type": "float", "required": True},
+	"nett wt kg": {"field": "net_weight_total", "type": "float", "required": True},
 	"rate kg": {"field": "rate", "type": "float"},
 	"liquor mark": {"field": "liquor_mark", "type": "str"},
 	"density": {"field": "density", "type": "float"},
@@ -29,8 +33,9 @@ HEADER_TO_FIELD = {
 	"purchase from": {"field": "purchase_from", "type": "str"},
 	"purchase invoice no": {"field": "purchase_invoice_no", "type": "str"},
 	"purchase invoice date": {"field": "purchase_invoice_date", "type": "str"},
-	"warehouse name": {"field": "warehouse_name", "type": "str"},
+	"warehouse": {"field": "warehouse", "type": "str"},
 	"total amount as per to tax invoice": {"field": "total_amount_as_per_to_tax_invoice", "type": "float"},
+	"blend": {"field": "blend", "type": "str"},
 }
 
 
@@ -49,15 +54,7 @@ def _str(value):
 	return None if value is None else str(value).strip()
 
 
-def _get_liquor_options():
-	"""Fetch valid liquor marks from Tea Lot doctype field (dynamic)."""
-	field = frappe.get_meta("Tea Lot").get_field("liquor_mark")
-	if not field or not field.options:
-		return set()
-	return {o.strip() for o in field.options.strip().split("\n") if o.strip()}
-
-
-def _detect_columns(ws, header_row=13):
+def _detect_columns(ws, header_row=7):
 	"""Match Excel column headers to field configs. Throw if required columns missing."""
 	colmap = {}
 	found = set()
@@ -80,16 +77,16 @@ def _detect_columns(ws, header_row=13):
 
 
 def _extract_metadata(ws):
-	"""Read header block from Dalmia template (rows 4-10, col B)."""
+	"""Read header block from Dalmia template (rows 1-4, col B).
+
+	Note: Blend/Brand metadata row was removed; blend is now read from
+	the 'Blend' column in the data rows.
+	"""
 	meta = {}
-	meta["acquisition_channel"] = _str(ws.cell(4, 2).value) or "Auction"
-	meta["company"] = _str(ws.cell(5, 2).value)
-	date_val = ws.cell(6, 2).value
-	meta["purchase_date"] = getdate(date_val) if date_val else None
-	meta["blend"] = _str(ws.cell(7, 2).value)
-	meta["reference_no"] = _str(ws.cell(8, 2).value)
-	meta["centre"] = _str(ws.cell(9, 2).value)
-	meta["sale_no"] = _str(ws.cell(10, 2).value)
+	meta["acquisition_channel"] = _str(ws.cell(1, 2).value) or "Auction"
+	meta["company"] = _str(ws.cell(2, 2).value)
+	meta["reference_no"] = _str(ws.cell(3, 2).value)
+	meta["sale_no"] = cint(ws.cell(4, 2).value)
 	return meta
 
 
@@ -102,7 +99,7 @@ def _convert_cell(value, field_type):
 	return _str(value)
 
 
-def _read_data_rows(ws, colmap, start_row=14):
+def _read_data_rows(ws, colmap, start_row=8):
 	"""Iterate data rows, return list of row dicts."""
 	rows = []
 	for row in range(start_row, ws.max_row + 1):
@@ -124,6 +121,35 @@ def _read_data_rows(ws, colmap, start_row=14):
 
 
 class TeaLotImport(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.types import DF
+
+		from lotwise.lotwise.doctype.tea_lot_import_item.tea_lot_import_item import TeaLotImportItem
+
+		acquisition_channel: DF.Literal["", "Auction", "Private", "Outsourced"]
+		blend: DF.Link | None
+		company: DF.Data | None
+		computed_total_net_weight: DF.Float
+		computed_total_packages: DF.Int
+		fiscal_year: DF.Link
+		import_file: DF.Attach
+		items: DF.Table[TeaLotImportItem]
+		purchase_status: DF.Link
+		rows_created: DF.Int
+		rows_duplicate: DF.Int
+		rows_error: DF.Int
+		rows_parsed: DF.Int
+		rows_updated: DF.Int
+		sale_no: DF.Int
+		season: DF.Int
+		week_no: DF.Int
+	# end: auto-generated types
+
 	"""Parse Dalmia XLSX -> items table -> create Tea Lots."""
 
 	@frappe.whitelist()
@@ -134,12 +160,15 @@ class TeaLotImport(Document):
 		meta = _extract_metadata(ws)
 		self.acquisition_channel = meta.get("acquisition_channel", "Auction")
 		self.company = meta.get("company")
-		self.purchase_date = meta.get("purchase_date")
-		self.blend = meta.get("blend")
-		self.centre = meta.get("centre")
 		self.sale_no = meta.get("sale_no")
 
 		rows = _read_data_rows(ws, colmap)
+		for _idx, row in enumerate(rows, start=8):
+			if row.get("auction_centre"):
+				if not frappe.db.exists("Auction Centre", row["auction_centre"]):
+					frappe.throw(
+						_("Auction Centre '{0}' does not exist in the system.").format(row["auction_centre"])
+					)
 
 		self.set("items", [])
 		for row in rows:
@@ -159,8 +188,8 @@ class TeaLotImport(Document):
 	def create_tea_lots(self):
 		"""Create Tea Lot for each Pending row. Validates, dedupes, creates masters."""
 		meta = frappe.get_meta("Tea Lot")
-		allowed_liquor = _get_liquor_options()
-		created = duplicate = error = 0
+		created = duplicate = error = updated = 0
+		channel = self.acquisition_channel
 
 		for row in self.items:
 			if row.row_status == "Created":
@@ -169,27 +198,16 @@ class TeaLotImport(Document):
 				mark_name = (row.mark_raw or "").strip()
 				invoice = (row.invoice_number or "").strip()
 				lot_no = (row.lot_no or "").strip()
+				auction_centre = (row.auction_centre or "").strip()
+				grade_code = (row.grade_raw or "").strip()
+				liquor = (row.liquor_mark or "").strip()
 
+				# ---- common validations ----
 				if not mark_name or not invoice:
 					row.row_status = "Error"
 					row.message = _("Missing Mark or Invoice Number.")
 					error += 1
 					continue
-
-				liquor = (row.liquor_mark or "").strip()
-				if liquor and allowed_liquor and liquor not in allowed_liquor:
-					row.row_status = "Error"
-					row.message = _("Invalid Liquor Mark: {0}").format(liquor)
-					error += 1
-					continue
-
-				if self._is_duplicate(invoice, mark_name):
-					row.row_status = "Duplicate"
-					row.message = _("Duplicate Invoice No + Mark + Date.")
-					duplicate += 1
-					continue
-
-				grade_code = (row.grade_raw or "").strip()
 
 				if not frappe.db.exists("Mark", mark_name):
 					row.row_status = "Error"
@@ -203,12 +221,194 @@ class TeaLotImport(Document):
 					error += 1
 					continue
 
+				if liquor and not frappe.db.exists("Liquor Mark", liquor):
+					row.row_status = "Error"
+					row.message = _("Liquor Mark '{0}' not found. Please create it first.").format(liquor)
+					error += 1
+					continue
+
+				if row.warehouse and not frappe.db.exists("Warehouse", row.warehouse):
+					row.row_status = "Error"
+					row.message = _("Warehouse '{0}' not found. Please create it first.").format(
+						row.warehouse
+					)
+					error += 1
+					continue
+
+				if not self.purchase_status:
+					row.row_status = "Error"
+					row.message = _("Purchase Status is required on the import document.")
+					error += 1
+					continue
+
+				if not frappe.db.exists("Purchase Status", self.purchase_status):
+					row.row_status = "Error"
+					row.message = _("Purchase Status '{0}' not found. Please create it first.").format(
+						self.purchase_status
+					)
+					error += 1
+					continue
+
+				# Validate blend exists if provided in row
+				if row.blend and not frappe.db.exists("Blend", row.blend):
+					row.row_status = "Error"
+					row.message = _("Brand '{0}' not found. Please create it in the Blend master.").format(
+						row.blend
+					)
+					error += 1
+					continue
+
+				# ---- channel-specific validations & duplicate checks ----
+				if channel in ("Auction", "Outsourced"):
+					if not auction_centre:
+						row.row_status = "Error"
+						row.message = _("Auction Centre is required for Auction/Outsourced lots.")
+						error += 1
+						continue
+
+					auction_centre_code = frappe.db.get_value(
+						"Auction Centre",
+						auction_centre,
+						"auction_centre_code",
+					)
+					if not auction_centre_code:
+						row.row_status = "Error"
+						row.message = _("Invalid Auction Centre.")
+						error += 1
+						continue
+
+					if not lot_no:
+						row.row_status = "Error"
+						row.message = _("Lot No is required for Auction/Outsourced lots.")
+						error += 1
+						continue
+
+					if not self.sale_no:
+						row.row_status = "Error"
+						row.message = _("Sale No is required for Auction/Outsourced lots.")
+						error += 1
+						continue
+
+					if self.purchase_status == "Offer":
+						if not row.offer_date:
+							row.row_status = "Error"
+							row.message = _("Offer Date is required for Auction/Outsourced lots.")
+							error += 1
+							continue
+
+					if not self.season:
+						row.row_status = "Error"
+						row.message = _("Season is required for Auction/Outsourced lots.")
+						error += 1
+						continue
+
+					# A lot is often uploaded once as "Offer" and later re-uploaded as
+					# "Purchase" for the same physical lot. The two uploads can use
+					# different dates (offer_date vs purchase_date), so the composed
+					# name's year segment can differ even though it's the same lot -
+					# match on the identifying fields instead of the name in that case.
+					existing_lot = frappe.db.get_value(
+						"Tea Lot",
+						{
+							"auction_centre": auction_centre,
+							"mark": mark_name,
+							"lot_no": lot_no,
+							"sale_no": self.sale_no,
+							"season": self.season,
+							"grade": grade_code or None,
+						},
+						"name",
+					)
+
+					if existing_lot and self.purchase_status != "Offer":
+						existing_doc = frappe.get_doc("Tea Lot", existing_lot)
+						existing_doc.purchase_status = self.purchase_status
+						# Bag Sample only advances the status on an already-purchased
+						# lot - it doesn't carry its own purchase data to overwrite with.
+						if self.purchase_status != "Bag Sample":
+							existing_doc.purchase_date = row.purchase_date or None
+							existing_doc.purchase_invoice_no = row.purchase_invoice_no
+							existing_doc.purchase_invoice_date = row.purchase_invoice_date
+							existing_doc.purchase_from = row.purchase_from
+							existing_doc.warehouse = row.warehouse or None
+							existing_doc.rate = flt(row.rate)
+						existing_doc.save(ignore_permissions=True)
+
+						row.tea_lot = existing_doc.name
+						row.row_status = "Updated"
+						row.message = _("Updated existing Tea Lot {0} to {1}.").format(
+							existing_doc.name, self.purchase_status
+						)
+						updated += 1
+						continue
+
+					if existing_lot:
+						row.row_status = "Duplicate"
+						row.message = _("Tea Lot '{0}' already exists.").format(existing_lot)
+						duplicate += 1
+						continue
+
+					if self.purchase_status == "Bag Sample":
+						row.row_status = "Error"
+						row.message = _(
+							"No existing Tea Lot found to move to Bag Sample. "
+							"Auction Centre, Mark, Lot No, Sale No, Season and Grade must match "
+							"a previously purchased lot."
+						)
+						error += 1
+						continue
+
+					tea_lot_name = f"{auction_centre_code}-{self.season}-{self.sale_no}-{lot_no}"
+					if frappe.db.exists("Tea Lot", tea_lot_name):
+						row.row_status = "Duplicate"
+						row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
+						duplicate += 1
+						continue
+
+				elif channel == "Private":
+					if not row.purchase_invoice_no:
+						row.row_status = "Error"
+						row.message = _("Purchase Invoice No is required for Private lots.")
+						error += 1
+						continue
+
+					if not grade_code:
+						row.row_status = "Error"
+						row.message = _("Grade is required for Private lots.")
+						error += 1
+						continue
+
+					if not self.season:
+						row.row_status = "Error"
+						row.message = _("Season is required for Private lots.")
+						error += 1
+						continue
+
+					if not self.week_no:
+						row.row_status = "Error"
+						row.message = _("Week No is required for Private lots.")
+						error += 1
+						continue
+
+					tea_lot_name = get_private_tea_lot_name(
+						mark_name, invoice, grade_code, self.season, self.week_no
+					)
+					if frappe.db.exists("Tea Lot", tea_lot_name):
+						row.row_status = "Duplicate"
+						row.message = _("Tea Lot '{0}' already exists.").format(tea_lot_name)
+						duplicate += 1
+						continue
+
+				else:  # Default channel
+					# No additional validations; autoname will generate a unique name
+					pass
+
+				# ---- build values dict ----
 				values = {
 					"doctype": "Tea Lot",
-					"acquisition_channel": self.acquisition_channel or "Auction",
-					"status": "Offered",
-					"holding_status": "Committed",
-					"lot_no": lot_no,
+					"acquisition_channel": channel,
+					"purchase_status": self.purchase_status,
+					"lot_no": lot_no or None,
 					"invoice_number": invoice,
 					"mark": mark_name,
 					"grade": grade_code or None,
@@ -218,16 +418,20 @@ class TeaLotImport(Document):
 					"rate": flt(row.rate),
 					"density": flt(row.density),
 					"liquor_mark": liquor or None,
-					"blend": self.blend or None,
+					"blend": row.blend or None,
 					"sale_no": self.sale_no or None,
-					"centre": self.centre or None,
-					"purchase_date": self.purchase_date or None,
+					"season": self.season or None,
+					"week_no": self.week_no or None,
+					"fiscal_year": self.fiscal_year or None,
+					"auction_centre": auction_centre or None,
+					"purchase_date": row.purchase_date or None,
+					"offer_date": row.offer_date or None,
 					"source_doctype": self.doctype or None,
 					"source_doctype_id": self.name or None,
 					"purchase_from": row.purchase_from,
 					"purchase_invoice_no": row.purchase_invoice_no,
 					"purchase_invoice_date": row.purchase_invoice_date,
-					"warehouse_name": row.warehouse_name,
+					"warehouse": row.warehouse or None,
 					"total_amount_as_per_to_tax_invoice": flt(row.total_amount_as_per_to_tax_invoice),
 				}
 				values = {k: v for k, v in values.items() if k == "doctype" or meta.has_field(k)}
@@ -244,13 +448,101 @@ class TeaLotImport(Document):
 				row.row_status = "Error"
 				row.message = str(e)[:140]
 				error += 1
+				frappe.clear_last_message()
 				frappe.log_error(frappe.get_traceback(), "Tea Lot Import: row failed")
 
-		self.rows_created = created
-		self.rows_error = error
-		self.rows_duplicate = duplicate
+		self.rows_created = sum(1 for item in self.items if item.row_status == "Created")
+		self.rows_error = sum(1 for item in self.items if item.row_status == "Error")
+		self.rows_duplicate = sum(1 for item in self.items if item.row_status == "Duplicate")
+		self.rows_updated = sum(1 for item in self.items if item.row_status == "Updated")
 		self.save()
-		return {"created": created, "errors": error, "duplicates": duplicate}
+		return {"created": created, "errors": error, "duplicates": duplicate, "updated": updated}
+
+	@frappe.whitelist()
+	def export_error_rows(self):
+		"""Export rows with row_status = 'Error' to an Excel file and return base64 content."""
+		import base64
+		import io
+
+		from openpyxl import Workbook
+
+		error_rows = [item for item in self.items if item.row_status == "Error"]
+		if not error_rows:
+			frappe.throw(_("No error rows to export."))
+
+		# Define headers (labels from Tea Lot Import Item fields)
+		headers = [
+			"#",
+			"Lot No",
+			"Invoice Number",
+			"Garden / Mark",
+			"Grade",
+			"Auction Centre",
+			"Purchase Date",
+			"No of Pkgs",
+			"Wt. (Kgs.) Per Pkg",
+			"Nett. Wt. (Kgs.)",
+			"Rate / Kg",
+			"Liquor Mark",
+			"Density",
+			"Bill Mode",
+			"Sample Pkgs",
+			"Sample Wt",
+			"Remarks",
+			"Status",
+			"Message",
+			"Tea Lot",
+			"Purchase From",
+			"Purchase Invoice No",
+			"Purchase Invoice Date",
+			"Warehouse",
+			"Total Amount (Tax Invoice)",
+		]
+
+		wb = Workbook()
+		ws = wb.active
+		ws.title = "Errors"
+
+		# Write header row
+		for col_idx, header in enumerate(headers, 1):
+			ws.cell(row=1, column=col_idx, value=header)
+
+		# Write data rows
+		for row_idx, item in enumerate(error_rows, start=2):
+			ws.cell(row=row_idx, column=1, value=row_idx - 1)
+			ws.cell(row=row_idx, column=2, value=item.lot_no or "")
+			ws.cell(row=row_idx, column=3, value=item.invoice_number or "")
+			ws.cell(row=row_idx, column=4, value=item.mark_raw or "")
+			ws.cell(row=row_idx, column=5, value=item.grade_raw or "")
+			ws.cell(row=row_idx, column=6, value=item.auction_centre or "")
+			ws.cell(row=row_idx, column=7, value=str(item.purchase_date or ""))
+			ws.cell(row=row_idx, column=8, value=item.packages or 0)
+			ws.cell(row=row_idx, column=9, value=item.gross_wtpkg or 0.0)
+			ws.cell(row=row_idx, column=10, value=item.net_weight_total or 0.0)
+			ws.cell(row=row_idx, column=11, value=item.rate or 0.0)
+			ws.cell(row=row_idx, column=12, value=item.liquor_mark or "")
+			ws.cell(row=row_idx, column=13, value=item.density or 0.0)
+			ws.cell(row=row_idx, column=14, value=item.bill_mode or "")
+			ws.cell(row=row_idx, column=15, value=item.sam_pkg or "")
+			ws.cell(row=row_idx, column=16, value=item.sam_wt or "")
+			ws.cell(row=row_idx, column=17, value=item.remarks or "")
+			ws.cell(row=row_idx, column=18, value=item.row_status or "")
+			ws.cell(row=row_idx, column=19, value=item.message or "")
+			ws.cell(row=row_idx, column=20, value=item.tea_lot or "")
+			ws.cell(row=row_idx, column=21, value=item.purchase_from or "")
+			ws.cell(row=row_idx, column=22, value=item.purchase_invoice_no or "")
+			ws.cell(row=row_idx, column=23, value=str(item.purchase_invoice_date or ""))
+			ws.cell(row=row_idx, column=24, value=item.warehouse or "")
+			ws.cell(row=row_idx, column=25, value=item.total_amount_as_per_to_tax_invoice or 0.0)
+
+		output = io.BytesIO()
+		wb.save(output)
+		output.seek(0)
+
+		encoded = base64.b64encode(output.getvalue()).decode("utf-8")
+		filename = f"{self.name}_errors.xlsx"
+
+		return {"filename": filename, "content": encoded}
 
 	# ---- internals ----
 
@@ -260,19 +552,4 @@ class TeaLotImport(Document):
 			frappe.throw(_("Attach an import file first."))
 		file_doc = frappe.get_doc("File", {"file_url": self.import_file})
 		wb = openpyxl.load_workbook(file_doc.get_full_path(), data_only=True)
-		if "Purchase List" not in wb.sheetnames:
-			frappe.throw(_("Sheet 'Purchase List' not found."))
-		return wb["Purchase List"]
-
-	def _is_duplicate(self, invoice_number, mark_name):
-		"""Check if invoice_number + mark + purchase_date already exists."""
-		if not invoice_number:
-			return False
-		filters = {
-			"invoice_number": invoice_number,
-			"mark": mark_name,
-		}
-		if self.purchase_date:
-			filters["purchase_date"] = getdate(self.purchase_date)
-		existing = frappe.get_all("Tea Lot", filters=filters, fields=["name"])
-		return bool(existing)
+		return wb.active

@@ -1,5 +1,5 @@
 {
- "add_total_row": 1,
+ "add_total_row": 0,
  "add_translate_data": 0,
  "columns": [],
  "creation": "2026-06-19 13:00:21.867343",
@@ -7,7 +7,75 @@
  "disabled": 0,
  "docstatus": 0,
  "doctype": "Report",
- "filters": [],
+ "filters": [
+  {
+   "fieldname": "name",
+   "fieldtype": "Link",
+   "label": "Tea Lot",
+   "options": "Tea Lot",
+   "width": 160
+  },
+  {
+   "fieldname": "acquisition_channel",
+   "fieldtype": "Select",
+   "label": "Acquisition Channel",
+   "options": "\nAuction\nPrivate\nOutsourced",
+   "width": 120
+  },
+  {
+   "fieldname": "auction_centre",
+   "fieldtype": "Link",
+   "label": "Auction Centre",
+   "options": "Auction Centre",
+   "width": 150
+  },
+  {
+   "fieldname": "lot_no",
+   "fieldtype": "Data",
+   "label": "Lot No",
+   "width": 110
+  },
+  {
+   "fieldname": "purchase_status",
+   "fieldtype": "Link",
+   "label": "Purchase Status",
+   "options": "Purchase Status",
+   "width": 130
+  },
+  {
+   "fieldname": "mark",
+   "fieldtype": "Link",
+   "label": "Mark",
+   "options": "Mark",
+   "width": 130
+  },
+  {
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "label": "Grade",
+   "options": "Grade",
+   "width": 90
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "width": 150
+  },
+  {
+   "fieldname": "sale_no_from",
+   "fieldtype": "Int",
+   "label": "Sale No From",
+   "width": 90
+  },
+  {
+   "fieldname": "sale_no_to",
+   "fieldtype": "Int",
+   "label": "Sale No To",
+   "width": 90
+  }
+ ],
  "generate_csv": 0,
  "idx": 0,
  "is_standard": "Yes",
@@ -17,7 +85,7 @@
  "name": "Holding Warhouse",
  "owner": "Administrator",
  "prepared_report": 0,
- "ref_doctype": "Tea Lot",
+ "ref_doctype": "Tea Purchase",
  "report_name": "Holding Warhouse",
  "report_type": "Script Report",
  "roles": [

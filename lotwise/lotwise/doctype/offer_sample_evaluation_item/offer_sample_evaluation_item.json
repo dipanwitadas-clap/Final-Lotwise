@@ -1,0 +1,220 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 13:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lot_section",
+  "sl_no",
+  "date",
+  "garden",
+  "col_lot_2",
+  "region",
+  "invoice_no",
+  "grade",
+  "col_lot_3",
+  "qty",
+  "pckgs",
+  "evaluation_section",
+  "taster",
+  "overall_rating",
+  "col_eval_2",
+  "c",
+  "t",
+  "s",
+  "b",
+  "col_eval_3",
+  "remark",
+  "status_section",
+  "row_status",
+  "tea_lot",
+  "message",
+  "col_status_2",
+  "eval_status",
+  "evaluation",
+  "eval_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "sl_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sl No"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "garden",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Garden"
+  },
+  {
+   "fieldname": "region",
+   "fieldtype": "Data",
+   "label": "Region"
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Invoice No"
+  },
+  {
+   "fieldname": "grade",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grade"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Data",
+   "label": "Qty"
+  },
+  {
+   "fieldname": "pckgs",
+   "fieldtype": "Data",
+   "label": "Pckgs"
+  },
+  {
+   "fieldname": "taster",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Taster"
+  },
+  {
+   "fieldname": "c",
+   "fieldtype": "Data",
+   "label": "C"
+  },
+  {
+   "fieldname": "t",
+   "fieldtype": "Data",
+   "label": "T"
+  },
+  {
+   "fieldname": "s",
+   "fieldtype": "Data",
+   "label": "S"
+  },
+  {
+   "fieldname": "b",
+   "fieldtype": "Data",
+   "label": "B"
+  },
+  {
+   "fieldname": "overall_rating",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Overall Rating"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "label": "Remark"
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nCreated\nError\nDuplicate"
+  },
+  {
+   "description": "Status message or error details",
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Lot",
+   "fieldname": "tea_lot",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Lot",
+   "options": "Tea Lot"
+  },
+  {
+   "columns": 1,
+   "description": "Reference to created Tea Evaluation",
+   "fieldname": "evaluation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tea Evaluation",
+   "options": "Tea Evaluation"
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "eval_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Evaluation Status",
+   "options": "Pending\nCreated\nError\nDuplicate",
+   "read_only": 1
+  },
+  {
+   "description": "Evaluation status message or error details",
+   "fieldname": "eval_message",
+   "fieldtype": "Small Text",
+   "label": "Evaluation Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lot_section",
+   "fieldtype": "Section Break",
+   "label": "Lot Details"
+  },
+  {
+   "fieldname": "col_lot_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_lot_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "evaluation_section",
+   "fieldtype": "Section Break",
+   "label": "Evaluation"
+  },
+  {
+   "fieldname": "col_eval_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_eval_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status & References"
+  },
+  {
+   "fieldname": "col_status_2",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-05 11:02:11.871025",
+ "modified_by": "Administrator",
+ "module": "Lotwise",
+ "name": "Offer Sample Evaluation Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
